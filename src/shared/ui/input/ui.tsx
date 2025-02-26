@@ -6,7 +6,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ error = false, fullWidth = true, className = '', ...props }, ref) => {
+  ({ error = false, fullWidth = true, ...props }, ref) => {
     return (
       <input
         ref={ref}

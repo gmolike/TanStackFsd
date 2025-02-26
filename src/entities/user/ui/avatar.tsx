@@ -1,11 +1,12 @@
-import { type User } from './model/types';
+import { JSX } from 'react';
+import { type User } from '../model/types';
 
-interface UserAvatarProps {
+type UserAvatarProps = {
   user: User | null;
   size?: 'sm' | 'md' | 'lg';
-}
+};
 
-export const UserAvatar = ({ user, size = 'md' }: UserAvatarProps) => {
+export const Avatar = ({ user, size = 'md' }: UserAvatarProps): JSX.Element | null => {
   if (!user) return null;
 
   // Größenberechnung
@@ -64,22 +65,6 @@ export const UserAvatar = ({ user, size = 'md' }: UserAvatarProps) => {
       title={user.name}
     >
       {initials}
-    </div>
-  );
-};
-
-interface UserInfoProps {
-  user: User | null;
-  showRole?: boolean;
-}
-
-export const UserInfo = ({ user, showRole = false }: UserInfoProps) => {
-  if (!user) return null;
-
-  return (
-    <div>
-      <div style={{ fontWeight: 'bold' }}>{user.name}</div>
-      {showRole && <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>{user.role}</div>}
     </div>
   );
 };

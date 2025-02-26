@@ -1,4 +1,4 @@
-import { type ButtonHTMLAttributes } from 'react';
+import { JSX, type ButtonHTMLAttributes } from 'react';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'outline' | 'danger';
@@ -13,7 +13,7 @@ export const Button = ({
   fullWidth = false,
   className = '',
   ...props
-}: ButtonProps) => {
+}: ButtonProps): JSX.Element => {
   const baseStyles =
     'btn inline-flex items-center justify-center rounded font-medium focus:outline-none transition-colors';
 

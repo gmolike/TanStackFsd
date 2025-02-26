@@ -1,33 +1,28 @@
-// eslint.config.js - JavaScript version with explicit plugin registration
+// eslint.config.js - Simplified version without TanStack Query
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import reactRefreshPlugin from 'eslint-plugin-react-refresh';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import tanstackQueryPlugin from '@tanstack/eslint-plugin-query';
 import prettierConfig from 'eslint-config-prettier';
 
 // Tell TypeScript to ignore type checking for this file
 /* eslint-disable */
 /* @ts-nocheck */
 
-// Register all the plugins at the root level
-const plugins = {
-  plugins: {
-    react: reactPlugin,
-    'react-hooks': reactHooksPlugin, 
-    'react-refresh': reactRefreshPlugin,
-    'jsx-a11y': jsxA11yPlugin,
-    '@tanstack/query': tanstackQueryPlugin
-  }
-};
-
 export default [
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  // Register all plugins at the root level to avoid TypeScript errors
-  plugins,
+  // Register all plugins at the root level
+  {
+    plugins: {
+      react: reactPlugin,
+      'react-hooks': reactHooksPlugin,
+      'react-refresh': reactRefreshPlugin,
+      'jsx-a11y': jsxA11yPlugin,
+    },
+  },
   // Add React settings and basic configuration
   {
     languageOptions: {
@@ -104,15 +99,6 @@ export default [
       'jsx-a11y/tabindex-no-positive': 'warn',
     },
   },
-  // TanStack Query rules
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      '@tanstack/query/exhaustive-deps': 'error',
-      '@tanstack/query/prefer-query-object-syntax': 'error',
-      '@tanstack/query/stable-query-client': 'error',
-    },
-  },
   // FSD architecture rules
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -167,5 +153,5 @@ export default [
     ignores: ['node_modules/**', 'dist/**', 'build/**', '.eslintrc.cjs'],
   },
   // Apply prettier config (must be last)
-  prettierConfig
+  prettierConfig,
 ];

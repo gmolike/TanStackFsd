@@ -1,4 +1,4 @@
-import { createRootRouteWithContext, Outlet, redirect } from '@tanstack/react-router';
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { type User } from '~/entities/user/model/types';
 
 // Type für den Router-Kontext

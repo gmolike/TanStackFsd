@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { JSX, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
-import { useAuth } from '~/app/providers';
 import { Button } from '~/shared/ui/button';
 import { Input } from '~/shared/ui/input';
+import { useAuth } from '~/shared/hooks/auth/useAuth';
 
-export const LoginForm = () => {
+export const LoginForm = (): JSX.Element => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -36,6 +36,7 @@ export const LoginForm = () => {
       await login(email, password);
       navigate({ to: '/dashboard' });
     } catch (err) {
+      console.error('Anmeldung fehlgeschlagen:', err);
       setError('Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldedaten.');
     } finally {
       setIsLoading(false);

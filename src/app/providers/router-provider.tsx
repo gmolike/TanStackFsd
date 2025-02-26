@@ -1,28 +1,23 @@
 import { RouterProvider as TanStackRouterProvider } from '@tanstack/react-router';
-import { StrictMode, useEffect } from 'react';
+import { JSX, StrictMode, useEffect } from 'react';
 
-import { useAuth } from './auth-provider';
 import { router } from '~/shared/config/routes';
+import { useAuth } from '~/shared/hooks/auth/useAuth';
 
-export const RouterProvider = () => {
+export const RouterProvider = (): JSX.Element => {
   const { user, isAuthenticated, isLoading } = useAuth();
 
-  // Aktualisiere den Router-Kontext basierend auf dem Auth-Status
+  // Instead of directly modifying router.context,
+  // use the router's built-in methods for updating context
   useEffect(() => {
-    router.context = {
-      ...router.context,
-      user,
-      isLoading,
-    };
-  }, [user, isLoading]);
-
-  // Wenn sich der Auth-Status ändert, sollten wir die vorherige Route-Passung neu bewerten
-  useEffect(() => {
-    if (!isLoading) {
-      // Versuche, den aktuellen Ort neu zu validieren
-      router.invalidate();
-    }
-  }, [isAuthenticated, isLoading]);
+    router.update({
+      context: {
+        user,
+        isLoading,
+        isAuthenticated,
+      },
+    });
+  }, [user, isLoading, isAuthenticated]);
 
   return (
     <StrictMode>

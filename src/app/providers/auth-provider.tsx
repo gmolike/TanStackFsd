@@ -1,18 +1,9 @@
-import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
+import { JSX, useEffect, useState, type PropsWithChildren } from 'react';
 
 import { type User } from '~/entities/user/model/types';
+import { AuthContext } from '~/shared/hooks/auth/useContext';
 
-type AuthContextType = {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-};
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: PropsWithChildren) => {
+export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,7 +16,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
+    console.log('Login mit E-Mail:', password);
     setIsLoading(true);
     try {
       // Simulieren eines API-Aufrufs
@@ -49,7 +41,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const logout = () => {
+  const logout = (): void => {
     setUser(null);
     localStorage.removeItem('user');
   };
@@ -65,10 +57,4 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// Move to a separate file to avoid Fast Refresh warning

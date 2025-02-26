@@ -1,12 +1,13 @@
+import { JSX } from 'react';
 import { type User, UserAvatar, UserInfo } from '~/entities/user';
-import { useAuth } from '~/app/providers';
+import { useAuth } from '~/shared/hooks/auth/useAuth';
 import { Button } from '~/shared/ui/button';
 
 interface DashboardHeaderProps {
   user: User | null;
 }
 
-export const DashboardHeader = ({ user }: DashboardHeaderProps) => {
+export const DashboardHeader = ({ user }: DashboardHeaderProps): JSX.Element => {
   const { logout } = useAuth();
 
   const handleLogout = () => {

@@ -1,4 +1,6 @@
-export const DashboardSidebar = () => {
+import { JSX } from 'react';
+
+export const DashboardSidebar = (): JSX.Element => {
   const menuItems = [
     { label: 'Dashboard', icon: '📊' },
     { label: 'Benutzer', icon: '👥' },
@@ -34,21 +36,28 @@ export const DashboardSidebar = () => {
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {menuItems.map((item, index) => (
             <li key={index}>
-              <a
-                href="#"
+              <button
+                type="button"
+                onClick={() => {
+                  /* Handle navigation */
+                }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  width: '100%',
+                  textAlign: 'left',
+                  border: 'none',
                   padding: '0.75rem 1.5rem',
                   color: 'white',
-                  textDecoration: 'none',
-                  transition: 'background-color 0.2s',
                   backgroundColor: index === 0 ? '#374151' : 'transparent',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
                 }}
+                aria-label={item.label}
               >
                 <span style={{ marginRight: '0.75rem', fontSize: '1.25rem' }}>{item.icon}</span>
                 {item.label}
-              </a>
+              </button>
             </li>
           ))}
         </ul>
