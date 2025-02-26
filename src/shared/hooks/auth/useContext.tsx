@@ -1,4 +1,4 @@
-import { createContext } from 'react';
-import { AuthContextType } from '~/shared/hooks/auth/type';
+import React from 'react';
+import { AuthContext } from '~/shared/hooks/auth/type';
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const useContext = React.createContext<AuthContext | null>(null);

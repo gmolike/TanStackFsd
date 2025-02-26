@@ -1,7 +1,7 @@
 import { JSX, useEffect, useState, type PropsWithChildren } from 'react';
 
 import { type User } from '~/entities/user/model/types';
-import { AuthContext } from '~/shared/hooks/auth/useContext';
+import { AuthContext, AuthContextType } from '~/shared/hooks/auth';
 
 export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
   const [user, setUser] = useState<User | null>(null);
@@ -16,8 +16,8 @@ export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<void> => {
-    console.log('Login mit E-Mail:', password);
+  const login = async (email: string, password: string) => {
+    console.log(password);
     setIsLoading(true);
     try {
       // Simulieren eines API-Aufrufs
@@ -41,12 +41,13 @@ export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
     }
   };
 
-  const logout = (): void => {
+  const logout = (): Promise<void> => {
     setUser(null);
     localStorage.removeItem('user');
+    return Promise.resolve();
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated: !!user,
@@ -56,5 +57,3 @@ export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-// Move to a separate file to avoid Fast Refresh warning

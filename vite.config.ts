@@ -7,15 +7,15 @@ import { resolve } from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
     TanStackRouterVite({
+      target: 'react',
+      autoCodeSplitting: true,
       // Spezifizieren des Verzeichnisses für die Routendateien
       routesDirectory: './src/routes',
-      // Muster für Routendateien (passt auf route.tsx oder route.jsx Dateien)
-      routeFilePattern: '**/*route.tsx',
       // Generiert die route.d.ts-Datei bei Änderungen automatisch neu
       generatedRouteTree: './src/routeTree.gen.ts',
     }),
+    react(),
     tsconfigPaths(),
   ],
   resolve: {

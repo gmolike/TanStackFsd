@@ -1,12 +1,12 @@
 import { JSX } from 'react';
 import { User } from '~/entities';
 
-type UserInfoProps = {
+type Props = {
   user: User | null;
   showRole?: boolean;
 };
 
-export const UserInfo = ({ user, showRole = false }: UserInfoProps): JSX.Element | null => {
+export const Info = ({ user, showRole = false }: Props): JSX.Element | null => {
   if (!user) return null;
 
   return (

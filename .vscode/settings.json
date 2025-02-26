@@ -1,4 +1,13 @@
 {
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "search.exclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
+  },
     "cSpell.language": "en,de-de",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
@@ -11,5 +20,9 @@
     "javascript.preferences.importModuleSpecifier": "non-relative",
     "typescript.preferences.importModuleSpecifier": "non-relative",
     "editor.guides.bracketPairs": true,
-    "files.autoSave": "onFocusChange"
+    "files.autoSave": "onFocusChange",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSaveMode": "modifications",
+    "notebook.formatOnSave.enabled": true,
+    "errorLens.onSave": true
   }
