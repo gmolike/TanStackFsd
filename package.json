@@ -1,0 +1,90 @@
+{
+  "name": "ts-fsd-app",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "prebuild": "pnpm clean:dist && pnpm validate",
+    "build": "tsc && vite build",
+    "postbuild": "echo 'Build completed successfully!'",
+    "preview": "vite preview",
+    "_________________ Linter __________________": "",
+    "lint": "eslint --ext .ts,.tsx src/",
+    "lint:fix": "eslint --ext .ts,.tsx src/ --fix",
+    "lint:report": "eslint --ext .ts,.tsx src/ --output-file eslint-report.json --format json",
+    "lint:staged": "lint-staged",
+    "_________________ Format __________________": "",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json,md}\"",
+    "_________________ TypeCheck  __________________": "",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
+    "_________________ Validate __________________": "",
+    "validate": "pnpm exec concurrently \"pnpm type-check\" \"pnpm lint:report\" \"pnpm format:check\"",
+    "fix-all": "pnpm lint:fix && pnpm format",
+    "_________________ Pre __________________": "",
+    "prepare": "husky install",
+    "precommit": "lint-staged",
+    "_________________ Setup __________________": "",
+    "setup": "pnpm install && pnpm prepare",
+    "reset": "pnpm clean && pnpm setup",
+    "_________________ Clean __________________": "",
+    "clean": "pnpm dlx rimraf dist node_modules",
+    "clean:dist": "pnpm dlx rimraf dist",
+    "_________________ CLI __________________": "",
+    "start": "pnpm build && pnpm preview",
+    "dev:full": "pnpm type-check && pnpm exec concurrently \"pnpm dev\" \"pnpm type-check:watch\"",
+    "ci": "pnpm clean && pnpm validate && pnpm build",
+    "pre-push": "pnpm validate"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.66.9",
+    "@tanstack/react-router": "^1.111.11",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@tanstack/config": "^0.16.3",
+    "@tanstack/eslint-plugin-query": "^5.66.1",
+    "@tanstack/router-devtools": "^1.111.11",
+    "@tanstack/router-vite-plugin": "^1.111.12",
+    "@types/node": "^22.13.5",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.0.2",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "postcss": "^8.5.3",
+    "prettier": "^3.5.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.25.0",
+    "vite": "^6.2.0",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

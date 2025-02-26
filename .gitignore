@@ -1,0 +1,74 @@
+# Abhängigkeiten
+node_modules
+.pnp
+.pnp.js
+.pnpm-store/
+
+# Build-Verzeichnisse
+dist
+dist-ssr
+build
+*.local
+
+# Generierte Dateien
+src/routeTree.gen.ts
+
+# Cache
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Logs und Debug-Dateien
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor-Verzeichnisse und -Dateien
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+xcuserdata/
+*.sublime-workspace
+
+# TypeScript
+*.tsbuildinfo
+
+# Umgebungsvariablen
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Tests
+/coverage
+.nyc_output
+
+# Storybook
+storybook-static
+
+# Vercel
+.vercel
+
+# Bundleanalyse
+stats.html
+
+# PWA
+workbox-*.js
+sw.js
