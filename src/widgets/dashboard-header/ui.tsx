@@ -4,9 +4,9 @@ import { User, UserAvatar, UserInfo } from '~/entities';
 import { useAuth } from '~/shared/hooks/auth';
 import { Button } from '~/shared/ui/button';
 
-interface DashboardHeaderProps {
+type DashboardHeaderProps = {
   user: User | null;
-}
+};
 
 export const DashboardHeader = ({ user }: DashboardHeaderProps): JSX.Element => {
   const { logout } = useAuth();

@@ -23,6 +23,7 @@ export default [
     plugins: {
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
+      '@typescript-eslint': tseslint.plugin,
       import: importPlugin,
       'simple-import-sort': simpleImportSort,
       '@tanstack/query': tanstackQuery,
@@ -36,6 +37,7 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
+      parser: tseslint.parser,
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
@@ -49,6 +51,9 @@ export default [
       react: {
         version: 'detect',
       },
+    },
+    rules: {
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     },
   },
   // React Rules
