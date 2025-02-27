@@ -1,7 +1,7 @@
 import { JSX, type PropsWithChildren, useEffect, useState } from 'react';
 
 import { User } from '~/entities';
-import { AuthContext, AuthContextType } from '~/shared/hooks/auth';
+import { AuthContext, AuthContextType } from '~/shared/auth';
 
 export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
   const [user, setUser] = useState<User | null>(null);

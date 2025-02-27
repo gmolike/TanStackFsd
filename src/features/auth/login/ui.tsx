@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { JSX, useState } from 'react';
 
-import { useAuth } from '~/shared/hooks/auth';
+import { useAuth } from '~/shared/auth';
 import { Button } from '~/shared/ui/button';
 import { Input } from '~/shared/ui/input/index';
 
