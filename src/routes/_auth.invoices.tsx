@@ -14,7 +14,7 @@ function InvoicesRoute() {
 
   return (
     <div className="grid min-h-[500px] grid-cols-3 md:grid-cols-5">
-      <div className="col-span-1 py-2 pr-4 pl-2 md:border-r">
+      <div className="col-span-1 py-2 pl-2 pr-4 md:border-r">
         <p className="mb-2">Choose an invoice from the list below.</p>
         <ol className="grid gap-2">
           {invoices.map((invoice) => (

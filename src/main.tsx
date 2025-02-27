@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-imports */
-import '../src/app/styles/global.css';
+import '../src/app/styles/main.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

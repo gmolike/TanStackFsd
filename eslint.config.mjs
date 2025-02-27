@@ -205,7 +205,15 @@ export default [
   },
   // Files to ignore
   {
-    ignores: ['node_modules/**', 'dist/**', 'build/**', '.eslintrc.cjs', '.husky/**', '*.css'],
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      '.eslintrc.cjs',
+      '.husky/**',
+      '**/*.css',
+      '**/*.scss',
+    ],
   },
   // Apply prettier config (must be last)
   prettierConfig,

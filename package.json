@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000",
-    "prebuild": "pnpm clean:dist && pnpm validate",
+    "prebbuild": "pnpm clean:dist && pnpm validate",
     "build": "tsc && vite build",
     "postbuild": "echo 'Build completed successfully!'",
     "preview": "vite preview",
@@ -41,18 +41,17 @@
     "pre-push": "pnpm validate"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.0.9",
     "@tanstack/react-query": "^5.66.9",
     "@tanstack/react-query-devtools": "^5.66.9",
     "@tanstack/react-router": "^1.111.11",
     "axios": "^1.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@tailwindcss/postcss": "^4.0.9",
     "@tanstack/config": "^0.16.3",
     "@tanstack/eslint-plugin-query": "^5.66.1",
     "@tanstack/router-devtools": "^1.111.11",
@@ -80,7 +79,7 @@
     "postcss": "^8.5.3",
     "prettier": "^3.5.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
-    "tailwindcss": "^4.0.9",
+    "tailwindcss": "^3.4.17",
     "terser": "^5.39.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0",
@@ -88,10 +87,15 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "ignores": [
     "node_modules/**",
