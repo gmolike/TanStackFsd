@@ -1,5 +1,7 @@
+import { useRouter } from '@tanstack/react-router';
 import { JSX } from 'react';
 import { type User, UserAvatar, UserInfo } from '~/entities/user';
+import { Route } from '~/routes';
 import { useAuth } from '~/shared/hooks/auth/useAuth';
 import { Button } from '~/shared/ui/button';
 
@@ -8,10 +10,18 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader = ({ user }: DashboardHeaderProps): JSX.Element => {
-  const { logout } = useAuth();
+  const router = useRouter();
+  const navigate = Route.useNavigate();
+  const auth = useAuth();
 
   const handleLogout = () => {
-    logout();
+    if (window.confirm('Are you sure you want to logout?')) {
+      auth.logout().then(() => {
+        router.invalidate().finally(() => {
+          navigate({ to: '/' });
+        });
+      });
+    }
   };
 
   return (
