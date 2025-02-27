@@ -1,4 +1,5 @@
 import { JSX } from 'react';
+
 import { type User } from '../model/types';
 
 type UserAvatarProps = {
@@ -10,16 +11,10 @@ export const Avatar = ({ user, size = 'md' }: UserAvatarProps): JSX.Element | nu
   if (!user) return null;
 
   // Größenberechnung
-  const sizeMap = {
-    sm: '32px',
-    md: '40px',
-    lg: '48px',
-  };
-
-  const fontSize = {
-    sm: '14px',
-    md: '16px',
-    lg: '20px',
+  const sizeClasses = {
+    sm: 'h-8 w-8 text-xs',
+    md: 'h-10 w-10 text-sm',
+    lg: 'h-12 w-12 text-base',
   };
 
   // Initialen des Benutzers
@@ -32,36 +27,23 @@ export const Avatar = ({ user, size = 'md' }: UserAvatarProps): JSX.Element | nu
   // Zufällige, aber konsistente Farbe basierend auf Benutzer-ID
   const getColorFromId = (id: string) => {
     const colors = [
-      '#3b82f6', // Blau
-      '#10b981', // Grün
-      '#f97316', // Orange
-      '#8b5cf6', // Lila
-      '#ef4444', // Rot
-      '#06b6d4', // Cyan
+      'bg-blue-500', // Blau
+      'bg-green-500', // Grün
+      'bg-orange-500', // Orange
+      'bg-purple-500', // Lila
+      'bg-red-500', // Rot
+      'bg-cyan-500', // Cyan
     ];
 
     // Einfache Hash-Funktion
-    const hash = id.split('').reduce((acc, char) => {
-      return acc + char.charCodeAt(0);
-    }, 0);
+    const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
 
     return colors[hash % colors.length];
   };
 
   return (
     <div
-      style={{
-        width: sizeMap[size],
-        height: sizeMap[size],
-        borderRadius: '50%',
-        backgroundColor: getColorFromId(user.id),
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: fontSize[size],
-      }}
+      className={`flex items-center justify-center rounded-full font-bold text-white ${sizeClasses[size]} ${getColorFromId(user.id)}`}
       title={user.name}
     >
       {initials}

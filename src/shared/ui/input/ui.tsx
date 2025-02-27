@@ -1,35 +1,38 @@
 import { forwardRef, type InputHTMLAttributes } from 'react';
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   error?: boolean;
   fullWidth?: boolean;
-}
+  helperText?: string;
+};
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ error = false, fullWidth = true, ...props }, ref) => {
+  ({ error = false, fullWidth = true, helperText, className = '', ...props }, ref) => {
+    // Basis-Klassen
+    const baseClasses =
+      'px-3 py-2 bg-white border rounded text-gray-700 focus:outline-none focus:ring-2 transition-colors';
+
+    // Fehler-Klassen
+    const errorClasses = error
+      ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50'
+      : 'border-gray-300 focus:border-primary focus:ring-primary/50';
+
+    // Breiten-Klassen
+    const widthClasses = fullWidth ? 'w-full' : '';
+
+    // Deaktiviert-Klassen
+    const disabledClasses = props.disabled ? 'bg-gray-100 cursor-not-allowed opacity-75' : '';
+
+    // Kombinierte Klassen
+    const combinedClasses = `${baseClasses} ${errorClasses} ${widthClasses} ${disabledClasses} ${className}`;
+
     return (
-      <input
-        ref={ref}
-        style={{
-          display: 'block',
-          width: fullWidth ? '100%' : 'auto',
-          padding: '0.5rem 0.75rem',
-          fontSize: '1rem',
-          lineHeight: 1.5,
-          color: 'var(--text-color)',
-          backgroundColor: 'white',
-          backgroundClip: 'padding-box',
-          border: `1px solid ${error ? 'var(--error-color)' : '#e2e8f0'}`,
-          borderRadius: '0.25rem',
-          transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
-          ...(props.disabled && {
-            backgroundColor: '#f8fafc',
-            opacity: 0.7,
-            cursor: 'not-allowed',
-          }),
-        }}
-        {...props}
-      />
+      <div className={`${fullWidth ? 'w-full' : ''}`}>
+        <input ref={ref} className={combinedClasses} {...props} />
+        {helperText && (
+          <p className={`mt-1 text-sm ${error ? 'text-red-600' : 'text-gray-500'}`}>{helperText}</p>
+        )}
+      </div>
     );
   },
 );

@@ -1,4 +1,5 @@
 import { JSX } from 'react';
+
 import { User } from '~/entities';
 
 type Props = {
@@ -11,8 +12,8 @@ export const Info = ({ user, showRole = false }: Props): JSX.Element | null => {
 
   return (
     <div>
-      <div style={{ fontWeight: 'bold' }}>{user.name}</div>
-      {showRole && <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>{user.role}</div>}
+      <div className="font-medium text-gray-900">{user.name}</div>
+      {showRole && <div className="text-sm text-gray-500">{user.role}</div>}
     </div>
   );
 };

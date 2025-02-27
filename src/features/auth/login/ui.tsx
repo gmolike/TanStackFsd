@@ -1,9 +1,9 @@
-import { JSX, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { JSX, useState } from 'react';
 
+import { useAuth } from '~/shared/hooks/auth';
 import { Button } from '~/shared/ui/button';
 import { Input } from '~/shared/ui/input';
-import { useAuth } from '~/shared/hooks/auth/useAuth';
 
 export const LoginForm = (): JSX.Element => {
   const [email, setEmail] = useState('');
@@ -44,36 +44,80 @@ export const LoginForm = (): JSX.Element => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="form-control">
-        <label htmlFor="email">E-Mail</label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="name@beispiel.de"
-          disabled={isLoading}
-        />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          E-Mail
+        </label>
+        <div className="mt-1">
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@beispiel.de"
+            disabled={isLoading}
+            fullWidth
+            error={!!error && !email}
+          />
+        </div>
       </div>
 
-      <div className="form-control">
-        <label htmlFor="password">Passwort</label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          disabled={isLoading}
-        />
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          Passwort
+        </label>
+        <div className="mt-1">
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            disabled={isLoading}
+            fullWidth
+            error={!!error && !password}
+          />
+        </div>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="rounded-md bg-red-50 p-3">
+          <div className="flex">
+            <div className="text-sm text-red-700">{error}</div>
+          </div>
+        </div>
+      )}
 
-      <div style={{ marginTop: '1.5rem' }}>
-        <Button type="submit" disabled={isLoading} fullWidth>
-          {isLoading ? 'Anmelden...' : 'Anmelden'}
+      <div>
+        <Button type="submit" disabled={isLoading} fullWidth className="mt-4">
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <svg
+                className="mr-2 h-4 w-4 animate-spin text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Anmelden...
+            </div>
+          ) : (
+            'Anmelden'
+          )}
         </Button>
       </div>
     </form>

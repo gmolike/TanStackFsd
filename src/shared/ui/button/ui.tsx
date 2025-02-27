@@ -1,4 +1,4 @@
-import { JSX, type ButtonHTMLAttributes } from 'react';
+import { type ButtonHTMLAttributes, JSX } from 'react';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'outline' | 'danger';
@@ -14,75 +14,37 @@ export const Button = ({
   className = '',
   ...props
 }: ButtonProps): JSX.Element => {
-  const baseStyles =
-    'btn inline-flex items-center justify-center rounded font-medium focus:outline-none transition-colors';
+  // Basis-Klassen
+  const baseClasses =
+    'inline-flex items-center justify-center rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
 
-  const variantStyles = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700',
-    secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
-    outline: 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-100',
-    danger: 'bg-red-600 text-white hover:bg-red-700',
+  // Varianten
+  const variantClasses = {
+    primary: 'bg-primary text-white hover:bg-primary-dark focus:ring-primary',
+    secondary: 'bg-secondary text-white hover:bg-secondary-dark focus:ring-secondary',
+    outline:
+      'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
   };
 
-  const sizeStyles = {
-    sm: 'text-sm px-3 py-1',
-    md: 'text-base px-4 py-2',
-    lg: 'text-lg px-6 py-3',
+  // Größen
+  const sizeClasses = {
+    sm: 'text-sm py-1 px-3',
+    md: 'text-base py-2 px-4',
+    lg: 'text-lg py-3 px-6',
   };
 
-  const widthStyles = fullWidth ? 'w-full' : '';
+  // Breite
+  const widthClasses = fullWidth ? 'w-full' : '';
 
-  const disabledStyles = props.disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer';
+  // Deaktiviert
+  const disabledClasses = props.disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer';
+
+  // Kombinierte Klassen
+  const combinedClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClasses} ${disabledClasses} ${className}`;
 
   return (
-    <button
-      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${widthStyles} ${disabledStyles} ${className}`}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: '0.25rem',
-        fontWeight: 500,
-        transition: 'background-color 0.2s',
-        ...(variant === 'primary' && {
-          backgroundColor: 'var(--primary-color)',
-          color: 'white',
-        }),
-        ...(variant === 'secondary' && {
-          backgroundColor: '#e5e7eb',
-          color: '#1f2937',
-        }),
-        ...(variant === 'outline' && {
-          backgroundColor: 'transparent',
-          border: '1px solid #e5e7eb',
-          color: '#4b5563',
-        }),
-        ...(variant === 'danger' && {
-          backgroundColor: 'var(--error-color)',
-          color: 'white',
-        }),
-        ...(size === 'sm' && {
-          fontSize: '0.875rem',
-          padding: '0.375rem 0.75rem',
-        }),
-        ...(size === 'md' && {
-          fontSize: '1rem',
-          padding: '0.5rem 1rem',
-        }),
-        ...(size === 'lg' && {
-          fontSize: '1.125rem',
-          padding: '0.75rem 1.5rem',
-        }),
-        ...(fullWidth && {
-          width: '100%',
-        }),
-        ...(props.disabled && {
-          opacity: 0.6,
-          cursor: 'not-allowed',
-        }),
-      }}
-      {...props}
-    >
+    <button className={combinedClasses} {...props}>
       {children}
     </button>
   );

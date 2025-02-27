@@ -1,12 +1,14 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { defineConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     TanStackRouterVite({
       target: 'react',
       autoCodeSplitting: true,
@@ -24,7 +26,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 8090,
     open: true,
   },
   build: {

@@ -1,8 +1,7 @@
-import { useRouter } from '@tanstack/react-router';
 import { JSX } from 'react';
-import { type User, UserAvatar, UserInfo } from '~/entities/user';
-import { Route } from '~/routes';
-import { useAuth } from '~/shared/hooks/auth/useAuth';
+
+import { User, UserAvatar, UserInfo } from '~/entities';
+import { useAuth } from '~/shared/hooks/auth';
 import { Button } from '~/shared/ui/button';
 
 interface DashboardHeaderProps {
@@ -10,40 +9,23 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader = ({ user }: DashboardHeaderProps): JSX.Element => {
-  const router = useRouter();
-  const navigate = Route.useNavigate();
-  const auth = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      auth.logout().then(() => {
-        router.invalidate().finally(() => {
-          navigate({ to: '/' });
-        });
-      });
-    }
+    logout();
   };
 
   return (
-    <header
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '1rem 2rem',
-        backgroundColor: 'white',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-      }}
-    >
-      <div style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>TS React Dashboard</div>
+    <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
+      <div className="text-xl font-bold text-gray-800">TS React Dashboard</div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <UserAvatar user={user} size="sm" />
           <UserInfo user={user} />
         </div>
 
-        <Button variant="outline" size="sm" onClick={handleLogout}>
+        <Button variant="outline" size="sm" onClick={handleLogout} className="ml-2">
           Abmelden
         </Button>
       </div>

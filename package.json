@@ -17,6 +17,8 @@
     "_________________ Format __________________": "",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json,md}\"",
+    "format:json": "prettier --write \"**/*.json\" --loglevel warn",
+    "lint:json": "eslint --ext .json --fix --ignore-pattern 'package*.json' --ignore-pattern 'node_modules/**' .",
     "_________________ TypeCheck  __________________": "",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
@@ -41,13 +43,11 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.0.9",
     "@tanstack/react-query": "^5.66.9",
+    "@tanstack/react-query-devtools": "^5.66.9",
     "@tanstack/react-router": "^1.111.11",
-    "autoprefixer": "^10.4.20",
     "axios": "^1.8.1",
-    "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.9",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -73,10 +73,14 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^9.1.7",
+    "jsonc-eslint-parser": "^2.4.0",
     "lint-staged": "^15.4.3",
     "postcss": "^8.5.3",
     "prettier": "^3.5.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "tailwindcss": "^4.0.9",
     "terser": "^5.39.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0",
@@ -84,14 +88,18 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
-  }
+    "onlyBuiltDependencies": ["esbuild"]
+  },
+  "ignores": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".eslintrc.cjs",
+    ".husky/**",
+    "**/*.css",
+    "**/*.scss"
+  ]
 }

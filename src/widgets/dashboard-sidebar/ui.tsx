@@ -2,62 +2,40 @@ import { JSX } from 'react';
 
 export const DashboardSidebar = (): JSX.Element => {
   const menuItems = [
-    { label: 'Dashboard', icon: '📊' },
-    { label: 'Benutzer', icon: '👥' },
-    { label: 'Produkte', icon: '📦' },
-    { label: 'Einstellungen', icon: '⚙️' },
-    { label: 'Hilfe', icon: '❓' },
+    { label: 'Dashboard', icon: '📊', active: true },
+    { label: 'Benutzer', icon: '👥', active: false },
+    { label: 'Produkte', icon: '📦', active: false },
+    { label: 'Einstellungen', icon: '⚙️', active: false },
+    { label: 'Hilfe', icon: '❓', active: false },
   ];
 
   return (
-    <aside
-      style={{
-        width: '240px',
-        backgroundColor: '#1f2937',
-        color: 'white',
-        padding: '1.5rem 0',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-      }}
-    >
-      <div
-        style={{
-          padding: '0 1.5rem',
-          marginBottom: '2rem',
-          fontSize: '1.25rem',
-          fontWeight: 'bold',
-        }}
-      >
-        Menu
-      </div>
+    <aside className="w-64 flex-shrink-0 bg-gray-800 text-white">
+      <div className="p-6 text-xl font-bold">Menu</div>
 
-      <nav>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+      <nav className="mt-6">
+        <ul>
           {menuItems.map((item, index) => (
             <li key={index}>
-              <button
-                type="button"
-                onClick={() => {
-                  /* Handle navigation */
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '100%',
-                  textAlign: 'left',
-                  border: 'none',
-                  padding: '0.75rem 1.5rem',
-                  color: 'white',
-                  backgroundColor: index === 0 ? '#374151' : 'transparent',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s',
-                }}
-                aria-label={item.label}
-              >
-                <span style={{ marginRight: '0.75rem', fontSize: '1.25rem' }}>{item.icon}</span>
-                {item.label}
-              </button>
+              {item.active ? (
+                // Aktives Item als Button ohne Navigation
+                <button
+                  className="flex w-full items-center bg-gray-700 px-6 py-3 text-white"
+                  aria-current="page"
+                >
+                  <span className="mr-3 text-xl">{item.icon}</span>
+                  {item.label}
+                </button>
+              ) : (
+                // Inaktives Item als echter Link
+                <a
+                  href={item.label}
+                  className="flex items-center px-6 py-3 text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
+                >
+                  <span className="mr-3 text-xl">{item.icon}</span>
+                  {item.label}
+                </a>
+              )}
             </li>
           ))}
         </ul>

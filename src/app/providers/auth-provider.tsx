@@ -1,6 +1,6 @@
-import { JSX, useEffect, useState, type PropsWithChildren } from 'react';
+import { JSX, type PropsWithChildren, useEffect, useState } from 'react';
 
-import { type User } from '~/entities/user/model/types';
+import { User } from '~/entities';
 import { AuthContext, AuthContextType } from '~/shared/hooks/auth';
 
 export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    console.log(password);
+    console.warn(password);
     setIsLoading(true);
     try {
       // Simulieren eines API-Aufrufs

@@ -1,7 +1,9 @@
 import { createRouter, RouterProvider as TanStackRouterProvider } from '@tanstack/react-router';
 import { JSX, StrictMode } from 'react';
-import { routeTree } from '../../routeTree.gen';
+
 import { useAuth } from '~/shared/hooks/auth/useAuth';
+
+import { routeTree } from '../../routeTree.gen';
 
 // Set up a Router instance
 // eslint-disable-next-line react-refresh/only-export-components

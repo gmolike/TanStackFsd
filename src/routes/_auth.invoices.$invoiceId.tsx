@@ -1,12 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
+
 import { fetchInvoiceById } from '../posts';
 
 export const Route = createFileRoute('/_auth/invoices/$invoiceId')({
-  loader: async ({ params: { invoiceId } }) => {
-    return {
-      invoice: await fetchInvoiceById(parseInt(invoiceId)),
-    };
-  },
+  loader: async ({ params: { invoiceId } }) => ({
+    invoice: await fetchInvoiceById(parseInt(invoiceId)),
+  }),
   component: InvoicePage,
 });
 

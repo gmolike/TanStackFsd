@@ -1,5 +1,6 @@
 import { JSX } from 'react';
-import { LoginForm } from '~/features/auth/login';
+
+import { LoginForm } from '~/features';
 
 export const LoginPage = (): JSX.Element => (
   <div className="container" style={{ maxWidth: '400px', marginTop: '5rem' }}>

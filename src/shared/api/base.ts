@@ -17,7 +17,7 @@ export const baseApi = {
       throw new Error('Nicht authentifiziert');
     }
 
-    console.log(`GET ${API_URL}${endpoint}`);
+    console.info(`GET ${API_URL}${endpoint}`);
     throw new Error(`Endpunkt nicht implementiert: ${endpoint}`);
   },
 
@@ -25,7 +25,7 @@ export const baseApi = {
     // Simuliere API-Verzögerung
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    console.log(`POST ${API_URL}${endpoint}`, data);
+    console.info(`POST ${API_URL}${endpoint}`, data);
 
     // Login-Simulation
     if (endpoint === '/login') {
@@ -52,7 +52,7 @@ export const baseApi = {
     // Simuliere API-Verzögerung
     await new Promise((resolve) => setTimeout(resolve, 600));
 
-    console.log(`PUT ${API_URL}${endpoint}`, data);
+    console.info(`PUT ${API_URL}${endpoint}`, data);
     throw new Error(`Endpunkt nicht implementiert: ${endpoint}`);
   },
 
@@ -60,7 +60,7 @@ export const baseApi = {
     // Simuliere API-Verzögerung
     await new Promise((resolve) => setTimeout(resolve, 700));
 
-    console.log(`DELETE ${API_URL}${endpoint}`);
+    console.info(`DELETE ${API_URL}${endpoint}`);
     throw new Error(`Endpunkt nicht implementiert: ${endpoint}`);
   },
 };
