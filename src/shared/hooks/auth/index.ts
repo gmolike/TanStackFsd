@@ -1,3 +1,3 @@
-export type { AuthContext as AuthContextType } from './type';
-export { useAuth } from './useAuth';
-export { useContext as AuthContext } from './useContext';
+export { Context as AuthContext } from './context';
+export type { AuthType as AuthContextType } from './type';
+export { useAuthentication as useAuth } from './useAuth';

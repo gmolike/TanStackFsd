@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 
-import { fontFamily } from 'tailwindcss/defaultTheme';
 import { OptionalConfig } from 'tailwindcss/types/config';
 
 export default {
@@ -109,10 +108,7 @@ export default {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
-      fontFamily: {
-        sans: ['var(--font-sans)', ...fontFamily.sans],
-        display: ['var(--font-display)', ...fontFamily.sans],
-      },
+
       keyframes: {
         'accordion-down': {
           from: { height: '0' },

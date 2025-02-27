@@ -1,7 +1,7 @@
 import { createRouter, RouterProvider as TanStackRouterProvider } from '@tanstack/react-router';
 import { JSX, StrictMode } from 'react';
 
-import { useAuth } from '~/shared/hooks/auth/useAuth';
+import { useAuth } from '~/shared/hooks/auth';
 
 import { routeTree } from '../../routeTree.gen';
 

@@ -1,6 +1,6 @@
 import { User } from '~/entities';
 
-export type AuthContext = {
+export type AuthType = {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
