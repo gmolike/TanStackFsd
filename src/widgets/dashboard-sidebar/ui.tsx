@@ -1,12 +1,29 @@
-import { JSX } from 'react';
+import { Link, useMatchRoute } from '@tanstack/react-router';
 
-export const DashboardSidebar = (): JSX.Element => {
+export const DashboardSidebar = () => {
+  const matchRoute = useMatchRoute();
+
   const menuItems = [
-    { label: 'Dashboard', icon: '📊', active: true },
-    { label: 'Benutzer', icon: '👥', active: false },
-    { label: 'Produkte', icon: '📦', active: false },
-    { label: 'Einstellungen', icon: '⚙️', active: false },
-    { label: 'Hilfe', icon: '❓', active: false },
+    {
+      label: 'Dashboard',
+      icon: '📊',
+      path: '/dashboard',
+      active: matchRoute({ to: '/dashboard' }),
+    },
+    {
+      label: 'Users',
+      icon: '👥',
+      path: '/admin/users',
+      active: matchRoute({ to: '/admin/users' }),
+    },
+    {
+      label: 'Products',
+      icon: '📦',
+      path: '/admin/products',
+      active: matchRoute({ to: '/admin/products' }),
+    },
+    { label: 'Settings', icon: '⚙️', path: '/settings', active: matchRoute({ to: '/settings' }) },
+    { label: 'Help', icon: '❓', path: '/help', active: matchRoute({ to: '/help' }) },
   ];
 
   return (
@@ -18,23 +35,23 @@ export const DashboardSidebar = (): JSX.Element => {
           {menuItems.map((item, index) => (
             <li key={index}>
               {item.active ? (
-                // Aktives Item als Button ohne Navigation
-                <button
-                  className="flex w-full items-center bg-gray-700 px-6 py-3 text-white"
+                // Aktives Element
+                <span
+                  className="flex items-center bg-gray-700 px-6 py-3 text-white"
                   aria-current="page"
                 >
                   <span className="mr-3 text-xl">{item.icon}</span>
                   {item.label}
-                </button>
+                </span>
               ) : (
-                // Inaktives Item als echter Link
-                <a
-                  href={item.label}
+                // Inaktives Element
+                <Link
+                  to={item.path}
                   className="flex items-center px-6 py-3 text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
                 >
                   <span className="mr-3 text-xl">{item.icon}</span>
                   {item.label}
-                </a>
+                </Link>
               )}
             </li>
           ))}

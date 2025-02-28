@@ -29,6 +29,8 @@ export const AuthProvider = ({ children }: PropsWithChildren): JSX.Element => {
         name: 'John Doe',
         email,
         role: 'admin',
+        status: 'active',
+        createdAt: '',
       };
 
       setUser(loggedInUser);

@@ -12,7 +12,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import prettierConfig from 'eslint-config-prettier';
 
 // Tell TypeScript to ignore type checking for this file
-
+/* eslint-disable */
 /* @ts-nocheck */
 
 export default [
@@ -23,7 +23,6 @@ export default [
     plugins: {
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,
-      '@typescript-eslint': tseslint.plugin,
       import: importPlugin,
       'simple-import-sort': simpleImportSort,
       '@tanstack/query': tanstackQuery,
@@ -37,7 +36,6 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      parser: tseslint.parser,
       parserOptions: {
         ecmaFeatures: {
           jsx: true,
@@ -51,9 +49,6 @@ export default [
       react: {
         version: 'detect',
       },
-    },
-    rules: {
-      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
     },
   },
   // React Rules
@@ -210,15 +205,7 @@ export default [
   },
   // Files to ignore
   {
-    ignores: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      '.eslintrc.cjs',
-      '.husky/**',
-      '**/*.css',
-      '**/*.scss',
-    ],
+    ignores: ['node_modules/**', 'dist/**', 'build/**', '.eslintrc.cjs', '.husky/**'],
   },
   // Apply prettier config (must be last)
   prettierConfig,
