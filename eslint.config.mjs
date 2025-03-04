@@ -11,6 +11,7 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import prettierConfig from 'eslint-config-prettier';
 import playwrightPlugin from 'eslint-plugin-playwright';
+import { FlatCompat } from '@eslint/eslintrc';
 
 // Import FSD layer rules
 import {
@@ -39,6 +40,9 @@ const API_URL =
       : 'http://localhost:8090');
 
 console.log(`ESLint läuft mit NODE_ENV=${NODE_ENV}, API_URL=${API_URL}`);
+
+// Erstellen eines FlatCompat-Instanz für ältere Plugins
+const compat = new FlatCompat();
 
 export default [
   js.configs.recommended,
@@ -72,6 +76,11 @@ export default [
         process: 'readonly',
         API_URL: 'readonly',
         NODE_ENV: 'readonly',
+        // Browser-Globals hinzufügen
+        document: 'readonly',
+        window: 'readonly',
+        navigator: 'readonly',
+        console: 'readonly',
       },
     },
     settings: {
@@ -172,11 +181,10 @@ export default [
       'simple-import-sort/exports': 'error',
     },
   },
-  // TanStack Query Rules - Korrigiert für aktuelle Plugin-Version
+  // TanStack Query Rules
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     rules: {
-      // Nur Regeln verwenden, die in der aktuellen Version existieren
       '@tanstack/query/exhaustive-deps': 'error',
     },
   },
@@ -200,36 +208,36 @@ export default [
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
-  {
-    files: ['**/*.spec.ts', '**/*.test.ts', '**/e2e/**/*.ts', '**/tests/**/*.ts'],
-    ...playwrightPlugin.configs.recommended,
-    rules: {
-      // Spezifische Überschreibungen für Playwright-Tests
-      '@typescript-eslint/no-non-null-assertion': 'off', // In Tests oft nützlich
-      '@typescript-eslint/no-explicit-any': 'off', // In Tests manchmal erforderlich
-      'playwright/expect-expect': 'error', // Stellt sicher, dass Tests Assert-Statements haben
-      'playwright/no-focused-test': 'warn', // Warnt bei .only-Tests
-      'playwright/no-skipped-test': 'warn', // Warnt bei .skip-Tests
-      'playwright/valid-expect': 'error', // Überprüft korrekte Verwendung von expect()
-      'playwright/no-conditional-expect': 'error', // Verhindert bedingte expects
-      'playwright/no-wait-for-timeout': 'warn', // Warnt bei expliziten Timeouts
-
-      // FSD-spezifische Regeln für Tests lockern
-      'no-restricted-imports': 'off', // Tests dürfen über Layer-Grenzen importieren
-    },
-  },
+  // Playwright-Konfiguration über den FlatCompat-Adapter, falls es env verwendet
+  ...compat.config({
+    overrides: [
+      {
+        files: ['**/*.spec.ts', '**/*.test.ts', '**/e2e/**/*.ts', '**/tests/**/*.ts'],
+        env: {
+          node: true,
+          'playwright/playwright': true,
+        },
+        rules: {
+          '@typescript-eslint/no-non-null-assertion': 'off',
+          '@typescript-eslint/no-explicit-any': 'off',
+          'playwright/expect-expect': 'error',
+          'playwright/no-focused-test': 'warn',
+          'playwright/no-skipped-test': 'warn',
+          'playwright/valid-expect': 'error',
+          'playwright/no-conditional-expect': 'error',
+          'playwright/no-wait-for-timeout': 'warn',
+          'no-restricted-imports': 'off',
+        },
+      },
+    ],
+  }),
 
   // Verzeichnisse, die speziell für Tests sind, von bestimmten Regeln ausschließen
   {
     files: ['**/tests/**', '**/e2e/**', '**/__tests__/**', '**/*.{spec,test}.{ts,tsx}'],
     rules: {
-      // Tests dürfen console.log verwenden
       'no-console': 'off',
-
-      // Tests dürfen mehr Komplexität haben
       'max-len': 'off',
-
-      // Hier können weitere Test-spezifische Regeln deaktiviert werden
     },
   },
 
@@ -237,7 +245,6 @@ export default [
   {
     files: ['**/shared/config/api.ts', '**/shared/api/base.ts'],
     rules: {
-      // Erlaube die Verwendung einer benutzerdefinierten API_URL
       'no-undef': 'off',
       '@typescript-eslint/no-var-requires': 'off',
     },
@@ -245,7 +252,6 @@ export default [
 
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
-    // Diese Regel erlaubt den Zugriff auf Vite-spezifische Umgebungsvariablen
     languageOptions: {
       globals: {
         'import.meta': 'readonly',
