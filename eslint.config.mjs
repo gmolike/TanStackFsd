@@ -25,7 +25,20 @@ import {
 } from './fsd-import-rules.mjs';
 
 // Tell TypeScript to ignore type checking for this file
+/* eslint-disable no-undef */
 /* @ts-nocheck */
+
+// Umgebungsvariablen aus process.env lesen
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const API_URL =
+  process.env.API_URL ||
+  (NODE_ENV === 'production'
+    ? 'https://api.production.com'
+    : NODE_ENV === 'staging'
+      ? 'https://api.staging.com'
+      : 'http://localhost:8090');
+
+console.log(`ESLint läuft mit NODE_ENV=${NODE_ENV}, API_URL=${API_URL}`);
 
 export default [
   js.configs.recommended,
@@ -56,6 +69,9 @@ export default [
       },
       globals: {
         React: 'readonly',
+        process: 'readonly',
+        API_URL: 'readonly',
+        NODE_ENV: 'readonly',
       },
     },
     settings: {
@@ -64,6 +80,7 @@ export default [
       },
     },
   },
+
   // React Rules
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
@@ -213,6 +230,26 @@ export default [
       'max-len': 'off',
 
       // Hier können weitere Test-spezifische Regeln deaktiviert werden
+    },
+  },
+
+  // Eine spezielle Regel für die API_URL-Konstante hinzufügen
+  {
+    files: ['**/shared/config/api.ts', '**/shared/api/base.ts'],
+    rules: {
+      // Erlaube die Verwendung einer benutzerdefinierten API_URL
+      'no-undef': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
+    },
+  },
+
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    // Diese Regel erlaubt den Zugriff auf Vite-spezifische Umgebungsvariablen
+    languageOptions: {
+      globals: {
+        'import.meta': 'readonly',
+      },
     },
   },
 

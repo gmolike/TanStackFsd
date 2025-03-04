@@ -1,5 +1,5 @@
 // Basis-API-Konfiguration
-const API_URL = 'https://api.example.com';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Einfacher API-Client für Simulationszwecke
 export const baseApi = {
