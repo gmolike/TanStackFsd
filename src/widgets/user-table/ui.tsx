@@ -1,4 +1,5 @@
 import { UserListFeature } from '~/features/user';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/ui/card';
 
 type UserTableWidgetProps = {

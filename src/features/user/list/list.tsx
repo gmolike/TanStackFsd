@@ -1,5 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   type User,
@@ -10,6 +11,7 @@ import {
   UserRoleBadge,
   UserStatusBadge,
 } from '~/entities/user';
+
 import { Button } from '~/shared/ui/button';
 import {
   Dialog,

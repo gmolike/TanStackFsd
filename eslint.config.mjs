@@ -11,6 +11,17 @@ import prettierPlugin from 'eslint-plugin-prettier';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import prettierConfig from 'eslint-config-prettier';
 
+// Import FSD layer rules
+import {
+  appLayerRules,
+  pagesLayerRules,
+  widgetsLayerRules,
+  featuresLayerRules,
+  entitiesLayerRules,
+  sharedLayerRules,
+  generalLayerRules,
+} from './fsd-import-rules.mjs';
+
 // Tell TypeScript to ignore type checking for this file
 /* eslint-disable */
 /* @ts-nocheck */
@@ -100,42 +111,46 @@ export default [
       'import/no-unresolved': 'off', // TypeScript kümmert sich darum
       'import/newline-after-import': 'error',
 
-      // Simple Import Sort
-      'simple-import-sort/imports': 'error', // Vereinfachte Regel für v12+
+      // Erweiterte Simple Import Sort Regeln für FSD
+      'simple-import-sort/imports': [
+        'error',
+        {
+          groups: [
+            // 1. React und React-bezogene Importe zuerst
+            ['^react$', '^react-dom$', '^react-router-dom', '^react.*'],
+
+            // 2. Externe Bibliotheken (node_modules)
+            ['^@?\\w'],
+
+            // 3. FSD-Layers in absteigender Reihenfolge (app → shared)
+            ['^~/app(/.*|$)'],
+            ['^~/pages(/.*|$)'],
+            ['^~/widgets(/.*|$)'],
+            ['^~/features(/.*|$)'],
+            ['^~/entities(/.*|$)'],
+            ['^~/shared(/.*|$)'],
+
+            // 4. Absolute Imports mit anderen Aliasen
+            ['^~(/.*|$)'],
+
+            // 5. Relative Imports aus dem übergeordneten Verzeichnis
+            ['^\\.\\./'],
+
+            // 6. Relative Imports aus dem gleichen Verzeichnis
+            ['^\\./'],
+
+            // 7. Stil-Importe
+            ['\\.css$', '\\.scss$', '\\.sass$', '\\.less$', '\\.module\\.css$'],
+
+            // 8. Typdefinitionen
+            ['^.+\\.types$', '.*\\.d\\.ts$'],
+
+            // 9. Spezielle Dateien wie JSON, SVG usw.
+            ['^.+\\.?(json|svg|png|jpg|jpeg)$'],
+          ],
+        },
+      ],
       'simple-import-sort/exports': 'error',
-    },
-  },
-  // JSX A11y rules
-  {
-    files: ['**/*.{jsx,tsx}'],
-    rules: {
-      'jsx-a11y/alt-text': 'warn',
-      'jsx-a11y/anchor-has-content': 'warn',
-      'jsx-a11y/anchor-is-valid': 'warn',
-      'jsx-a11y/aria-props': 'warn',
-      'jsx-a11y/aria-proptypes': 'warn',
-      'jsx-a11y/aria-role': 'warn',
-      'jsx-a11y/aria-unsupported-elements': 'warn',
-      'jsx-a11y/click-events-have-key-events': 'warn',
-      'jsx-a11y/heading-has-content': 'warn',
-      'jsx-a11y/html-has-lang': 'warn',
-      'jsx-a11y/iframe-has-title': 'warn',
-      'jsx-a11y/img-redundant-alt': 'warn',
-      'jsx-a11y/interactive-supports-focus': 'warn',
-      'jsx-a11y/label-has-associated-control': 'warn',
-      'jsx-a11y/mouse-events-have-key-events': 'warn',
-      'jsx-a11y/no-access-key': 'warn',
-      'jsx-a11y/no-autofocus': 'warn',
-      'jsx-a11y/no-distracting-elements': 'warn',
-      'jsx-a11y/no-interactive-element-to-noninteractive-role': 'warn',
-      'jsx-a11y/no-noninteractive-element-interactions': 'warn',
-      'jsx-a11y/no-noninteractive-element-to-interactive-role': 'warn',
-      'jsx-a11y/no-noninteractive-tabindex': 'warn',
-      'jsx-a11y/no-redundant-roles': 'warn',
-      'jsx-a11y/role-has-required-aria-props': 'warn',
-      'jsx-a11y/role-supports-aria-props': 'warn',
-      'jsx-a11y/scope': 'warn',
-      'jsx-a11y/tabindex-no-positive': 'warn',
     },
   },
   // TanStack Query Rules - Korrigiert für aktuelle Plugin-Version
@@ -146,45 +161,14 @@ export default [
       '@tanstack/query/exhaustive-deps': 'error',
     },
   },
-  // FSD architecture rules
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      // FSD-specific layer rules
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            // app darf nicht von anderen Schichten importiert werden
-            {
-              group: ['app', '~/app'],
-              message: 'Imports from the app layer are not allowed.',
-            },
-            // pages darf nur von app importiert werden
-            {
-              group: ['pages/*', '~/pages/*'],
-              message: 'Direct imports from pages are not allowed. Import from app instead.',
-            },
-            // widgets darf nur von app oder pages importiert werden
-            {
-              group: ['widgets/*', '~/widgets/*'],
-              message: 'Widgets can only be imported by app or pages.',
-            },
-            // features darf nur von app, pages oder widgets importiert werden
-            {
-              group: ['features/*', '~/features/*'],
-              message: 'Features can only be imported by app, pages, or widgets.',
-            },
-            // entities darf nicht von shared importiert werden
-            {
-              group: ['entities/*', '~/entities/*'],
-              message: 'Entities can not be imported by shared layer.',
-            },
-          ],
-        },
-      ],
-    },
-  },
+  // FSD Architecture Rules - Using imported rules
+  generalLayerRules, // Apply general rules first
+  appLayerRules, // Then layer-specific overrides
+  pagesLayerRules,
+  widgetsLayerRules,
+  featuresLayerRules,
+  entitiesLayerRules,
+  sharedLayerRules,
   // TypeScript specific rules
   {
     files: ['**/*.{ts,tsx}'],
@@ -205,7 +189,7 @@ export default [
   },
   // Files to ignore
   {
-    ignores: ['node_modules/**', 'dist/**', 'build/**', '.eslintrc.cjs', '.husky/**'],
+    ignores: ['node_modules/**', 'dist/**', 'build/**', '.eslintrc.cjs', '.husky/**', '**/*.css'],
   },
   // Apply prettier config (must be last)
   prettierConfig,

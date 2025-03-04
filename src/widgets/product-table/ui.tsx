@@ -1,4 +1,5 @@
 import { ProductListFeature } from '~/features/product/list/list';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/ui/card';
 
 type ProductTableWidgetProps = {

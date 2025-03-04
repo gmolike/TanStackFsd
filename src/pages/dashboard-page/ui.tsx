@@ -1,7 +1,8 @@
 import { JSX } from 'react';
 
-import { useAuth } from '~/shared/auth';
 import { DashboardHeader, DashboardSidebar } from '~/widgets';
+
+import { useAuth } from '~/shared/auth';
 
 export const DashboardPage = (): JSX.Element => {
   const { user } = useAuth();

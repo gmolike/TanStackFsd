@@ -1,9 +1,11 @@
 import { JSX } from 'react';
 
 import { User, UserAvatar, UserInfo } from '~/entities';
-import { Route } from '~/routes';
+
 import { Router, useAuth } from '~/shared/auth';
 import { Button } from '~/shared/ui/button';
+
+import { Route } from '~/routes';
 
 type DashboardHeaderProps = {
   user: User | null;

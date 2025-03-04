@@ -1,5 +1,6 @@
-import { useNavigate } from '@tanstack/react-router';
 import { JSX, useState } from 'react';
+
+import { useNavigate } from '@tanstack/react-router';
 
 import { useAuth } from '~/shared/auth';
 import { Button } from '~/shared/ui/button';
