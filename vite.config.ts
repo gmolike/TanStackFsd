@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
         ? 'https://api.staging.com'
         : 'http://localhost:3001');
 
-  console.log(`Mode: ${mode}, API URL: ${apiUrl}`);
+  console.warn(`Mode: ${mode}, API URL: ${apiUrl}`);
 
   return {
     plugins: [
