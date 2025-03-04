@@ -10,6 +10,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import prettierPlugin from 'eslint-plugin-prettier';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import prettierConfig from 'eslint-config-prettier';
+import playwrightPlugin from 'eslint-plugin-playwright';
 
 // Import FSD layer rules
 import {
@@ -20,10 +21,10 @@ import {
   entitiesLayerRules,
   sharedLayerRules,
   generalLayerRules,
+  testFilesLayerRules,
 } from './fsd-import-rules.mjs';
 
 // Tell TypeScript to ignore type checking for this file
-/* eslint-disable */
 /* @ts-nocheck */
 
 export default [
@@ -40,6 +41,7 @@ export default [
       'jsx-a11y': jsxA11y,
       prettier: prettierPlugin,
       'react-refresh': reactRefresh,
+      playwright: playwrightPlugin,
     },
   },
   // Add React settings and basic configuration
@@ -169,6 +171,7 @@ export default [
   featuresLayerRules,
   entitiesLayerRules,
   sharedLayerRules,
+  testFilesLayerRules,
   // TypeScript specific rules
   {
     files: ['**/*.{ts,tsx}'],
@@ -180,6 +183,39 @@ export default [
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
+  {
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/e2e/**/*.ts', '**/tests/**/*.ts'],
+    ...playwrightPlugin.configs.recommended,
+    rules: {
+      // Spezifische Überschreibungen für Playwright-Tests
+      '@typescript-eslint/no-non-null-assertion': 'off', // In Tests oft nützlich
+      '@typescript-eslint/no-explicit-any': 'off', // In Tests manchmal erforderlich
+      'playwright/expect-expect': 'error', // Stellt sicher, dass Tests Assert-Statements haben
+      'playwright/no-focused-test': 'warn', // Warnt bei .only-Tests
+      'playwright/no-skipped-test': 'warn', // Warnt bei .skip-Tests
+      'playwright/valid-expect': 'error', // Überprüft korrekte Verwendung von expect()
+      'playwright/no-conditional-expect': 'error', // Verhindert bedingte expects
+      'playwright/no-wait-for-timeout': 'warn', // Warnt bei expliziten Timeouts
+
+      // FSD-spezifische Regeln für Tests lockern
+      'no-restricted-imports': 'off', // Tests dürfen über Layer-Grenzen importieren
+    },
+  },
+
+  // Verzeichnisse, die speziell für Tests sind, von bestimmten Regeln ausschließen
+  {
+    files: ['**/tests/**', '**/e2e/**', '**/__tests__/**', '**/*.{spec,test}.{ts,tsx}'],
+    rules: {
+      // Tests dürfen console.log verwenden
+      'no-console': 'off',
+
+      // Tests dürfen mehr Komplexität haben
+      'max-len': 'off',
+
+      // Hier können weitere Test-spezifische Regeln deaktiviert werden
+    },
+  },
+
   // Prettier Rules - muss am Ende stehen
   {
     files: ['**/*.{js,jsx,ts,tsx,json,css,md}'],
@@ -189,7 +225,17 @@ export default [
   },
   // Files to ignore
   {
-    ignores: ['node_modules/**', 'dist/**', 'build/**', '.eslintrc.cjs', '.husky/**', '**/*.css'],
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      '.eslintrc.cjs',
+      '.husky/**',
+      '**/*.css',
+      'playwright-report/**',
+      'test-results/**',
+      'playwright/.cache/**',
+    ],
   },
   // Apply prettier config (must be last)
   prettierConfig,
