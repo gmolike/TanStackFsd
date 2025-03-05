@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { JSX, useState } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -44,7 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/shared/ui/tabs';
 // Paginierung
 const ITEMS_PER_PAGE = 5;
 
-export const ProductListFeature = () => {
+export const ProductListFeature = (): JSX.Element => {
   // State
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<ProductFilters>({});
@@ -62,7 +62,7 @@ export const ProductListFeature = () => {
 
   // Queries
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['products', page, filters, sort],
+    queryKey: ['products', page, filters, sort, search],
     queryFn: () =>
       productApi.getProducts({
         page,
@@ -99,6 +99,7 @@ export const ProductListFeature = () => {
   const handleInStockFilterChange = (inStock: string) => {
     if (inStock === 'all') {
       const { inStock: _, ...rest } = filters;
+      console.warn('rest', _);
       setFilters(rest);
     } else {
       setFilters((prev) => ({
@@ -129,7 +130,7 @@ export const ProductListFeature = () => {
 
   const handleEditProduct = (product: Product) => {
     // This would typically navigate to edit page or open a modal
-    console.log('Edit product:', product);
+    console.warn('Edit product:', product);
   };
 
   // Pagination Logic

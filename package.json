@@ -20,7 +20,7 @@
     "format:json": "prettier --write \"**/*.json\" --loglevel warn",
     "lint:json": "eslint --ext .json --fix --ignore-pattern 'package*.json' --ignore-pattern 'node_modules/**' .",
     "_________________ TypeCheck  __________________": "",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc -b --noEmit",
     "type-check:watch": "tsc --noEmit --watch",
     "_________________ Validate __________________": "",
     "validate": "pnpm exec concurrently \"pnpm type-check\" \"pnpm lint:report\" \"pnpm format:check\"",
@@ -56,6 +56,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.476.0",
+    "next": "^15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
@@ -68,9 +69,13 @@
     "@eslint/js": "^9.21.0",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/config": "^0.16.3",
+    "@tanstack/eslint-config": "^0.1.0",
     "@tanstack/eslint-plugin-query": "^5.66.1",
+    "@tanstack/publish-config": "^0.1.0",
     "@tanstack/router-devtools": "^1.111.11",
     "@tanstack/router-vite-plugin": "^1.111.12",
+    "@tanstack/typedoc-config": "^0.1.0",
+    "@tanstack/vite-config": "^0.1.0",
     "@types/node": "^22.13.5",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
@@ -111,7 +116,8 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "sharp"
     ]
   },
   "ignores": [

@@ -1,3 +1,5 @@
+import { JSX } from 'react';
+
 import { ProductListFeature } from '~/features/product/list/list';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/ui/card';
@@ -10,7 +12,7 @@ type ProductTableWidgetProps = {
 export const ProductTableWidget = ({
   title = 'Product Management',
   description = 'View and manage products in the system',
-}: ProductTableWidgetProps) => (
+}: ProductTableWidgetProps): JSX.Element => (
   <Card>
     <CardHeader>
       <CardTitle>{title}</CardTitle>

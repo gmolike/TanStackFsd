@@ -1,3 +1,5 @@
+import { JSX } from 'react';
+
 import { UserListFeature } from '~/features/user';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/ui/card';
@@ -10,7 +12,7 @@ type UserTableWidgetProps = {
 export const UserTableWidget = ({
   title = 'User Management',
   description = 'View and manage users in the system',
-}: UserTableWidgetProps) => (
+}: UserTableWidgetProps): JSX.Element => (
   <Card>
     <CardHeader>
       <CardTitle>{title}</CardTitle>

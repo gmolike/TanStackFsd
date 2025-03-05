@@ -1,15 +1,17 @@
-import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
-import react from '@vitejs/plugin-react';
+import { defineConfig, mergeConfig, loadEnv } from 'vite';
 import { resolve } from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
+import { tanstackViteConfig } from '@tanstack/config/vite';
+// OR
+// import { tanstackViteConfig } from '@tanstack/vite-config'
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
-  // Lädt die Umgebungsvariablen basierend auf dem aktuellen Modus (development, production, usw.)
+export default ({ mode }: { mode: string }) => {
+  // Load environment variables based on current mode (development, production, etc.)
   const env = loadEnv(mode, process.cwd(), '');
 
-  // Standard API-URL festlegen, falls keine in der Umgebung definiert ist
+  // Set default API URL if none is defined in the environment
   const apiUrl =
     env.VITE_API_URL ||
     (mode === 'production'
@@ -20,14 +22,14 @@ export default defineConfig(({ mode }) => {
 
   console.warn(`Mode: ${mode}, API URL: ${apiUrl}`);
 
-  return {
+  const config = defineConfig({
     plugins: [
       TanStackRouterVite({
         target: 'react',
         autoCodeSplitting: true,
-        // Spezifizieren des Verzeichnisses für die Routendateien
+        // Specify directory for route files
         routesDirectory: './src/routes',
-        // Generiert die route.d.ts-Datei bei Änderungen automatisch neu
+        // Automatically regenerate route.d.ts file when changes occur
         generatedRouteTree: './src/routeTree.gen.ts',
       }),
       react(),
@@ -41,7 +43,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 8090,
       open: true,
-      // Proxy-Einstellungen, falls benötigt
+      // Proxy settings if needed
       proxy:
         env.VITE_ENABLE_PROXY === 'true'
           ? {
@@ -63,17 +65,25 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    // Definiere Umgebungsvariablen, die im Client-Code verfügbar sein sollen
+    // Define environment variables available in client code
     define: {
       'import.meta.env.VITE_API_URL': JSON.stringify(apiUrl),
       'import.meta.env.MODE': JSON.stringify(mode),
-      // Weitere Umgebungsvariablen nach Bedarf hinzufügen
-      ...Object.keys(env).reduce((acc, key) => {
+      // Add additional environment variables as needed
+      ...Object.keys(env).reduce((acc: Record<string, any>, key: string) => {
         if (key.startsWith('VITE_')) {
           acc[`import.meta.env.${key}`] = JSON.stringify(env[key]);
         }
         return acc;
       }, {}),
     },
-  };
-});
+  });
+
+  return mergeConfig(
+    config,
+    tanstackViteConfig({
+      entry: './src/index.ts',
+      srcDir: './src',
+    }),
+  );
+};

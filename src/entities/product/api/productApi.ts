@@ -83,10 +83,14 @@ export const productApi = {
         );
       }
       if (filters.minPrice !== undefined) {
-        filteredProducts = filteredProducts.filter((product) => product.price >= filters.minPrice!);
+        filteredProducts = filteredProducts.filter(
+          (product) => filters.minPrice !== undefined && product.price >= filters.minPrice,
+        );
       }
       if (filters.maxPrice !== undefined) {
-        filteredProducts = filteredProducts.filter((product) => product.price <= filters.maxPrice!);
+        filteredProducts = filteredProducts.filter(
+          (product) => filters.maxPrice !== undefined && product.price <= filters.maxPrice,
+        );
       }
       if (filters.inStock !== undefined) {
         filteredProducts = filteredProducts.filter(

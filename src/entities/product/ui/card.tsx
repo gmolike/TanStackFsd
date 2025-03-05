@@ -1,3 +1,6 @@
+import { JSX } from 'react';
+
+import { formatPrice } from '../api/format';
 import { type Product, type ProductCategory } from '../model/types';
 
 type ProductCardVariant = 'compact' | 'default' | 'detailed';
@@ -24,7 +27,7 @@ const getCategoryColor = (category: ProductCategory): string => {
   }
 };
 
-export const ProductCategoryBadge = ({ category }: { category: ProductCategory }) => (
+export const ProductCategoryBadge = ({ category }: { category: ProductCategory }): JSX.Element => (
   <span
     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getCategoryColor(
       category,
@@ -34,7 +37,7 @@ export const ProductCategoryBadge = ({ category }: { category: ProductCategory }
   </span>
 );
 
-export const ProductStockBadge = ({ stock }: { stock: number }) => {
+export const ProductStockBadge = ({ stock }: { stock: number }): JSX.Element => {
   if (stock > 50) {
     return (
       <span className="inline-flex items-center rounded-full border border-green-200 bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
@@ -64,7 +67,7 @@ export const ProductImage = ({
 }: {
   product: Product;
   size?: 'sm' | 'md' | 'lg';
-}) => {
+}): JSX.Element => {
   const sizeClasses = {
     sm: 'h-10 w-10',
     md: 'h-16 w-16',
@@ -84,18 +87,12 @@ export const ProductImage = ({
   );
 };
 
-export const formatPrice = (price: number): string =>
-  new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(price);
-
 export const ProductCard = ({
   product,
   variant = 'default',
   onEdit,
   onDelete,
-}: ProductCardProps) => {
+}: ProductCardProps): JSX.Element => {
   if (variant === 'compact') {
     return (
       <div className="flex items-center space-x-3">

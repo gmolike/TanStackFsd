@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { JSX, useState } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -43,7 +43,7 @@ import {
 // Paginierung
 const ITEMS_PER_PAGE = 5;
 
-export const List = () => {
+export const List = (): JSX.Element => {
   // State
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<UserFilters>({});
@@ -60,7 +60,7 @@ export const List = () => {
 
   // Queries
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['users', page, filters, sort],
+    queryKey: ['users', page, filters, sort, search],
     queryFn: () =>
       userApi.getUsers({
         page,

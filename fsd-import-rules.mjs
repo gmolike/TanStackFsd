@@ -1,232 +1,86 @@
 // fsd-import-rules.mjs
-const appLayerRules = {
-  files: ['**/app/**/*.{js,jsx,ts,tsx}'],
-  rules: {
-    // App can import from any layer
-    'no-restricted-imports': 'off',
-  },
+
+// Define all possible layers
+const LAYERS = {
+  APP: 'app',
+  PAGES: 'pages',
+  WIDGETS: 'widgets',
+  FEATURES: 'features',
+  ENTITIES: 'entities',
+  SHARED: 'shared',
 };
 
-const pagesLayerRules = {
-  files: ['**/pages/**/*.{js,jsx,ts,tsx}'],
-  rules: {
-    // Pages can import from everything except app
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: [
-          {
-            group: [
-              '^(~/app|app)(/.*)?$',
-              '^(/app)(/.*)?$',
-              '^(./app)(/.*)?$',
-              '^(../app)(/.*)?$',
-              '^(../../app)(/.*)?$',
-            ],
-            message: 'Pages cannot import from the app layer.',
-          },
-        ],
+// Helper to create import restriction patterns for a given layer
+const createLayerPattern = (layer) => {
+  return [
+    `^(~/${layer}|${layer})(/.*)?$`,
+    `^(/${layer})(/.*)?$`,
+    `^(./${layer})(/.*)?$`,
+    `^(../${layer})(/.*)?$`,
+    `^(../../${layer})(/.*)?$`,
+  ];
+};
+
+// Create pattern objects for each layer
+const createRestrictionPattern = (layer, message) => {
+  return {
+    group: createLayerPattern(layer),
+    message: message || `Cannot import from the ${layer} layer.`,
+  };
+};
+
+// Define layer dependencies (what each layer can import)
+const LAYER_DEPENDENCIES = {
+  [LAYERS.APP]: [], // App can import from any layer
+  [LAYERS.PAGES]: [LAYERS.APP],
+  [LAYERS.WIDGETS]: [LAYERS.APP, LAYERS.PAGES],
+  [LAYERS.FEATURES]: [LAYERS.APP, LAYERS.PAGES, LAYERS.WIDGETS],
+  [LAYERS.ENTITIES]: [LAYERS.APP, LAYERS.PAGES, LAYERS.WIDGETS, LAYERS.FEATURES],
+  [LAYERS.SHARED]: [LAYERS.APP, LAYERS.PAGES, LAYERS.WIDGETS, LAYERS.FEATURES, LAYERS.ENTITIES],
+};
+
+// Generate layer rules based on dependencies
+const generateLayerRules = (layer) => {
+  const restrictedLayers = LAYER_DEPENDENCIES[layer];
+
+  if (restrictedLayers.length === 0) {
+    return {
+      files: [`**/${layer}/**/*.{js,jsx,ts,tsx}`],
+      rules: {
+        'no-restricted-imports': 'off',
       },
-    ],
-  },
+    };
+  }
+
+  const patterns = restrictedLayers.map((restrictedLayer) =>
+    createRestrictionPattern(
+      restrictedLayer,
+      `${layer} cannot import from the ${restrictedLayer} layer.`,
+    ),
+  );
+
+  return {
+    files: [`**/${layer}/**/*.{js,jsx,ts,tsx}`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns,
+        },
+      ],
+    },
+  };
 };
 
-const widgetsLayerRules = {
-  files: ['**/widgets/**/*.{js,jsx,ts,tsx}'],
-  rules: {
-    // Widgets can import from features, entities, shared
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: [
-          {
-            group: [
-              '^(~/app|app)(/.*)?$',
-              '^(/app)(/.*)?$',
-              '^(./app)(/.*)?$',
-              '^(../app)(/.*)?$',
-              '^(../../app)(/.*)?$',
-            ],
-            message: 'Widgets cannot import from the app layer.',
-          },
-          {
-            group: [
-              '^(~/pages|pages)(/.*)?$',
-              '^(/pages)(/.*)?$',
-              '^(./pages)(/.*)?$',
-              '^(../pages)(/.*)?$',
-              '^(../../pages)(/.*)?$',
-            ],
-            message: 'Widgets cannot import from the pages layer.',
-          },
-        ],
-      },
-    ],
-  },
-};
+// Generate rules for each layer
+const appLayerRules = generateLayerRules(LAYERS.APP);
+const pagesLayerRules = generateLayerRules(LAYERS.PAGES);
+const widgetsLayerRules = generateLayerRules(LAYERS.WIDGETS);
+const featuresLayerRules = generateLayerRules(LAYERS.FEATURES);
+const entitiesLayerRules = generateLayerRules(LAYERS.ENTITIES);
+const sharedLayerRules = generateLayerRules(LAYERS.SHARED);
 
-const featuresLayerRules = {
-  files: ['**/features/**/*.{js,jsx,ts,tsx}'],
-  rules: {
-    // Features can import from entities, shared
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: [
-          {
-            group: [
-              '^(~/app|app)(/.*)?$',
-              '^(/app)(/.*)?$',
-              '^(./app)(/.*)?$',
-              '^(../app)(/.*)?$',
-              '^(../../app)(/.*)?$',
-            ],
-            message: 'Features cannot import from the app layer.',
-          },
-          {
-            group: [
-              '^(~/pages|pages)(/.*)?$',
-              '^(/pages)(/.*)?$',
-              '^(./pages)(/.*)?$',
-              '^(../pages)(/.*)?$',
-              '^(../../pages)(/.*)?$',
-            ],
-            message: 'Features cannot import from the pages layer.',
-          },
-          {
-            group: [
-              '^(~/widgets|widgets)(/.*)?$',
-              '^(/widgets)(/.*)?$',
-              '^(./widgets)(/.*)?$',
-              '^(../widgets)(/.*)?$',
-              '^(../../widgets)(/.*)?$',
-            ],
-            message: 'Features cannot import from the widgets layer.',
-          },
-        ],
-      },
-    ],
-  },
-};
-
-const entitiesLayerRules = {
-  files: ['**/entities/**/*.{js,jsx,ts,tsx}'],
-  rules: {
-    // Entities can import from shared
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: [
-          {
-            group: [
-              '^(~/app|app)(/.*)?$',
-              '^(/app)(/.*)?$',
-              '^(./app)(/.*)?$',
-              '^(../app)(/.*)?$',
-              '^(../../app)(/.*)?$',
-            ],
-            message: 'Entities cannot import from the app layer.',
-          },
-          {
-            group: [
-              '^(~/pages|pages)(/.*)?$',
-              '^(/pages)(/.*)?$',
-              '^(./pages)(/.*)?$',
-              '^(../pages)(/.*)?$',
-              '^(../../pages)(/.*)?$',
-            ],
-            message: 'Entities cannot import from the pages layer.',
-          },
-          {
-            group: [
-              '^(~/widgets|widgets)(/.*)?$',
-              '^(/widgets)(/.*)?$',
-              '^(./widgets)(/.*)?$',
-              '^(../widgets)(/.*)?$',
-              '^(../../widgets)(/.*)?$',
-            ],
-            message: 'Entities cannot import from the widgets layer.',
-          },
-          {
-            group: [
-              '^(~/features|features)(/.*)?$',
-              '^(/features)(/.*)?$',
-              '^(./features)(/.*)?$',
-              '^(../features)(/.*)?$',
-              '^(../../features)(/.*)?$',
-            ],
-            message: 'Entities cannot import from the features layer.',
-          },
-        ],
-      },
-    ],
-  },
-};
-
-const sharedLayerRules = {
-  files: ['**/shared/**/*.{js,jsx,ts,tsx}'],
-  rules: {
-    // Shared cannot import from any other layer
-    'no-restricted-imports': [
-      'error',
-      {
-        patterns: [
-          {
-            group: [
-              '^(~/app|app)(/.*)?$',
-              '^(/app)(/.*)?$',
-              '^(./app)(/.*)?$',
-              '^(../app)(/.*)?$',
-              '^(../../app)(/.*)?$',
-            ],
-            message: 'Shared cannot import from the app layer.',
-          },
-          {
-            group: [
-              '^(~/pages|pages)(/.*)?$',
-              '^(/pages)(/.*)?$',
-              '^(./pages)(/.*)?$',
-              '^(../pages)(/.*)?$',
-              '^(../../pages)(/.*)?$',
-            ],
-            message: 'Shared cannot import from the pages layer.',
-          },
-          {
-            group: [
-              '^(~/widgets|widgets)(/.*)?$',
-              '^(/widgets)(/.*)?$',
-              '^(./widgets)(/.*)?$',
-              '^(../widgets)(/.*)?$',
-              '^(../../widgets)(/.*)?$',
-            ],
-            message: 'Shared cannot import from the widgets layer.',
-          },
-          {
-            group: [
-              '^(~/features|features)(/.*)?$',
-              '^(/features)(/.*)?$',
-              '^(./features)(/.*)?$',
-              '^(../features)(/.*)?$',
-              '^(../../features)(/.*)?$',
-            ],
-            message: 'Shared cannot import from the features layer.',
-          },
-          {
-            group: [
-              '^(~/entities|entities)(/.*)?$',
-              '^(/entities)(/.*)?$',
-              '^(./entities)(/.*)?$',
-              '^(../entities)(/.*)?$',
-              '^(../../entities)(/.*)?$',
-            ],
-            message: 'Shared cannot import from the entities layer.',
-          },
-        ],
-      },
-    ],
-  },
-};
-
+// Test files can import from anywhere
 const testFilesLayerRules = {
   files: [
     '**/*.spec.ts',
@@ -241,67 +95,34 @@ const testFilesLayerRules = {
   },
 };
 
+// General rules about layer imports
 const generalLayerRules = {
   files: ['**/*.{js,jsx,ts,tsx}'],
   rules: {
-    // FSD-specific layer rules with fixed import paths
     'no-restricted-imports': [
       'error',
       {
         patterns: [
-          // Prevent importing from higher layers
-          {
-            group: [
-              // Regex patterns to match absolute and relative imports for each layer
-              '^(~/app|app)(/.*)?$',
-              '^(/app)(/.*)?$',
-              '^(./app)(/.*)?$',
-              '^(../app)(/.*)?$',
-              '^(../../app)(/.*)?$',
-            ],
-            message:
-              'Imports from the app layer are not allowed except within the app layer itself.',
-          },
-          {
-            group: [
-              '^(~/pages|pages)(/.*)?$',
-              '^(/pages)(/.*)?$',
-              '^(./pages)(/.*)?$',
-              '^(../pages)(/.*)?$',
-              '^(../../pages)(/.*)?$',
-            ],
-            message: 'Direct imports from pages are only allowed within the app layer.',
-          },
-          {
-            group: [
-              '^(~/widgets|widgets)(/.*)?$',
-              '^(/widgets)(/.*)?$',
-              '^(./widgets)(/.*)?$',
-              '^(../widgets)(/.*)?$',
-              '^(../../widgets)(/.*)?$',
-            ],
-            message: 'Widgets can only be imported by app or pages layers.',
-          },
-          {
-            group: [
-              '^(~/features|features)(/.*)?$',
-              '^(/features)(/.*)?$',
-              '^(./features)(/.*)?$',
-              '^(../features)(/.*)?$',
-              '^(../../features)(/.*)?$',
-            ],
-            message: 'Features can only be imported by app, pages, or widgets layers.',
-          },
-          {
-            group: [
-              '^(~/entities|entities)(/.*)?$',
-              '^(/entities)(/.*)?$',
-              '^(./entities)(/.*)?$',
-              '^(../entities)(/.*)?$',
-              '^(../../entities)(/.*)?$',
-            ],
-            message: 'Entities cannot be imported by the shared layer.',
-          },
+          createRestrictionPattern(
+            LAYERS.APP,
+            'Imports from the app layer are not allowed except within the app layer itself.',
+          ),
+          createRestrictionPattern(
+            LAYERS.PAGES,
+            'Direct imports from pages are only allowed within the app layer.',
+          ),
+          createRestrictionPattern(
+            LAYERS.WIDGETS,
+            'Widgets can only be imported by app or pages layers.',
+          ),
+          createRestrictionPattern(
+            LAYERS.FEATURES,
+            'Features can only be imported by app, pages, or widgets layers.',
+          ),
+          createRestrictionPattern(
+            LAYERS.ENTITIES,
+            'Entities cannot be imported by the shared layer.',
+          ),
         ],
       },
     ],

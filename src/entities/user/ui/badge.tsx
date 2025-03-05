@@ -1,3 +1,5 @@
+import { JSX } from 'react';
+
 import { type User, type UserRole } from '../model/types';
 
 type UserBadgeVariant = 'compact' | 'default' | 'detailed';
@@ -25,7 +27,7 @@ const getStatusColor = (status: 'active' | 'inactive'): string =>
     ? 'bg-green-100 text-green-800 border-green-200'
     : 'bg-gray-100 text-gray-800 border-gray-200';
 
-export const UserRoleBadge = ({ role }: { role: UserRole }) => (
+export const UserRoleBadge = ({ role }: { role: UserRole }): JSX.Element => (
   <span
     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRoleColor(
       role,
@@ -35,7 +37,7 @@ export const UserRoleBadge = ({ role }: { role: UserRole }) => (
   </span>
 );
 
-export const UserStatusBadge = ({ status }: { status: 'active' | 'inactive' }) => (
+export const UserStatusBadge = ({ status }: { status: 'active' | 'inactive' }): JSX.Element => (
   <span
     className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusColor(
       status,
@@ -45,7 +47,13 @@ export const UserStatusBadge = ({ status }: { status: 'active' | 'inactive' }) =
   </span>
 );
 
-export const UserAvatar = ({ user, size = 'md' }: { user: User; size?: 'sm' | 'md' | 'lg' }) => {
+export const UserAvatar = ({
+  user,
+  size = 'md',
+}: {
+  user: User;
+  size?: 'sm' | 'md' | 'lg';
+}): JSX.Element => {
   // Größenberechnung
   const sizeClasses = {
     sm: 'h-8 w-8 text-xs',
@@ -87,7 +95,7 @@ export const UserAvatar = ({ user, size = 'md' }: { user: User; size?: 'sm' | 'm
   );
 };
 
-export const UserBadge = ({ user, variant = 'default' }: UserBadgeProps) => {
+export const UserBadge = ({ user, variant = 'default' }: UserBadgeProps): JSX.Element => {
   if (variant === 'compact') {
     return (
       <div className="flex items-center space-x-2">

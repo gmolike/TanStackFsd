@@ -1,6 +1,8 @@
+import { JSX } from 'react';
+
 import { Link, useMatchRoute } from '@tanstack/react-router';
 
-export const DashboardSidebar = () => {
+export const DashboardSidebar = (): JSX.Element => {
   const matchRoute = useMatchRoute();
 
   const menuItems = [
