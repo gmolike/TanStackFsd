@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
-    "jsx": "react",
+    "jsx": "react-jsx",
     "composite": true,
     "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "outDir": "./dist-node",
+    "types": ["node", "vite/client"]
   },
-  "include": ["vite.config.ts", "eslint.config.mjs", "tanstack.config.tsx"]
+  "include": ["vite.config.ts", "eslint.config.mjs", "playwright.config.ts"]
 }

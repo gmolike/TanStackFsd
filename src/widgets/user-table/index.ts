@@ -1,0 +1,1 @@
+export { UserTableWidget } from './ui';

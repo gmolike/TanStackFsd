@@ -1,4 +1,4 @@
-// Konfiguration für ESLint 9.x
+// eslint.config.mjs
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
@@ -10,211 +10,310 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import prettierPlugin from 'eslint-plugin-prettier';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import prettierConfig from 'eslint-config-prettier';
+import playwrightPlugin from 'eslint-plugin-playwright';
+import { FlatCompat } from '@eslint/eslintrc';
+import { tanstackConfig } from '@tanstack/eslint-config';
 
-// Tell TypeScript to ignore type checking for this file
+// Import FSD layer rules
+import {
+  appLayerRules,
+  pagesLayerRules,
+  widgetsLayerRules,
+  featuresLayerRules,
+  entitiesLayerRules,
+  sharedLayerRules,
+  generalLayerRules,
+  testFilesLayerRules,
+} from './fsd-import-rules.mjs';
 
-/* @ts-nocheck */
+// Environment setup
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const API_URL = process.env.API_URL || getDefaultApiUrl(NODE_ENV);
 
-export default [
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
-  // Register all plugins at the root level
-  {
-    plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooksPlugin,
-      import: importPlugin,
-      'simple-import-sort': simpleImportSort,
-      '@tanstack/query': tanstackQuery,
-      'jsx-a11y': jsxA11y,
-      prettier: prettierPlugin,
-      'react-refresh': reactRefresh,
-    },
+console.log(`ESLint running with NODE_ENV=${NODE_ENV}, API_URL=${API_URL}`);
+
+// Helper function for API URL
+function getDefaultApiUrl(env) {
+  const urls = {
+    production: 'https://api.production.com',
+    staging: 'https://api.staging.com',
+    development: 'http://localhost:8090',
+  };
+  return urls[env] || urls.development;
+}
+
+// Create FlatCompat instance for legacy plugins
+const compat = new FlatCompat();
+
+// Configuration Sections
+const baseConfig = [js.configs.recommended, ...tseslint.configs.recommended];
+
+const pluginsConfig = {
+  plugins: {
+    react: reactPlugin,
+    'react-hooks': reactHooksPlugin,
+    import: importPlugin,
+    'simple-import-sort': simpleImportSort,
+    '@tanstack/query': tanstackQuery,
+    'jsx-a11y': jsxA11y,
+    prettier: prettierPlugin,
+    'react-refresh': reactRefresh,
+    playwright: playwrightPlugin,
   },
-  // Add React settings and basic configuration
-  {
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
+};
+
+const environmentConfig = {
+  languageOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    parserOptions: {
+      ecmaFeatures: {
+        jsx: true,
       },
-      globals: {
-        React: 'readonly',
-      },
     },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
-  },
-  // React Rules
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      'react/prop-types': 'off',
-      'react/react-in-jsx-scope': 'off',
-      'react/display-name': 'off',
+    globals: {
+      React: 'readonly',
+      process: 'readonly',
+      API_URL: 'readonly',
+      NODE_ENV: 'readonly',
+      document: 'readonly',
+      window: 'readonly',
+      navigator: 'readonly',
+      console: 'readonly',
     },
   },
-  // React Hooks Rules
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+  settings: {
+    react: {
+      version: 'detect',
     },
   },
-  // React Refresh Rules
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-    },
-  },
-  // JS/TS Common Rules
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      // JavaScript Best Practices
-      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
-      'prefer-const': 'error',
-      'arrow-body-style': ['error', 'as-needed'],
-      'max-len': [
-        'warn',
-        { code: 100, ignoreUrls: true, ignoreStrings: true, ignoreComments: true },
-      ],
-    },
-  },
-  // Import & Sorting Rules
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      // Import Rules
-      'import/order': 'off', // Deaktiviert, weil wir simple-import-sort verwenden
-      'import/first': 'error',
-      'import/no-duplicates': 'error',
-      'import/no-unresolved': 'off', // TypeScript kümmert sich darum
-      'import/newline-after-import': 'error',
+};
 
-      // Simple Import Sort
-      'simple-import-sort/imports': 'error', // Vereinfachte Regel für v12+
-      'simple-import-sort/exports': 'error',
-    },
+// Rule configurations
+const reactRules = {
+  files: ['**/*.{js,jsx,ts,tsx}'],
+  rules: {
+    'react/prop-types': 'off',
+    'react/react-in-jsx-scope': 'off',
+    'react/display-name': 'off',
   },
-  // JSX A11y rules
-  {
-    files: ['**/*.{jsx,tsx}'],
-    rules: {
-      'jsx-a11y/alt-text': 'warn',
-      'jsx-a11y/anchor-has-content': 'warn',
-      'jsx-a11y/anchor-is-valid': 'warn',
-      'jsx-a11y/aria-props': 'warn',
-      'jsx-a11y/aria-proptypes': 'warn',
-      'jsx-a11y/aria-role': 'warn',
-      'jsx-a11y/aria-unsupported-elements': 'warn',
-      'jsx-a11y/click-events-have-key-events': 'warn',
-      'jsx-a11y/heading-has-content': 'warn',
-      'jsx-a11y/html-has-lang': 'warn',
-      'jsx-a11y/iframe-has-title': 'warn',
-      'jsx-a11y/img-redundant-alt': 'warn',
-      'jsx-a11y/interactive-supports-focus': 'warn',
-      'jsx-a11y/label-has-associated-control': 'warn',
-      'jsx-a11y/mouse-events-have-key-events': 'warn',
-      'jsx-a11y/no-access-key': 'warn',
-      'jsx-a11y/no-autofocus': 'warn',
-      'jsx-a11y/no-distracting-elements': 'warn',
-      'jsx-a11y/no-interactive-element-to-noninteractive-role': 'warn',
-      'jsx-a11y/no-noninteractive-element-interactions': 'warn',
-      'jsx-a11y/no-noninteractive-element-to-interactive-role': 'warn',
-      'jsx-a11y/no-noninteractive-tabindex': 'warn',
-      'jsx-a11y/no-redundant-roles': 'warn',
-      'jsx-a11y/role-has-required-aria-props': 'warn',
-      'jsx-a11y/role-supports-aria-props': 'warn',
-      'jsx-a11y/scope': 'warn',
-      'jsx-a11y/tabindex-no-positive': 'warn',
-    },
+};
+
+const reactHooksRules = {
+  files: ['**/*.{js,jsx,ts,tsx}'],
+  rules: {
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
   },
-  // TanStack Query Rules - Korrigiert für aktuelle Plugin-Version
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      // Nur Regeln verwenden, die in der aktuellen Version existieren
-      '@tanstack/query/exhaustive-deps': 'error',
-    },
+};
+
+const reactRefreshRules = {
+  files: ['**/*.{js,jsx,ts,tsx}'],
+  rules: {
+    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
   },
-  // FSD architecture rules
-  {
-    files: ['**/*.{js,jsx,ts,tsx}'],
-    rules: {
-      // FSD-specific layer rules
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            // app darf nicht von anderen Schichten importiert werden
-            {
-              group: ['app', '~/app'],
-              message: 'Imports from the app layer are not allowed.',
-            },
-            // pages darf nur von app importiert werden
-            {
-              group: ['pages/*', '~/pages/*'],
-              message: 'Direct imports from pages are not allowed. Import from app instead.',
-            },
-            // widgets darf nur von app oder pages importiert werden
-            {
-              group: ['widgets/*', '~/widgets/*'],
-              message: 'Widgets can only be imported by app or pages.',
-            },
-            // features darf nur von app, pages oder widgets importiert werden
-            {
-              group: ['features/*', '~/features/*'],
-              message: 'Features can only be imported by app, pages, or widgets.',
-            },
-            // entities darf nicht von shared importiert werden
-            {
-              group: ['entities/*', '~/entities/*'],
-              message: 'Entities can not be imported by shared layer.',
-            },
-          ],
-        },
-      ],
-    },
+};
+
+const commonJsRules = {
+  files: ['**/*.{js,jsx,ts,tsx}'],
+  rules: {
+    'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+    'prefer-const': 'error',
+    'arrow-body-style': ['error', 'as-needed'],
+    'max-len': ['warn', { code: 100, ignoreUrls: true, ignoreStrings: true, ignoreComments: true }],
   },
-  // TypeScript specific rules
-  {
-    files: ['**/*.{ts,tsx}'],
-    rules: {
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-non-null-assertion': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-    },
-  },
-  // Prettier Rules - muss am Ende stehen
-  {
-    files: ['**/*.{js,jsx,ts,tsx,json,css,md}'],
-    rules: {
-      'prettier/prettier': 'error',
-    },
-  },
-  // Files to ignore
-  {
-    ignores: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      '.eslintrc.cjs',
-      '.husky/**',
-      '**/*.css',
-      '**/*.scss',
+};
+
+const importRules = {
+  files: ['**/*.{js,jsx,ts,tsx}'],
+  rules: {
+    'import/order': 'off',
+    'import/first': 'error',
+    'import/no-duplicates': 'error',
+    'import/no-unresolved': 'off',
+    'import/newline-after-import': 'error',
+
+    // FSD import groups configuration
+    'simple-import-sort/imports': [
+      'error',
+      {
+        groups: [
+          // React imports
+          ['^react$', '^react-dom$', '^react-router-dom', '^react.*'],
+
+          // External libraries (node_modules)
+          ['^@?\\w'],
+
+          // FSD layers (descending order)
+          ['^~/app(/.*|$)'],
+          ['^~/pages(/.*|$)'],
+          ['^~/widgets(/.*|$)'],
+          ['^~/features(/.*|$)'],
+          ['^~/entities(/.*|$)'],
+          ['^~/shared(/.*|$)'],
+
+          // Other absolute imports
+          ['^~(/.*|$)'],
+
+          // Relative imports from parent directory
+          ['^\\.\\./'],
+
+          // Relative imports from same directory
+          ['^\\./'],
+
+          // Style imports
+          ['\\.css$', '\\.scss$', '\\.sass$', '\\.less$', '\\.module\\.css$'],
+
+          // Type definitions
+          ['^.+\\.types$', '.*\\.d\\.ts$'],
+
+          // Special files (JSON, SVG, etc.)
+          ['^.+\\.?(json|svg|png|jpg|jpeg)$'],
+        ],
+      },
     ],
+    'simple-import-sort/exports': 'error',
   },
-  // Apply prettier config (must be last)
+};
+
+const tanstackQueryRules = {
+  files: ['**/*.{js,jsx,ts,tsx}'],
+  rules: {
+    '@tanstack/query/exhaustive-deps': 'error',
+  },
+};
+
+const typescriptRules = {
+  files: ['**/*.{ts,tsx}'],
+  rules: {
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-non-null-assertion': 'warn',
+  },
+};
+
+const jsonRules = {
+  files: ['**/*.{js,json}'],
+  rules: {
+    'no-unused-expressions': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off',
+  },
+};
+
+// Special configurations
+const testFilesExceptions = {
+  files: ['**/tests/**', '**/e2e/**', '**/__tests__/**', '**/*.{spec,test}.{ts,tsx}'],
+  rules: {
+    'no-console': 'off',
+    'max-len': 'off',
+  },
+};
+
+const apiConfigExceptions = {
+  files: ['**/shared/config/api.ts', '**/shared/api/base.ts'],
+  rules: {
+    'no-undef': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
+  },
+};
+
+const viteModuleExceptions = {
+  files: ['**/*.{js,jsx,ts,tsx}'],
+  languageOptions: {
+    globals: {
+      'import.meta': 'readonly',
+    },
+  },
+};
+
+const prettierRules = {
+  files: ['**/*.{js,jsx,ts,tsx,json,css,md}'],
+  rules: {
+    'prettier/prettier': 'error',
+  },
+};
+
+const ignorePatterns = {
+  ignores: [
+    'node_modules/**',
+    'dist/**',
+    'build/**',
+    '.eslintrc.cjs',
+    '.husky/**',
+    '**/*.css',
+    'playwright-report/**',
+    'test-results/**',
+    'playwright/.cache/**',
+  ],
+};
+
+// Playwright configuration via FlatCompat
+const playwrightConfig = compat.config({
+  overrides: [
+    {
+      files: ['**/*.spec.ts', '**/*.test.ts', '**/e2e/**/*.ts', '**/tests/**/*.ts'],
+      env: {
+        node: true,
+        'playwright/playwright': true,
+      },
+      rules: {
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
+        'playwright/expect-expect': 'error',
+        'playwright/no-focused-test': 'warn',
+        'playwright/no-skipped-test': 'warn',
+        'playwright/valid-expect': 'error',
+        'playwright/no-conditional-expect': 'error',
+        'playwright/no-wait-for-timeout': 'warn',
+        'no-restricted-imports': 'off',
+      },
+    },
+  ],
+});
+
+// Export the final ESLint config
+export default [
+  // Base configurations
+  ...tanstackConfig,
+  ...baseConfig,
+  pluginsConfig,
+  environmentConfig,
+
+  // Rule configurations
+  reactRules,
+  reactHooksRules,
+  reactRefreshRules,
+  commonJsRules,
+  importRules,
+  tanstackQueryRules,
+
+  // FSD Architecture Rules
+  generalLayerRules,
+  appLayerRules,
+  pagesLayerRules,
+  widgetsLayerRules,
+  featuresLayerRules,
+  entitiesLayerRules,
+  sharedLayerRules,
+  testFilesLayerRules,
+
+  // TypeScript specific rules
+  typescriptRules,
+  jsonRules,
+
+  // Playwright configuration
+  ...playwrightConfig,
+
+  // Special case configurations
+  testFilesExceptions,
+  apiConfigExceptions,
+  viteModuleExceptions,
+
+  // Ignore patterns
+  ignorePatterns,
+
+  // Prettier configuration (must be last)
+  prettierRules,
   prettierConfig,
 ];

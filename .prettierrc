@@ -1,4 +1,5 @@
 {
+  "plugins": ["prettier-plugin-tailwindcss"],
   "semi": true,
   "tabWidth": 2,
   "printWidth": 100,
@@ -6,13 +7,13 @@
   "trailingComma": "all",
   "jsxSingleQuote": false,
   "bracketSpacing": true,
-  "endOfLine": "lf",
-  "plugins": ["prettier-plugin-tailwindcss"],
+  "endOfLine": "auto",
   "overrides": [
     {
       "files": "*.json",
       "options": {
-        "parser": "json"
+        "parser": "json",
+        "trailingComma": "none"
       }
     }
   ]

@@ -1,9 +1,10 @@
-import { useNavigate } from '@tanstack/react-router';
 import { JSX, useState } from 'react';
 
-import { useAuth } from '~/shared/hooks/auth';
+import { useNavigate } from '@tanstack/react-router';
+
+import { useAuth } from '~/shared/auth';
 import { Button } from '~/shared/ui/button';
-import { Input } from '~/shared/ui/input';
+import { Input } from '~/shared/ui/input/index';
 
 export const LoginForm = (): JSX.Element => {
   const [email, setEmail] = useState('');

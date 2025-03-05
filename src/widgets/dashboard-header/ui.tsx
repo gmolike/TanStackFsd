@@ -1,18 +1,28 @@
 import { JSX } from 'react';
 
 import { User, UserAvatar, UserInfo } from '~/entities';
-import { useAuth } from '~/shared/hooks/auth';
+
+import { Router, useAuth } from '~/shared/auth';
 import { Button } from '~/shared/ui/button';
 
-interface DashboardHeaderProps {
+import { Route } from '~/routes';
+
+type DashboardHeaderProps = {
   user: User | null;
-}
+};
 
 export const DashboardHeader = ({ user }: DashboardHeaderProps): JSX.Element => {
   const { logout } = useAuth();
+  const navigate = Route.useNavigate();
 
   const handleLogout = () => {
-    logout();
+    if (window.confirm('Are you sure you want to logout?')) {
+      logout().then(() => {
+        Router.invalidate().finally(() => {
+          navigate({ to: '/' });
+        });
+      });
+    }
   };
 
   return (

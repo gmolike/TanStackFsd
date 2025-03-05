@@ -4,32 +4,5 @@
     "source.fixAll.eslint": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "json",
-    "jsonc"
-  ],
-  "css.validate": true,
-  "scss.validate": true,
-  "eslint.options": {
-    "extensions": [".js", ".jsx", ".ts", ".tsx", ".json"]
-  },
-  "tailwindCSS.includeLanguages": {
-    "typescript": "javascript",
-    "typescriptreact": "javascript"
-  },
-  "tailwindCSS.emmetCompletions": true,
-  "files.associations": {
-    "*.css": "tailwindcss",
-    "*.json": "jsonc"
-  },
-  "files.eol": "\n",
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+
 }
