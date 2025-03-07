@@ -3,7 +3,6 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import importPlugin from 'eslint-plugin-import';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import tanstackQuery from '@tanstack/eslint-plugin-query';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
@@ -52,13 +51,23 @@ const pluginsConfig = {
   plugins: {
     react: reactPlugin,
     'react-hooks': reactHooksPlugin,
-    import: importPlugin,
     'simple-import-sort': simpleImportSort,
     '@tanstack/query': tanstackQuery,
     'jsx-a11y': jsxA11y,
     prettier: prettierPlugin,
     'react-refresh': reactRefresh,
     playwright: playwrightPlugin,
+  },
+};
+
+// Define import plugin rules separately to avoid conflicts with tanstackConfig
+const importPluginConfig = {
+  rules: {
+    'import/order': 'off',
+    'import/first': 'error',
+    'import/no-duplicates': 'error',
+    'import/no-unresolved': 'off',
+    'import/newline-after-import': 'error',
   },
 };
 
@@ -121,18 +130,13 @@ const commonJsRules = {
     'prefer-const': 'error',
     'arrow-body-style': ['error', 'as-needed'],
     'max-len': ['warn', { code: 100, ignoreUrls: true, ignoreStrings: true, ignoreComments: true }],
+    'sort-imports': ['error', { ignoreMemberSort: true, ignoreDeclarationSort: true }],
   },
 };
 
 const importRules = {
   files: ['**/*.{js,jsx,ts,tsx}'],
   rules: {
-    'import/order': 'off',
-    'import/first': 'error',
-    'import/no-duplicates': 'error',
-    'import/no-unresolved': 'off',
-    'import/newline-after-import': 'error',
-
     // FSD import groups configuration
     'simple-import-sort/imports': [
       'error',
@@ -279,6 +283,7 @@ export default [
   ...baseConfig,
   pluginsConfig,
   environmentConfig,
+  importPluginConfig, // Add import plugin rules without redefining the plugin
 
   // Rule configurations
   reactRules,

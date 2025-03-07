@@ -1,7 +1,7 @@
-import { type User, type UsersQueryParams } from '../model/types';
+import type { User, UsersQueryParams } from '../model/types';
 
 // Mock Daten für die Demo
-const MOCK_USERS: User[] = [
+const MOCK_USERS: Array<User> = [
   {
     id: '1',
     name: 'John Doe',
@@ -56,7 +56,7 @@ export const userApi = {
     filters,
     sort,
   }: UsersQueryParams): Promise<{
-    data: User[];
+    data: Array<User>;
     total: number;
   }> => {
     // In einer echten App würde hier ein API-Aufruf stehen

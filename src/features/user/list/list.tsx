@@ -1,16 +1,10 @@
-import { JSX, useState } from 'react';
+import { useState } from 'react';
+import type { JSX } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import {
-  type User,
-  userApi,
-  UserBadge,
-  type UserFilters,
-  type UserRole,
-  UserRoleBadge,
-  UserStatusBadge,
-} from '~/entities/user';
+import type { User, UserFilters, UserRole } from '~/entities/user';
+import { userApi, UserBadge, UserRoleBadge, UserStatusBadge } from '~/entities/user';
 
 import { Button } from '~/shared/ui/button';
 import {
@@ -89,7 +83,7 @@ export const List = (): JSX.Element => {
   const handleRoleFilterChange = (role: UserRole | '') => {
     setFilters((prev) => ({
       ...prev,
-      role: role === '' ? undefined : (role as UserRole),
+      role: role === '' ? undefined : role,
     }));
     setPage(1);
   };
@@ -97,7 +91,7 @@ export const List = (): JSX.Element => {
   const handleStatusFilterChange = (status: 'active' | 'inactive' | '') => {
     setFilters((prev) => ({
       ...prev,
-      status: status === '' ? undefined : (status as 'active' | 'inactive'),
+      status: status === '' ? undefined : status,
     }));
     setPage(1);
   };
@@ -128,7 +122,7 @@ export const List = (): JSX.Element => {
   }
 
   if (isError) {
-    return <div className="rounded-md bg-red-50 p-4 text-red-800">Error: {error?.toString()}</div>;
+    return <div className="rounded-md bg-red-50 p-4 text-red-800">Error: {error.toString()}</div>;
   }
 
   const users = data?.data || [];

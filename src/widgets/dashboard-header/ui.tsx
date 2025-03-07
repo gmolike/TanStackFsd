@@ -1,10 +1,11 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
-import { User, UserAvatar, UserInfo } from '~/entities';
+import { UserAvatar, UserInfo } from '~/entities';
 
 import { Router, useAuth } from '~/shared/auth';
 import { Button } from '~/shared/ui/button';
 
+import type { User } from '~/entities';
 import { Route } from '~/routes';
 
 type DashboardHeaderProps = {

@@ -1,4 +1,4 @@
-import { type ButtonHTMLAttributes, JSX } from 'react';
+import type { ButtonHTMLAttributes, JSX } from 'react';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'outline' | 'danger';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FormFieldContextValue } from './type';
+import type { FormFieldContextValue } from './type';
 
 export const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue,

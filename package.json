@@ -20,8 +20,8 @@
     "format:json": "prettier --write \"**/*.json\" --loglevel warn",
     "lint:json": "eslint --ext .json --fix --ignore-pattern 'package*.json' --ignore-pattern 'node_modules/**' .",
     "_________________ TypeCheck  __________________": "",
-    "type-check": "tsc -b --noEmit",
-    "type-check:watch": "tsc --noEmit --watch",
+    "type-check": "tsc -b",
+    "type-check:watch": "tsc --watch",
     "_________________ Validate __________________": "",
     "validate": "pnpm exec concurrently \"pnpm type-check\" \"pnpm lint:report\" \"pnpm format:check\"",
     "fix-all": "pnpm lint:fix && pnpm format",
@@ -109,16 +109,10 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
-    ]
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
   },
   "ignores": [
     "node_modules/**",

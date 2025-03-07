@@ -1,5 +1,6 @@
-import { JSX } from 'react';
-import { Controller, ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
+import type { JSX } from 'react';
+import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 
 import { FormFieldContext } from './useContext';
 

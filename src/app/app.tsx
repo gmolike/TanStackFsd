@@ -1,4 +1,4 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
 import { AuthProvider } from './providers/auth-provider';
 import { QueryProvider } from './providers/query-provider';

@@ -1,6 +1,6 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
-import { type User, type UserRole } from '../model/types';
+import type { User, UserRole } from '../model/types';
 
 type UserBadgeVariant = 'compact' | 'default' | 'detailed';
 

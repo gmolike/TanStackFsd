@@ -1,6 +1,6 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
-import { User } from '~/entities';
+import type { User } from '~/entities';
 
 type Props = {
   user: User | null;

@@ -1,7 +1,7 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
 import { formatPrice } from '../api/format';
-import { type Product, type ProductCategory } from '../model/types';
+import type { Product, ProductCategory } from '../model/types';
 
 type ProductCardVariant = 'compact' | 'default' | 'detailed';
 

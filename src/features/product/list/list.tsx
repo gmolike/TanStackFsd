@@ -1,16 +1,10 @@
-import { JSX, useState } from 'react';
+import { useState } from 'react';
+import type { JSX } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import {
-  formatPrice,
-  Product,
-  productApi,
-  ProductCard,
-  ProductCategory,
-  ProductCategoryBadge,
-  ProductFilters,
-} from '~/entities/product';
+import type { Product, ProductCategory, ProductFilters } from '~/entities/product';
+import { formatPrice, productApi, ProductCard, ProductCategoryBadge } from '~/entities/product';
 
 import { Button } from '~/shared/ui/button';
 import {
@@ -91,7 +85,7 @@ export const ProductListFeature = (): JSX.Element => {
   const handleCategoryFilterChange = (category: ProductCategory | '') => {
     setFilters((prev) => ({
       ...prev,
-      category: category === '' ? undefined : (category as ProductCategory),
+      category: category === '' ? undefined : category,
     }));
     setPage(1);
   };
@@ -141,7 +135,7 @@ export const ProductListFeature = (): JSX.Element => {
   }
 
   if (isError) {
-    return <div className="rounded-md bg-red-50 p-4 text-red-800">Error: {error?.toString()}</div>;
+    return <div className="rounded-md bg-red-50 p-4 text-red-800">Error: {error.toString()}</div>;
   }
 
   const products = data?.data || [];

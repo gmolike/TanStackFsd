@@ -1,13 +1,12 @@
-import { defineConfig, mergeConfig, loadEnv } from 'vite';
-import { resolve } from 'path';
-import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import { tanstackViteConfig } from '@tanstack/config/vite';
-// OR
-// import { tanstackViteConfig } from '@tanstack/vite-config'
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'node:path';
+import type { UserConfig } from 'vite';
+import { defineConfig, loadEnv, mergeConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
-export default ({ mode }: { mode: string }) => {
+export default ({ mode }: { mode: string }): UserConfig => {
   // Load environment variables based on current mode (development, production, etc.)
   const env = loadEnv(mode, process.cwd(), '');
 
@@ -70,7 +69,7 @@ export default ({ mode }: { mode: string }) => {
       'import.meta.env.VITE_API_URL': JSON.stringify(apiUrl),
       'import.meta.env.MODE': JSON.stringify(mode),
       // Add additional environment variables as needed
-      ...Object.keys(env).reduce((acc: Record<string, any>, key: string) => {
+      ...Object.keys(env).reduce((acc: Record<string, unknown>, key: string) => {
         if (key.startsWith('VITE_')) {
           acc[`import.meta.env.${key}`] = JSON.stringify(env[key]);
         }
@@ -82,7 +81,7 @@ export default ({ mode }: { mode: string }) => {
   return mergeConfig(
     config,
     tanstackViteConfig({
-      entry: './src/index.ts',
+      entry: './src/main.tsx',
       srcDir: './src',
     }),
   );
