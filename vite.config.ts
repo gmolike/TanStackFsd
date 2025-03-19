@@ -5,6 +5,12 @@ import { resolve } from 'node:path';
 import type { UserConfig } from 'vite';
 import { defineConfig, loadEnv, mergeConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+// Import vitest config explicitly
+import type { InlineConfig } from 'vitest/node';
+
+interface ViteConfigWithVitest extends UserConfig {
+  test?: InlineConfig;
+}
 
 export default ({ mode }: { mode: string }): UserConfig => {
   // Load environment variables based on current mode (development, production, etc.)
@@ -21,7 +27,7 @@ export default ({ mode }: { mode: string }): UserConfig => {
 
   console.warn(`Mode: ${mode}, API URL: ${apiUrl}`);
 
-  const config = defineConfig({
+  const config: ViteConfigWithVitest = defineConfig({
     plugins: [
       TanStackRouterVite({
         target: 'react',
@@ -40,6 +46,7 @@ export default ({ mode }: { mode: string }): UserConfig => {
       },
     },
     server: {
+      host: true,
       port: 8090,
       open: true,
       // Proxy settings if needed
@@ -54,6 +61,7 @@ export default ({ mode }: { mode: string }): UserConfig => {
             }
           : undefined,
     },
+    preview: { port: 8090, strictPort: true },
     build: {
       outDir: 'dist',
       sourcemap: true,
@@ -75,6 +83,13 @@ export default ({ mode }: { mode: string }): UserConfig => {
         }
         return acc;
       }, {}),
+    },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/shared/test/setup.ts',
+      include: ['./src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+      exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
     },
   });
 

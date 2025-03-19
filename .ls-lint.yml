@@ -20,13 +20,13 @@ ls:
     .css: kebabcase
 
     # Vite/Vitest Test-Dateien
-    '**/*.{test,spec}.{ts,tsx}': camelcase | pascalcase
+    '.{test,spec}.{ts,tsx}': camelcase | pascalcase
     '**/*.test-utils.{ts,tsx}': camelcase | pascalcase
     '**/__tests__/*.{ts,tsx}': camelcase | pascalcase
 
     # Playwright E2E Test-Dateien
-    '**/*.e2e.{ts,tsx}': camelcase | pascalcase
-    '**/*.spec.{ts,tsx}': camelcase | pascalcase
+    '.e2e.{ts,tsx}': camelcase | pascalcase
+    '.spec.{ts,tsx}': camelcase | pascalcase
 
     # FSD-Struktur
     '{app,pages,processes,widgets,features,entities,shared}':
