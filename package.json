@@ -9,6 +9,10 @@
     "build": "tsc && vite build",
     "postbuild": "echo 'Build completed successfully!'",
     "preview": "vite preview",
+    "_________________ OpenApi __________________": "",
+    "openapi:generate": "openapi-generator-cli generate -i http://localhost:3000/api-docs/swagger.json -g typescript-axios -o src/shared/api/generated",
+    "openapi:clean": "rimraf src/shared/api/generated",
+    "openapi:regenerate": "npm run openapi:clean && npm run openapi:generate",
     "_________________ Linter __________________": "",
     "lint": "eslint --ext .ts,.tsx src/",
     "lint:fix": "eslint --ext .ts,.tsx src/ --fix",
@@ -112,16 +116,10 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
-    ]
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
   },
   "ignores": [
     "node_modules/**",
