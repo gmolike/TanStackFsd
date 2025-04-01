@@ -1,7 +1,7 @@
-import { type Product, type ProductsQueryParams } from '../model/types';
+import type { Product, ProductsQueryParams } from '../model/types';
 
 // Mock Daten für die Demo
-const MOCK_PRODUCTS: Product[] = [
+const MOCK_PRODUCTS: Array<Product> = [
   {
     id: '1',
     name: 'Laptop Pro',
@@ -66,7 +66,7 @@ export const productApi = {
     filters,
     sort,
   }: ProductsQueryParams): Promise<{
-    data: Product[];
+    data: Array<Product>;
     total: number;
   }> => {
     // In einer echten App würde hier ein API-Aufruf stehen

@@ -1,6 +1,6 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
-import { type User } from '../model/types';
+import type { User } from '../model/types';
 
 type UserAvatarProps = {
   user: User | null;

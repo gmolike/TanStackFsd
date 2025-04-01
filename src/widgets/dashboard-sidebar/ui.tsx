@@ -1,4 +1,4 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
 import { Link, useMatchRoute } from '@tanstack/react-router';
 

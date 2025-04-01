@@ -1,7 +1,7 @@
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
-import { AuthContextType } from '~/shared/hooks/auth';
+import type { AuthContextType } from '~/shared/auth';
 
 type Props = {
   auth: AuthContextType;

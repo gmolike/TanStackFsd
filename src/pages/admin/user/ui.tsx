@@ -1,4 +1,4 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
 import { UserTableWidget } from '~/widgets/user-table';
 

@@ -1,0 +1,75 @@
+# Regeln für die Datei- und Ordner Benennung in FSD-Struktur mit TanStack Router und Tests
+
+# ls-lint kennt benannte regex patterns wie camelCase und PascalCase
+# siehe (https://ls-lint.org/1.x/configuration/the-rules.html#overview)
+ls:
+  # Root-Konfigurationsdateien
+  '{tailwind.config,vite.config,vitest.config,playwright.config}.ts': kebabcase
+  'tsconfig{,.base,.node}.json': kebabcase
+  README.md: regex:.*
+
+  # Hauptkonfiguration für src-Ordner (FSD-Struktur)
+  src:
+    # FSD-Layer als kebab-case
+    .dir: kebabcase
+
+    # Standard-Dateitypen
+    .ts: camelcase | pascalcase | regex:(use)([A-Z][a-z0-9]+)+ | regex:(index)
+    .tsx: camelcase | pascalcase | regex:(use)([A-Z][a-z0-9]+)+
+    .scss: kebabcase
+    .css: kebabcase
+
+    # Vite/Vitest Test-Dateien
+    '.{test,spec}.{ts,tsx}': camelcase | pascalcase
+    '**/*.test-utils.{ts,tsx}': camelcase | pascalcase
+    '**/__tests__/*.{ts,tsx}': camelcase | pascalcase
+
+    # Playwright E2E Test-Dateien
+    '.e2e.{ts,tsx}': camelcase | pascalcase
+    '.spec.{ts,tsx}': camelcase | pascalcase
+
+    # FSD-Struktur
+    '{app,pages,processes,widgets,features,entities,shared}':
+      .dir: kebabcase
+
+      # Hooks können in camelCase sein
+      '**/use*.{ts,tsx}': camelcase
+
+      # Weitere Unterverzeichnisse
+      '**':
+        .dir: kebabcase
+        .ts: camelcase | pascalcase
+        .tsx: camelcase | pascalcase
+
+  # Test-Ordner für Vite und Playwright Tests
+  'tests':
+    .dir: kebabcase
+    '**':
+      .dir: kebabcase
+      '*.{test,spec,e2e}.ts': camelcase | pascalcase
+
+ignore:
+  # Standardordner
+  - node_modules
+  - .git
+  - dist
+  - build
+  - .husky
+  - .vscode
+  - .github
+  - public
+  - coverage
+  - .next
+  - storybook-static
+  - .vite
+  - dist-node
+
+  # TanStack Router spezifische Dateien
+  - src/routeTree.gen.ts
+  - src/routes/**/*.tsx
+
+  # Kebab-case Dateien
+  - src/app/providers/*-provider.tsx
+  - src/shared/api/api-instande.ts
+  - src/shared/ui/*-*.tsx
+  - src/vite-env.d.ts

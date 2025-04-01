@@ -1,4 +1,5 @@
-import { JSX, useState } from 'react';
+import { useState } from 'react';
+import type { JSX } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
 

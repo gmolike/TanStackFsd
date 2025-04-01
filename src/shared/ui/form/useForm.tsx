@@ -1,5 +1,6 @@
 import React from 'react';
-import { FieldError, useFormContext } from 'react-hook-form';
+import type { FieldError } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 import { FormItemContext } from './itemContext';
 import { FormFieldContext } from './useContext';
@@ -21,10 +22,6 @@ export const useFormField = (): {
   const { getFieldState, formState } = useFormContext();
 
   const fieldState = getFieldState(fieldContext.name, formState);
-
-  if (!fieldContext) {
-    throw new Error('useFormField should be used within <FormField>');
-  }
 
   const { id } = itemContext;
 

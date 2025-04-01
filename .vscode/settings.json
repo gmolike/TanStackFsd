@@ -4,5 +4,10 @@
     "source.fixAll.eslint": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "cSpell.words": [
+    "kebabcase",
+    "pascalcase",
+    "screamingsnakecase"
+  ],
 
 }

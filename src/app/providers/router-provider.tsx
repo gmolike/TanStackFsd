@@ -1,4 +1,5 @@
-import { JSX, StrictMode } from 'react';
+import { StrictMode } from 'react';
+import type { JSX } from 'react';
 
 import { RouterProvider as TanStackRouterProvider } from '@tanstack/react-router';
 

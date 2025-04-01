@@ -1,4 +1,4 @@
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
 import { ProductListFeature } from '~/features/product/list/list';
 

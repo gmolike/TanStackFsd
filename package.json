@@ -9,9 +9,14 @@
     "build": "tsc && vite build",
     "postbuild": "echo 'Build completed successfully!'",
     "preview": "vite preview",
+    "_________________ OpenApi __________________": "",
+    "openapi:generate": "openapi-generator-cli generate -i http://localhost:3000/api-docs/swagger.json -g typescript-axios -o src/shared/api/generated",
+    "openapi:clean": "rimraf src/shared/api/generated",
+    "openapi:regenerate": "npm run openapi:clean && npm run openapi:generate",
     "_________________ Linter __________________": "",
     "lint": "eslint --ext .ts,.tsx src/",
     "lint:fix": "eslint --ext .ts,.tsx src/ --fix",
+    "lint:ls": "ls-lint",
     "lint:report": "eslint --ext .ts,.tsx src/ ",
     "lint:staged": "lint-staged",
     "_________________ Format __________________": "",
@@ -20,10 +25,10 @@
     "format:json": "prettier --write \"**/*.json\" --loglevel warn",
     "lint:json": "eslint --ext .json --fix --ignore-pattern 'package*.json' --ignore-pattern 'node_modules/**' .",
     "_________________ TypeCheck  __________________": "",
-    "type-check": "tsc -b --noEmit",
-    "type-check:watch": "tsc --noEmit --watch",
+    "type-check": "tsc -b",
+    "type-check:watch": "tsc --watch",
     "_________________ Validate __________________": "",
-    "validate": "pnpm exec concurrently \"pnpm type-check\" \"pnpm lint:report\" \"pnpm format:check\"",
+    "validate": "pnpm exec concurrently \"pnpm type-check\" \"pnpm lint:report\" \"pnpm format:check\" \"pnpm lint:ls\"",
     "fix-all": "pnpm lint:fix && pnpm format",
     "_________________ Pre __________________": "",
     "prepare": "husky install",
@@ -62,11 +67,13 @@
     "react-hook-form": "^7.54.2",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
+    "vitest": "^3.0.9",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.21.0",
+    "@ls-lint/ls-lint": "^2.2.3",
     "@shadcn/ui": "^0.0.4",
     "@tanstack/config": "^0.16.3",
     "@tanstack/eslint-config": "^0.1.0",
@@ -109,16 +116,10 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
-    ]
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
   },
   "ignores": [
     "node_modules/**",

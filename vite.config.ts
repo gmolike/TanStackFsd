@@ -1,13 +1,18 @@
-import { defineConfig, mergeConfig, loadEnv } from 'vite';
-import { resolve } from 'path';
-import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
 import { tanstackViteConfig } from '@tanstack/config/vite';
-// OR
-// import { tanstackViteConfig } from '@tanstack/vite-config'
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'node:path';
+import type { UserConfig } from 'vite';
+import { defineConfig, loadEnv, mergeConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
+// Import vitest config explicitly
+import type { InlineConfig } from 'vitest/node';
 
-export default ({ mode }: { mode: string }) => {
+interface ViteConfigWithVitest extends UserConfig {
+  test?: InlineConfig;
+}
+
+export default ({ mode }: { mode: string }): UserConfig => {
   // Load environment variables based on current mode (development, production, etc.)
   const env = loadEnv(mode, process.cwd(), '');
 
@@ -22,7 +27,7 @@ export default ({ mode }: { mode: string }) => {
 
   console.warn(`Mode: ${mode}, API URL: ${apiUrl}`);
 
-  const config = defineConfig({
+  const config: ViteConfigWithVitest = defineConfig({
     plugins: [
       TanStackRouterVite({
         target: 'react',
@@ -41,6 +46,7 @@ export default ({ mode }: { mode: string }) => {
       },
     },
     server: {
+      host: true,
       port: 8090,
       open: true,
       // Proxy settings if needed
@@ -55,6 +61,7 @@ export default ({ mode }: { mode: string }) => {
             }
           : undefined,
     },
+    preview: { port: 8090, strictPort: true },
     build: {
       outDir: 'dist',
       sourcemap: true,
@@ -70,19 +77,26 @@ export default ({ mode }: { mode: string }) => {
       'import.meta.env.VITE_API_URL': JSON.stringify(apiUrl),
       'import.meta.env.MODE': JSON.stringify(mode),
       // Add additional environment variables as needed
-      ...Object.keys(env).reduce((acc: Record<string, any>, key: string) => {
+      ...Object.keys(env).reduce((acc: Record<string, unknown>, key: string) => {
         if (key.startsWith('VITE_')) {
           acc[`import.meta.env.${key}`] = JSON.stringify(env[key]);
         }
         return acc;
       }, {}),
     },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/shared/test/setup.ts',
+      include: ['./src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+      exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    },
   });
 
   return mergeConfig(
     config,
     tanstackViteConfig({
-      entry: './src/index.ts',
+      entry: './src/main.tsx',
       srcDir: './src',
     }),
   );
