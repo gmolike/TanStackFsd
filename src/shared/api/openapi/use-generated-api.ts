@@ -16,8 +16,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
  */
 export function useGeneratedQuery<
   TData,
+  TQueryFnData extends TData,
   TError = Error,
-  TQueryFnData = TData,
   TQueryKey extends QueryKey = QueryKey,
 >(
   queryKey: TQueryKey,
@@ -59,38 +59,38 @@ export function useGeneratedMutation<
 
 // Beispiel für die Nutzung mit generierten APIs
 /*
-  // src/entities/user/api/user-api.ts
-  import { UserApi, Configuration, User, CreateUserDto } from '@/shared/api/generated';
-  import { useGeneratedQuery, useGeneratedMutation } from '@/shared/api/openapi/use-generated-api';
-  
-  const apiConfig = new Configuration({
-    basePath: import.meta.env.VITE_API_BASE_URL,
-    accessToken: () => localStorage.getItem('accessToken') || ''
-  });
-  
-  const userApi = new UserApi(apiConfig);
-  
-  export const useUsers = (options?: any) => {
-    return useGeneratedQuery(
-      ['users'],
-      () => userApi.getUsers(),
-      options
-    );
-  };
-  
-  export const useUserById = (userId: string, options?: any) => {
-    return useGeneratedQuery(
-      ['users', userId],
-      () => userApi.getUserById(userId),
-      options
-    );
-  };
-  
-  export const useCreateUser = (options?: any) => {
-    return useGeneratedMutation(
-      ['users', 'create'],
-      (newUser: CreateUserDto) => userApi.createUser(newUser),
-      options
-    );
-  };
-  */
+    // src/entities/user/api/user-api.ts
+    import { UserApi, Configuration, User, CreateUserDto } from '@/shared/api/generated';
+    import { useGeneratedQuery, useGeneratedMutation } from '@/shared/api/openapi/use-generated-api';
+    
+    const apiConfig = new Configuration({
+      basePath: import.meta.env.VITE_API_BASE_URL,
+      accessToken: () => localStorage.getItem('accessToken') || ''
+    });
+    
+    const userApi = new UserApi(apiConfig);
+    
+    export const useUsers = (options?: any) => {
+      return useGeneratedQuery(
+        ['users'],
+        () => userApi.getUsers(),
+        options
+      );
+    };
+    
+    export const useUserById = (userId: string, options?: any) => {
+      return useGeneratedQuery(
+        ['users', userId],
+        () => userApi.getUserById(userId),
+        options
+      );
+    };
+    
+    export const useCreateUser = (options?: any) => {
+      return useGeneratedMutation(
+        ['users', 'create'],
+        (newUser: CreateUserDto) => userApi.createUser(newUser),
+        options
+      );
+    };
+    */
