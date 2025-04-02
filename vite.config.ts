@@ -88,8 +88,38 @@ export default ({ mode }: { mode: string }): UserConfig => {
       globals: true,
       environment: 'jsdom',
       setupFiles: './src/shared/test/setup.ts',
-      include: ['./src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-      exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+      include: ['./src/**/*.{test,spec}.{ts,tsx}'],
+      exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', '**/e2e/**'],
+      coverage: {
+        provider: 'istanbul', // oder 'v8'
+        reporter: ['text', 'json', 'html'],
+        exclude: [
+          'node_modules/**',
+          'dist/**',
+          '**/*.d.ts',
+          '**/*.config.*',
+          '**/vite-env.d.ts',
+          '**/*.test.*',
+          '**/test-utils/**',
+          'playwright/**',
+        ],
+        all: true,
+        thresholds: {
+          statements: 70,
+          branches: 70,
+          functions: 70,
+          lines: 70,
+        },
+      },
+      // Bei Problemen mit Memory-Leaks in Tests
+      poolOptions: {
+        threads: {
+          singleThread: true,
+        },
+      },
+      testTimeout: 10000, // 10 Sekunden
+      hookTimeout: 10000, // 10 Sekunden für beforeEach/afterEach
+      isolate: true,
     },
   });
 
