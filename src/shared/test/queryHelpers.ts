@@ -1,49 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import { vi } from 'vitest';
 
 /**
- * Erzeugt ein einfaches Mock-Ergebnis für TanStack Query hooks
+ * Erzeugt ein typsicheres Mock-Ergebnis für TanStack Query Hooks
  */
 export function createMockQuery<TData = unknown, TError = Error>(
   options: {
-    data?: TData | null;
+    data?: TData | undefined;
     error?: TError | null;
     loading?: boolean;
     success?: boolean;
     [key: string]: any;
   } = {},
-): {
-  data: TData | null;
-  error: TError | null;
-  isLoading: boolean;
-  isPending: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-  status: 'loading' | 'error' | 'success';
-  fetchStatus: 'fetching' | 'idle';
-  refetch: ReturnType<typeof vi.fn>;
-  // Weitere Eigenschaften
-  [key: string]: any;
-} {
+): UseQueryResult<TData, TError> {
   const {
-    data = null as TData | null,
+    data = undefined as TData | undefined,
     error = null as TError | null,
     loading = false,
-    success = !loading && !error,
+    success = !loading && !error && data !== undefined,
   } = options;
 
-  return {
+  // Korrekt typisiertes Promise
+  const typesafePromise: Promise<TData> = Promise.resolve(data || ({} as TData));
+
+  // Basisobjekt für QueryObserverResult
+  const result = {
     data,
-    error,
+    error, // Wir belassen es bei TError | null, da wir später as any casten
     isLoading: loading,
     isPending: loading,
     isSuccess: success,
     isError: !!error,
-    status: loading ? 'loading' : error ? 'error' : 'success',
+    status: loading ? 'pending' : error ? 'error' : 'success',
     fetchStatus: loading ? 'fetching' : 'idle',
-
-    // Standardwerte für andere Eigenschaften
     refetch: vi.fn().mockResolvedValue({ data }),
+
+    // Weitere notwendige Eigenschaften für TanStack Query v5
     dataUpdatedAt: 0,
     errorUpdateCount: 0,
     failureCount: 0,
@@ -59,39 +52,34 @@ export function createMockQuery<TData = unknown, TError = Error>(
     isStale: false,
     isInitialLoading: loading,
     isPaused: false,
-    promise: Promise.resolve(data),
 
-    // Zusätzliche Eigenschaften, die in options übergeben werden
-    ...options,
+    // Korrekt typisiertes Promise
+    promise: typesafePromise,
   };
+
+  // Füge weitere Eigenschaften hinzu (ohne die verarbeiteten)
+  for (const key in options) {
+    if (key !== 'data' && key !== 'error' && key !== 'loading' && key !== 'success') {
+      (result as Record<string, any>)[key] = options[key];
+    }
+  }
+
+  // Wir casten das gesamte Ergebnis, um Typprobleme zu umgehen
+  return result as unknown as UseQueryResult<TData, TError>;
 }
 
 /**
- * Vereinfachter Mock für Mutation-Hooks
+ * Erzeugt ein typsicheres Mock-Ergebnis für TanStack Mutation Hooks
  */
-export function createMockMutation<TData = unknown, TError = Error>(
+export function createMockMutation<TData = unknown, TVariables = unknown, TError = Error>(
   options: {
-    data?: TData;
+    data?: TData | undefined;
     error?: TError | null;
     loading?: boolean;
     success?: boolean;
     [key: string]: any;
   } = {},
-): {
-  data: TData | undefined;
-  error: TError | null;
-  isLoading: boolean;
-  isPending: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-  isIdle: boolean;
-  status: 'idle' | 'loading' | 'error' | 'success';
-  mutate: ReturnType<typeof vi.fn>;
-  mutateAsync: ReturnType<typeof vi.fn>;
-  reset: ReturnType<typeof vi.fn>;
-  // Weitere Eigenschaften
-  [key: string]: any;
-} {
+): UseMutationResult<TData, TError, TVariables, unknown> {
   const {
     data = undefined as TData | undefined,
     error = null as TError | null,
@@ -99,26 +87,36 @@ export function createMockMutation<TData = unknown, TError = Error>(
     success = !loading && !error && data !== undefined,
   } = options;
 
-  return {
+  // Status basierend auf den Parametern ableiten
+  const status = loading ? 'loading' : error ? 'error' : success ? 'success' : 'idle';
+
+  // Basisobjekt für UseMutationResult
+  const result = {
     data,
     error,
     isLoading: loading,
     isPending: loading,
     isSuccess: success,
     isError: !!error,
-    isIdle: !loading && !success && !error,
-    status: loading ? 'loading' : error ? 'error' : success ? 'success' : 'idle',
+    isIdle: status === 'idle',
+    status,
 
     // Funktionen
     mutate: vi.fn(),
-    mutateAsync: vi.fn().mockImplementation(() => Promise.resolve(data)),
+    mutateAsync: vi.fn().mockImplementation(() => Promise.resolve(data || ({} as TData))),
     reset: vi.fn(),
 
-    // Standardwerte
-    variables: undefined,
+    // Weitere Eigenschaften
+    variables: undefined as TVariables | undefined,
     context: undefined,
-
-    // Zusätzliche Eigenschaften
-    ...options,
   };
+
+  // Füge weitere Eigenschaften hinzu (ohne die verarbeiteten)
+  for (const key in options) {
+    if (key !== 'data' && key !== 'error' && key !== 'loading' && key !== 'success') {
+      (result as Record<string, any>)[key] = options[key];
+    }
+  }
+
+  return result as unknown as UseMutationResult<TData, TError, TVariables, unknown>;
 }
