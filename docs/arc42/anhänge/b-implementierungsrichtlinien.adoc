@@ -1,0 +1,259 @@
+=== B. Implementierungsrichtlinien
+
+==== B.1 Codierungsstandards
+
+===== B.1.1 Allgemeine Richtlinien
+
+* *Konsistenter Stil*: Einsatz von ESLint und Prettier für Frontend, Detekt und ktlint für Backend
+* *Namenskonventionen*: 
+  ** Frontend: React-Komponenten in PascalCase, Hooks in camelCase mit "use"-Präfix
+  ** Backend: Kotlin-Klassen in PascalCase, Funktionen in camelCase
+* *Dokumentation*: JSDoc für Frontend, KDoc für Backend
+* *Codequalität*: Maximale zyklomatische Komplexität von 10, keine Funktionen länger als 30 Zeilen
+
+===== B.1.2 Frontend-spezifische Richtlinien
+
+* *TypeScript*: Strict Mode aktiviert, explizite Typen für Prop-Interfaces
+* *React*: Funktionale Komponenten mit Hooks, keine Class Components
+* *Styling*: Tailwind CSS für Styling, keine direkten CSS-Dateien außer für globale Stile
+* *API-Zugriff*: TanStack Query für alle API-Aufrufe, Axios für HTTP-Anfragen
+* *State Management*: TanStack Query für Remote-State, React Context oder Zustand für UI-State
+
+===== B.1.3 Backend-spezifische Richtlinien
+
+* *Kotlin*: Nutzung von Kotlin-Idiomen, Immutabilität durch `val`, Nullsicherheit
+* *Clean Architecture*: Strikte Einhaltung der Abhängigkeitsregel
+* *Fehlerbehandlung*: Verwenden von Result-Typen oder sealed classes für Fehlerergebnisse
+* *Logging*: Strukturiertes Logging, keine Konsolenausgaben
+* *Concurrency*: Nutzung von Kotlin Coroutines für asynchrone Operationen
+
+==== B.2 Verzeichnisstruktur
+
+===== B.2.1 Frontend (FSD)
+
+[source]
+----
+src/
+├── app/               # Anwendungsinitialisierung
+│   ├── styles/        # Globale Styles
+│   ├── providers/     # React Context Provider
+│   └── index.tsx      # Haupt-Komponentenbaum
+├── pages/             # Seitenkomponenten und Routendefinitionen
+│   ├── __root.route.tsx             # Root-Layout
+│   ├── index.route.tsx              # Startseite
+│   ├── persons/                     # Personenverwaltung
+│   │   ├── index.route.tsx          # Personenliste
+│   │   └── [id].route.tsx           # Personendetails
+│   ├── customers/                   # Kundenverwaltung
+│   │   ├── index.route.tsx          # Kundenliste
+│   │   └── [id].route.tsx           # Kundendetails
+│   ├── obligations/                 # Verpflichtungen
+│   │   ├── index.route.tsx          # Verpflichtungsliste
+│   │   └── [id].route.tsx           # Verpflichtungsdetails
+│   ├── users/                       # Benutzersteuerung
+│   │   ├── index.route.tsx          # Benutzerliste
+│   │   └── [id].route.tsx           # Benutzerdetails
+│   └── settings/                    # Einstellungen
+│       ├── index.route.tsx          # Einstellungsübersicht
+│       └── [category].route.tsx     # Kategorieeinstellungen
+├── widgets/           # Komplexe wiederverwendbare Komponenten
+│   ├── persons/       # Personenbezogene Widgets
+│   ├── customers/     # Kundenbezogene Widgets
+│   ├── obligations/   # Verpflichtungsbezogene Widgets
+│   ├── user-control/  # Benutzerbezogene Widgets
+│   ├── settings/      # Einstellungsbezogene Widgets
+│   └── dashboard/     # Dashboard-Widgets für die Startseite
+├── features/          # Geschäftslogik und Features
+│   ├── persons/       # Personenbezogene Features
+│   │   ├── create-person/
+│   │   ├── edit-person/
+│   │   └── filter-persons/
+│   ├── customers/     # Kundenbezogene Features
+│   ├── obligations/   # Verpflichtungsbezogene Features
+│   ├── auth/          # Authentifizierungsfeatures
+│   └── settings/      # Einstellungsbezogene Features
+├── entities/          # Geschäftsdomänenmodelle
+│   ├── person/        # Person-Entity
+│   │   ├── api/       # API-Zugriff
+│   │   ├── model/     # Datenmodelle und Geschäftslogik
+│   │   ├── ui/        # UI-Komponenten für die Entity
+│   │   └── lib/       # Helper-Funktionen und Utilities
+│   ├── customer/      # Kunden-Entity
+│   ├── obligation/    # Verpflichtungs-Entity
+│   ├── user/          # Benutzer-Entity
+│   └── setting/       # Einstellungs-Entity
+└── shared/            # Gemeinsam genutzte Utilities, UI, API etc.
+    ├── api/           # API-Client, Hook-Factories
+    ├── ui/            # UI-Komponenten (atomare Komponenten)
+    ├── lib/           # Hilfsutilities und -funktionen
+    ├── hooks/         # Gemeinsam genutzte React Hooks
+    ├── config/        # Anwendungskonfiguration
+    ├── testing/       # Test-Utilities und Mocks
+    └── assets/        # Statische Assets (Bilder, Fonts)
+----
+
+===== B.2.2 Backend (Clean Architecture)
+
+[source]
+----
+src/
+├── main/                      # Hauptquellcode
+│   ├── kotlin/com/company/app/
+│   │   ├── domain/            # Domain Layer
+│   │   │   ├── model/         # Domänenmodelle/Entities
+│   │   │   │   ├── person/
+│   │   │   │   ├── customer/
+│   │   │   │   ├── obligation/
+│   │   │   │   └── user/
+│   │   │   ├── service/       # Domänenservices
+│   │   │   └── repository/    # Repository-Interfaces
+│   │   ├── application/       # Anwendungsfälle
+│   │   │   ├── person/
+│   │   │   │   ├── query/     # Abfrage-Anwendungsfälle
+│   │   │   │   └── command/   # Befehl-Anwendungsfälle
+│   │   │   ├── customer/
+│   │   │   ├── obligation/
+│   │   │   ├── user/
+│   │   │   └── common/        # Gemeinsam genutzte Anwendungsfälle
+│   │   ├── presentation/      # Präsentationsschicht
+│   │   │   ├── api/           # REST-API-Controller
+│   │   │   │   ├── person/
+│   │   │   │   ├── customer/
+│   │   │   │   ├── obligation/
+│   │   │   │   ├── user/
+│   │   │   │   └── common/
+│   │   │   ├── dto/           # Datenübertragungsobjekte
+│   │   │   └── mapper/        # DTO-zu-Domain-Mapper
+│   │   └── infrastructure/    # Infrastrukturschicht
+│   │       ├── persistence/   # Datenbankspeicherung
+│   │       │   ├── repository/# Repository-Implementierungen
+│   │       │   ├── entity/    # JPA-Entities/Tabellen
+│   │       │   └── mapper/    # Mapper zwischen Domäne und DB
+│   │       ├── security/      # Sicherheitsimplementierung
+│   │       ├── config/        # Anwendungskonfiguration
+│   │       └── service/       # Externe Serviceintegrationen
+│   └── resources/
+│       ├── application.conf   # Anwendungskonfiguration
+│       ├── db/migration/      # Datenbankmigrationen
+│       └── logback.xml        # Logging-Konfiguration
+└── test/                      # Testsquellcode
+    └── kotlin/com/company/app/
+        ├── domain/            # Domänentests
+        ├── application/       # Anwendungsfalltests
+        ├── presentation/      # Präsentationsschichttests
+        ├── infrastructure/    # Infrastrukturtests
+        └── integration/       # Integrationstests
+----
+
+==== B.3 Dateibenennungskonventionen
+
+===== B.3.1 Frontend
+
+* *React-Komponenten*: PascalCase.tsx
+  * Beispiel: `PersonCard.tsx`, `CustomerListItem.tsx`
+* *Hooks*: camelCase.ts mit "use"-Präfix
+  * Beispiel: `usePersons.ts`, `useCustomerDetails.ts`
+* *API-Dateien*: kebab-case.ts oder camelCase.ts
+  * Beispiel: `person-api.ts`, `customerApi.ts`
+* *Utility-Funktionen*: camelCase.ts
+  * Beispiel: `formatDate.ts`, `stringUtils.ts`
+* *Typ-Definitionen*: camelCase.types.ts
+  * Beispiel: `person.types.ts`, `customer.types.ts`
+* *Testdateien*: [Dateiname].(test|spec).ts
+  * Beispiel: `PersonCard.test.tsx`, `usePersons.spec.ts`
+
+===== B.3.2 Backend
+
+* *Kotlin-Klassen*: PascalCase.kt
+  * Beispiel: `Person.kt`, `CreatePersonUseCase.kt`
+* *Interfaces*: PascalCase.kt mit "I"-Präfix oder ohne besonderes Präfix
+  * Beispiel: `PersonRepository.kt`
+* *Data Transfer Objects*: PascalCase mit "Dto"-Suffix
+  * Beispiel: `PersonDto.kt`, `CreatePersonRequestDto.kt`
+* *Mapper*: PascalCase mit "Mapper"-Suffix
+  * Beispiel: `PersonMapper.kt`, `CustomerMapper.kt`
+* *Repositories*: PascalCase mit "Repository"-Suffix
+  * Beispiel: `PersonRepository.kt` (Interface), `PersonRepositoryImpl.kt` (Implementierung)
+* *Services*: PascalCase mit "Service"-Suffix
+  * Beispiel: `AuthenticationService.kt`, `EmailService.kt`
+* *Controller*: PascalCase mit "Controller"-Suffix
+  * Beispiel: `PersonController.kt`, `CustomerController.kt`
+* *UseCases*: PascalCase mit beschreibendem Namen
+  * Beispiel: `GetPersonUseCase.kt`, `CreateCustomerUseCase.kt`
+
+==== B.4 Best Practices
+
+===== B.4.1 Frontend
+
+* *Komponenten*:
+  * Kleine, fokussierte Komponenten mit Single Responsibility
+  * Trennung von UI und Logik
+  * Verwendung von Composition für komplexe UIs
+  * Präsentation vs. Container-Komponenten trennen
+
+* *State Management*:
+  * TanStack Query für Remote-Daten
+  * React Context für globalen UI-Zustand
+  * Props für Komponenten-übergreifende Kommunikation
+  * Vermeidung unnötiger globaler Zustände
+
+* *Performance*:
+  * React.memo für teure Komponenten
+  * useMemo und useCallback für optimierte Rerenders
+  * Virtualisierung für lange Listen
+  * Code-Splitting für verzögertes Laden
+
+* *Fehlerbehandlung*:
+  * ErrorBoundary für UI-Fehlerbehandlung
+  * Konsistente Fehlerbehandlung in API-Aufrufen
+  * Benutzerfreundliche Fehlermeldungen
+
+===== B.4.2 Backend
+
+* *Domänenmodellierung*:
+  * Reiche Domänenmodelle mit Geschäftslogik
+  * Verwendung von Value Objects für unveränderliche Konzepte
+  * Domain Events für wichtige Zustandsänderungen
+  * Invarianten innerhalb der Domänenmodelle validieren
+
+* *Anwendungsfälle*:
+  * Ein UseCase = eine Funktionalität
+  * Eingabe/Ausgabe durch DTOs
+  * Minimale Abhängigkeiten (nur was wirklich benötigt wird)
+  * Transaktionale Grenzen
+
+* *API-Design*:
+  * RESTful-Ressourcenorientierung
+  * Versionierung der API
+  * Konsistente Fehlerformate
+  * HATEOAS für API-Navigation
+
+* *Sicherheit*:
+  * Eingabevalidierung in der Präsentationsschicht
+  * Geschäftsregelvalidierung in Anwendungsfällen
+  * Autorisierung in der Anwendungsschicht
+  * Sichere Standard-Einstellungen
+
+* *Persistenz*:
+  * Repository-Pattern für Datenzugriff
+  * Optimistische Parallelitätskontrolle
+  * Effiziente Abfragen
+  * Migration-First für Datenbankänderungen
+
+==== B.5 Testing-Richtlinien
+
+===== B.5.1 Frontend-Tests
+
+* *Unit-Tests*:
+  * Testen von einzelnen Funktionen und Hooks
+  * Komponententests mit React Testing Library
+  * Mocking externer Abhängigkeiten
+  * Mindestabdeckung: 80%
+
+* *Integration-Tests*:
+  * Zusammenspiel von Komponenten
+  * Mock-Server für API-Anfragen
+  * Test von Benutzerflüssen
+  
+* *E2E-Tests*:
+  * Kritische Benutzerflüsse

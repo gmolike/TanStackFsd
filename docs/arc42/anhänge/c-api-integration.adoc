@@ -1,0 +1,328 @@
+= FSD Projekt Architekturdokumentation
+:page-page-anhang-c:
+
+=== C. API-Integration mit TanStack Query und OpenAPI
+
+==== C.1 Grundlagen und Motivation
+
+Die API-Integration ist ein zentraler Bestandteil unserer Frontend-Anwendung und nutzt moderne Technologien wie TanStack Query und OpenAPI, um eine typsichere und effiziente Kommunikation mit dem Backend zu gewährleisten.
+
+Die Hauptziele unserer API-Integrationsschicht sind:
+
+* *Typsicherheit*: Alle API-Aufrufe sind vollständig typisiert
+* *Konsistenz*: Einheitliche Vorgehensweise für alle API-Anfragen
+* *Einfache Verwendung*: Entwicklerfreundliche Abstraktion über HTTP-Anfragen
+* *Wiederverwendbarkeit*: Anpassung an die FSD-Architektur und deren Schichten
+* *Testbarkeit*: Leicht mockbare API-Funktionen für Unit- und Komponententests
+
+==== C.2 Architektur der API-Integrationsschicht
+
+Die API-Integrationsschicht besteht aus folgenden Komponenten:
+
+[source]
+----
+src/
+├── shared/
+│   ├── api/
+│   │   ├── api-client.ts           # Axios-Konfiguration und Utilities
+│   │   ├── api-instance.ts         # Alternative Axios-Instanz
+│   │   ├── base.ts                 # Basis-API für Entwicklung/Mocking
+│   │   ├── query/
+│   │   │   ├── use-remote-query.ts # Hook für GET-Anfragen
+│   │   │   ├── use-remote-mutation.ts # Hook für POST/PUT/DELETE
+│   │   │   └── mutation-result-handler.ts # Typen für Callbacks
+│   │   └── openapi/
+│   │       └── use-generated-api.ts # Integration mit OpenAPI-generierten Clients
+├── entities/
+│   ├── entity-name/
+│   │   └── api/
+│   │       └── entity-api.ts       # Entity-spezifische API-Funktionen
+├── features/
+│   ├── feature-name/
+│   │   └── api/
+│   │       └── feature-api.ts      # Feature-spezifische API-Funktionen
+----
+
+==== C.3 Basiskomponenten
+
+===== C.3.1 API-Client
+
+Der API-Client (`api-client.ts`) ist die Grundlage für alle HTTP-Anfragen und bietet folgende Funktionalität:
+
+* Konfiguration einer Axios-Instanz mit Basis-URL aus Umgebungsvariablen
+* Interceptors für Authentifizierung und Fehlerbehandlung
+* Utility-Funktionen für typisierte API-Aufrufe (apiGet, apiPost, apiPut, apiDelete)
+
+Beispiel:
+
+[source,typescript]
+----
+// Basis-API-Call
+import { apiGet } from '~/shared/api/api-client';
+
+const fetchData = async () => {
+  try {
+    const data = await apiGet<MyDataType>('/endpoint');
+    return data;
+  } catch (error) {
+    // Fehlerbehandlung
+  }
+};
+----
+
+===== C.3.2 TanStack Query Hooks
+
+Für React-Komponenten bieten wir spezielle Hooks an, die TanStack Query nutzen:
+
+* `useRemoteQuery`: Für GET-Anfragen (Daten abrufen)
+* `useRemoteMutation`: Für POST/PUT/DELETE-Anfragen (Daten ändern)
+
+Diese Hooks bieten automatisches Caching, Ladezustände, Refetching und Fehlerbehandlung.
+
+Beispiel für GET-Anfragen:
+
+[source,typescript]
+----
+// In einer Entity-API-Datei
+import { useRemoteQuery } from '~/shared/api/query';
+
+export const usePersons = () => {
+  return useRemoteQuery<PersonDto[]>(['persons'], '/api/persons');
+};
+
+// In einer Komponente
+const { data, isLoading, error } = usePersons();
+----
+
+Beispiel für Mutation-Anfragen:
+
+[source,typescript]
+----
+// In einer Feature-API-Datei
+import { useRemoteMutation } from '~/shared/api/query';
+
+export const useCreatePerson = () => {
+  return useRemoteMutation<PersonDto, CreatePersonDto>(
+    ['persons', 'create'],
+    '/api/persons',
+    'POST'
+  );
+};
+
+// In einer Komponente
+const { mutate: createPerson, isLoading } = useCreatePerson();
+
+// Verwendung
+createPerson(
+  { name: 'Max Mustermann', email: 'max@example.com' },
+  {
+    onSuccess: (data) => {
+      toast.success('Person erfolgreich erstellt!');
+      navigate(`/persons/${data.id}`);
+    },
+    onError: (error) => {
+      toast.error(`Fehler: ${error.message}`);
+    },
+  }
+);
+----
+
+==== C.4 OpenAPI-Integration
+
+===== C.4.1 Einrichtung des OpenAPI-Generators
+
+Für eine optimale Typsicherheit generieren wir TypeScript-Clients aus der OpenAPI-Spezifikation des Backends:
+
+. OpenAPI Generator CLI zum Projekt hinzufügen
++
+[source,bash]
+----
+pnpm add -D @openapitools/openapi-generator-cli
+----
+
+. Scripts zur package.json hinzufügen
++
+[source,json]
+----
+"scripts": {
+  "openapi:generate": "openapi-generator-cli generate -i http://localhost:3000/api-docs/swagger.json -g typescript-axios -o src/shared/api/generated",
+  "openapi:clean": "rimraf src/shared/api/generated",
+  "openapi:regenerate": "pnpm openapi:clean && pnpm openapi:generate"
+}
+----
+
+. OpenAPI-Generator konfigurieren, um unnötige Dateien auszuschließen
+
+===== C.4.2 Verwendung der generierten Clients
+
+Für die Verwendung der generierten OpenAPI-Clients bieten wir spezialisierte Hooks:
+
+[source,typescript]
+----
+import { useGeneratedQuery } from '~/shared/api/openapi/use-generated-api';
+import { UserApi, Configuration } from '~/shared/api/generated';
+
+const apiConfig = new Configuration({
+  basePath: import.meta.env.VITE_API_BASE_URL,
+  accessToken: () => localStorage.getItem('accessToken') || ''
+});
+
+const userApi = new UserApi(apiConfig);
+
+// In einer Komponente
+const { data, isLoading } = useGeneratedQuery(
+  ['users', userId],
+  () => userApi.getUserById(userId)
+);
+----
+
+==== C.5 Best Practices
+
+===== C.5.1 API-Organisation in der FSD-Architektur
+
+* *Shared Layer*: Generische Hooks und Utilities für API-Integration
+* *Entity Layer*: Entity-spezifische API-Hooks und -Funktionen
+* *Feature Layer*: Feature-spezifische API-Hooks und -Funktionen (z.B. für spezielle Business-Flows)
+
+===== C.5.2 Typsicherheit
+
+Immer explizite Typen für API-Anfragen und -Antworten definieren:
+
+[source,typescript]
+----
+// Definieren von API-Typen aus OpenAPI-generierten Schemas
+import type { components } from 'types/backend';
+
+export type PersonDto = components['schemas']['PersonDto'];
+export type CreatePersonDto = components['schemas']['CreatePersonDto'];
+
+// Oder explizite Typdefinitionen
+export interface PersonDto {
+  id: string;
+  name: string;
+  email: string;
+}
+----
+
+===== C.5.3 Query-Invalidierung
+
+Bei Mutationen müssen oft verwandte Queries invalidiert werden:
+
+[source,typescript]
+----
+import { useQueryClient } from '@tanstack/react-query';
+
+const queryClient = useQueryClient();
+
+// Nach erfolgreicher Mutation
+onSuccess: () => {
+  queryClient.invalidateQueries({ queryKey: ['persons'] });
+}
+----
+
+===== C.5.4 Optimistische Updates
+
+Für bessere Benutzerfreundlichkeit bei langsamen Verbindungen:
+
+[source,typescript]
+----
+const updateUserMutation = useRemoteMutation<UserType, UpdateUserDto>(..., {
+  onMutate: async (newData) => {
+    // Aktuelle Daten zwischenspeichern
+    const previousData = queryClient.getQueryData(['users', userId]);
+    
+    // Optimistisches Update
+    queryClient.setQueryData(['users', userId], (old) => ({
+      ...old,
+      ...newData
+    }));
+    
+    return { previousData };
+  },
+  onError: (err, newData, context) => {
+    // Bei Fehler zurücksetzen
+    queryClient.setQueryData(
+      ['users', userId],
+      context?.previousData
+    );
+  }
+});
+----
+
+===== C.5.5 Refetch-Strategien
+
+Konfiguration der Refetch-Strategien entsprechend der Anwendungsfälle:
+
+[source,typescript]
+----
+const { data } = useRemoteQuery<UserType>(
+  ['users', userId],
+  `/users/${userId}`,
+  {},
+  {
+    staleTime: 5 * 60 * 1000, // 5 Minuten
+    refetchOnWindowFocus: false,
+    refetchOnMount: true
+  }
+);
+----
+
+==== C.6 Fehlerbehandlung und Erfolgsrückmeldungen
+
+Eine konsistente Fehlerbehandlung ist entscheidend für die Benutzerfreundlichkeit. Unsere API-Hooks bieten standardisierte Callback-Optionen:
+
+* *onSuccess*: Wird aufgerufen, wenn die Anfrage erfolgreich abgeschlossen wurde
+* *onError*: Wird aufgerufen, wenn bei der Anfrage ein Fehler auftritt
+* *onSettled*: Wird unabhängig vom Ergebnis aufgerufen, wenn die Anfrage abgeschlossen ist
+
+Beispiel für eine umfassende Fehlerbehandlung:
+
+[source,typescript]
+----
+// Globale Fehlerbehandlung im API-Client
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Authentifizierungsfehler behandeln
+      authStore.logout();
+      navigate('/login');
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Spezifische Fehlerbehandlung in Komponenten
+const { error } = usePost(postId);
+if (error) {
+  if (error.response?.status === 404) {
+    return <NotFound message="Dieser Beitrag existiert nicht" />;
+  }
+  return <ErrorMessage error={error} />;
+}
+----
+
+==== C.7 Migrationsstrategien
+
+Für die Migration von bestehenden Fetch-Aufrufen zu unserer Axios/TanStack Query-Lösung:
+
+[source,typescript]
+----
+// Vorher (mit Fetch)
+export const fetchPersons = async () =>
+  await fetch('/api/persons').then(
+    (r): Promise<Array<components['schemas']['PersonDto']>> => r.json(),
+  );
+
+// Nachher (mit Axios)
+import { apiGet } from '~/shared/api/api-client';
+export const fetchPersons = async (): Promise<PersonDto[]> => {
+  return apiGet<PersonDto[]>('/api/persons');
+};
+
+// Oder als React Hook
+import { useRemoteQuery } from '~/shared/api/query';
+export const usePersons = () => {
+  return useRemoteQuery<PersonDto[]>(['persons'], '/api/persons');
+};
+----

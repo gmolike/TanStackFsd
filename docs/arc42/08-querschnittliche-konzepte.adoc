@@ -1,0 +1,81 @@
+= FSD Projekt Architekturdokumentation
+:page-page-8:
+
+== 8. Querschnittliche Konzepte
+
+=== 8.1 Architekturprinzipien
+
+==== 8.1.1 Feature-Sliced Design (Frontend)
+
+Die Frontend-Anwendung folgt den Feature-Sliced Design (FSD) Prinzipien:
+
+* *App-Schicht*: Anwendungsinitialisierung, globale Stile, Provider
+* *Pages-Schicht*: Anwendungsseiten und Routing-Definitionen
+* *Widgets-Schicht*: Zusammengesetzte Blöcke aus Entities und Features
+* *Features-Schicht*: Prozesse, Aktionen, Geschäftslogik
+* *Entities-Schicht*: Geschäftsobjekte
+* *Shared-Schicht*: Wiederverwendbare Komponenten, Utilities, API-Clients
+
+==== 8.1.2 Clean Architecture (Backend)
+
+Das Backend folgt den Clean Architecture Prinzipien mit folgenden Schichten:
+
+* *Domänenschicht*: Enthält Geschäftsmodelle, Domänenservices und Repository-Interfaces
+* *Anwendungsfallschicht*: Implementiert Anwendungsfälle, die die Domänenlogik orchestrieren
+* *Präsentationsschicht*: Verantwortlich für API-Schnittstellen und Modelltransformationen
+* *Infrastrukturschicht*: Implementiert technische Details wie Datenbankzugriff, externe Dienste
+
+Diese Architektur gewährleistet die Trennung von Zuständigkeiten und erleichtert die Wartbarkeit.
+
+=== 8.2 Benutzeroberflächen-Konzept
+
+* *Design-System*: ShadCN UI mit Tailwind CSS
+* *Responsive Design*: Mobile-First-Ansatz
+* *Barrierefreiheit*: WCAG 2.1 AA-Konformität
+* *Theming*: Unterstützung für hellen und dunklen Modus
+
+=== 8.3 Sicherheitskonzept
+
+* *Authentifizierung*: JWT-basierte Authentifizierung
+* *Autorisierung*: Rollenbasierte Zugriffskontrolle
+* *Datenschutz*: HTTPS für alle Kommunikation
+* *Eingabevalidierung*: Client- und serverseitige Validierung
+* *API-Sicherheit*: Rate-Limiting, CORS-Konfiguration, Input-Validierung
+
+=== 8.4 Persistenzkonzept
+
+* *ORM*: Exposed für typensicheren Datenbankzugriff in Kotlin
+* *Migrationen*: Flyway für Datenbankmigrationen
+* *Repository-Pattern*: Abstraktion der Datenzugriffsschicht
+* *Transaktionsmanagement*: Einheitliche Transaktionsbehandlung
+
+=== 8.5 Teststrategie
+
+* *Frontend*:
+  ** Unit-Tests: Vitest für Komponenten- und Funktionstests
+  ** Integration-Tests: Testing Library für Komponenteninteraktionen
+  
+* *Backend*:
+  ** Unit-Tests: JUnit5 oder Kotest für Domänenlogik und Anwendungsfälle
+  ** Integration-Tests: Testcontainers für Datenbankintegration
+  
+* *Gemeinsam*:
+  ** E2E-Tests: Playwright für End-to-End-Tests
+  ** Testabdeckung: Mindestens 80% Codeabdeckung
+  ** CI/CD Integration: Automatisierte Tests in der Pipeline
+
+=== 8.6 Build- und Deployment-Konzept
+
+* *Frontend-Build*: Vite für schnelles Bundling und HMR
+* *Backend-Build*: Gradle mit Kotlin DSL
+* *Container*: Docker-Images für Frontend und Backend
+* *Orchestrierung*: Kubernetes für Dienstverwaltung und Skalierung
+* *CI/CD*: GitHub Actions für automatisierte Builds, Tests und Deployments
+
+=== 8.7 Logging und Monitoring
+
+* *Frontend-Logging*: Client-seitiges Logging mit Sentry für Fehlertracking
+* *Backend-Logging*: Strukturiertes Logging mit SLF4J und Logback
+* *APM*: Application Performance Monitoring mit Prometheus und Grafana
+* *Metriken*: Benutzerdefinierte Metriken für Geschäftsprozesse
+* *Alarme*: Benachrichtigungen bei kritischen System- oder Geschäftsereignissen

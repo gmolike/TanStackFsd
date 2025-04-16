@@ -1,0 +1,56 @@
+# ARC42 Dokumentation - Gesamtübersicht
+
+## Einleitung
+
+Diese Dokumentation beschreibt die Architektur des FSD Frontend mit Clean Architecture Kotlin Backend Systems. Die Dokumentation ist nach dem ARC42-Standard strukturiert und in einzelne Kapitel aufgeteilt, die jeweils auf einer eigenen Seite zu finden sind.
+
+## Dokumentationsstruktur
+
+### Titelseite und Einführung
+- [Titelseite und Inhaltsverzeichnis](arc42-titelseite.adoc)
+
+### Hauptkapitel
+1. [Einführung und Ziele](arc42-kapitel-1.adoc)
+2. [Randbedingungen](arc42-kapitel-2.adoc)
+3. [Kontextabgrenzung](arc42-kapitel-3.adoc)
+4. [Lösungsstrategie](arc42-kapitel-4.adoc)
+5. Bausteinsicht
+   - [Teil 1: Systemübersicht und Frontend-Module](arc42-kapitel-5-1.adoc)
+   - [Teil 2: Frontend-Module (Fortsetzung)](arc42-kapitel-5-2.adoc)
+   - [Teil 3: Backend-Module](arc42-kapitel-5-3.adoc)
+6. [Laufzeitsicht](arc42-kapitel-6.adoc)
+7. [Verteilungssicht](arc42-kapitel-7.adoc)
+8. [Querschnittliche Konzepte](arc42-kapitel-8.adoc)
+   - [Querschnittliche Konzepte (Fortsetzung)](arc42-kapitel-8-fortsetzung.adoc)
+9. [Architekturentscheidungen](arc42-kapitel-9.adoc)
+10. [Qualitätsanforderungen](arc42-kapitel-10.adoc)
+11. [Risiken und Technische Schulden](arc42-kapitel-11.adoc)
+12. [Glossar](arc42-kapitel-12.adoc)
+
+### Anhänge
+- [Anhang A: Modulstruktur-Referenz](arc42-anhang-a.adoc)
+- [Anhang B: Implementierungsrichtlinien](arc42-anhang-b.adoc)
+   - [Anhang B: Implementierungsrichtlinien (Fortsetzung)](arc42-anhang-b-fortsetzung.adoc)
+
+## Verwendung dieser Dokumentation
+
+Diese Dokumentation dient als Referenzhandbuch für die Architektur des Systems. Sie sollte bei Änderungen an der Architektur aktualisiert werden. Jedes Kapitel kann unabhängig bearbeitet werden, jedoch sollten Querverweise zwischen den Kapiteln aktualisiert werden, wenn sich Inhalte ändern.
+
+## Exportformate
+
+Die Dokumentation liegt im AsciiDoc-Format vor und kann in verschiedene Formate wie PDF, HTML oder DOCX exportiert werden. Verwenden Sie dazu einen AsciiDoc-Prozessor wie Asciidoctor:
+
+```bash
+# HTML-Export
+asciidoctor arc42-*.adoc
+
+# PDF-Export
+asciidoctor-pdf arc42-*.adoc
+
+# DOCX-Export
+asciidoctor-docx arc42-*.adoc
+```
+
+## Mitwirkende
+
+Diese Dokumentation wird vom Projektteam gepflegt. Für Änderungen oder Ergänzungen kontaktieren Sie bitte den Projektleiter oder den Architekturverantwortlichen.

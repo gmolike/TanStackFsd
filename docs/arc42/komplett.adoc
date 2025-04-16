@@ -1,0 +1,79 @@
+= ARC42 Dokumentation: FSD Frontend mit Clean Architecture Kotlin Backend
+:doctype: book
+:toc: left
+:toclevels: 4
+:sectnums:
+:source-highlighter: highlightjs
+:icons: font
+:imagesdir: ../images
+:numbered:
+:experimental:
+:xrefstyle: short
+
+// Dokument-Metadaten
+:project-name: FSD Frontend mit Clean Architecture Kotlin Backend
+:version: 0.1.0
+:date: {docdate}
+:status: Entwurf
+:authors: Projektteam
+
+include::titelseite.adoc[leveloffset=+0]
+
+// Hauptkapitel einbinden
+include::01-einführung-und-ziele.adoc[leveloffset=+0]
+include::02-randbedingungen.adoc[leveloffset=+0]
+include::03-kontextabgrenzung.adoc[leveloffset=+0]
+include::04-lösungsstrategie.adoc[leveloffset=+0]
+include::05-bausteinsicht.adoc[leveloffset=+0]
+include::06-laufzeitsicht.adoc[leveloffset=+0]
+include::07-verteilungssicht.adoc[leveloffset=+0]
+include::08-querschnittliche-konzepte.adoc[leveloffset=+0]
+include::09-architekturentscheidungen.adoc[leveloffset=+0]
+include::10-qualitätsanforderungen.adoc[leveloffset=+0]
+include::11-risiken-und-technische-schulden.adoc[leveloffset=+0]
+include::12-glossar.adoc[leveloffset=+0]
+
+// Anhänge einbinden
+[appendix]
+= Anhänge
+:numbered!:
+
+include::anhänge/a-modulstruktur.adoc[leveloffset=+1]
+include::anhänge/b-implementierungsrichtlinien.adoc[leveloffset=+1]
+include::anhänge/c-api-integration.adoc[leveloffset=+1]
+include::anhänge/d-test-strategien.adoc[leveloffset=+1]
+
+// Dokumentationsinformationen als normaler Anhang
+[appendix]
+= Dokumentationsinformationen
+
+Diese Dokumentation wurde erstellt am {date} und entspricht dem ARC42-Standard für Architekturdokumentation.
+
+== Versionsverlauf
+
+[cols="1,2,2,4"]
+|===
+|Version |Datum |Autor |Änderungen
+
+|0.1.0 |{date} |Projektteam |Initiale Version
+|===
+
+== Hinweise zur Aktualisierung
+
+Diese Dokumentation sollte bei wichtigen Architekturänderungen aktualisiert werden. Verantwortlich für die Pflege sind die Architekturverantwortlichen des Projekts.
+
+== Generierung der Dokumentation
+
+Diese Dokumentation kann in verschiedene Formate exportiert werden:
+
+[source,bash]
+----
+# HTML-Export
+asciidoctor komplett.adoc
+
+# PDF-Export
+asciidoctor-pdf komplett.adoc
+
+# DOCX-Export (falls asciidoctor-docx installiert ist)
+asciidoctor-docx komplett.adoc
+----

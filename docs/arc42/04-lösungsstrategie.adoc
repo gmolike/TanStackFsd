@@ -1,0 +1,42 @@
+= FSD Projekt Architekturdokumentation
+:page-page-4:
+
+== 4. Lösungsstrategie
+
+=== 4.1 Technologieentscheidungen
+
+[cols="1,2,4"]
+|===
+|Technologie |Entscheidung |Begründung
+
+|React |Frontend-Framework |Robustes Ökosystem, komponentenbasierte Architektur
+|TypeScript |Frontend-Programmiersprache |Typsicherheit und verbesserte Entwicklererfahrung
+|Kotlin |Backend-Programmiersprache |Moderne JVM-Sprache mit hervorragender Nullsicherheit, Coroutines für asynchrone Programmierung und umfangreichen Funktionen
+|TanStack Query |Datenabfrage (Frontend) |Effiziente Verwaltung des Serverstatus mit Caching
+|TanStack Router |Routing (Frontend) |Typsicheres Routing mit Code-Splitting
+|Ktor |Backend Web Framework |Leichtgewichtiges, asynchrones Framework für Kotlin mit hoher Leistung
+|Exposed |ORM für Kotlin |Typensicheres SQL-Framework speziell für Kotlin
+|ShadCN UI |Frontend-Komponentenbibliothek |Zugängliche, anpassbare Komponenten mit minimalem Overhead
+|Tailwind CSS |Frontend-Styling |Utility-First-Ansatz für schnelle UI-Entwicklung
+|FSD-Architektur |Frontend-Code-Organisation |Strukturierter Ansatz für Feature-Entwicklung und -Wartung
+|Clean Architecture |Backend-Architektur |Klare Trennung von Belangen, bessere Testbarkeit, Unabhängigkeit von Frameworks
+|===
+
+=== 4.2 Zentrale Architekturentscheidungen
+
+==== Frontend-Architektur
+* *Feature-Sliced Design (FSD)*: Code-Organisation nach Features und Schichten
+* *Typisierte API-Verträge*: Verwendung von OpenAPI und TypeScript für Typsicherheit
+* *Komponentenzusammensetzung*: Aufbau komplexer UI aus einfachen, wiederverwendbaren Komponenten
+* *Zustandsverwaltung*: Verwendung von React Query für Serverzustand und lokalen Zustand, wo angemessen
+
+==== Backend-Architektur
+* *Clean Architecture*: Schichtenmodell mit klarer Trennung von Domänenmodell, Anwendungsfällen, Adaptern und Frameworks
+* *Domain-Driven Design*: Fokus auf die Domänenmodellierung für komplexe Geschäftsregeln
+* *CQRS-Prinzipien*: Trennung von Lese- und Schreiboperationen für bessere Skalierbarkeit
+* *Repository Pattern*: Abstraktion der Datenzugriffschicht
+
+==== Gemeinsame Architekturentscheidungen
+* *Authentifizierung*: JWT-basierte Authentifizierung mit sicherer Speicherung
+* *REST-API*: Standardisierte Kommunikation zwischen Frontend und Backend
+* *OpenAPI-Spezifikation*: Formale API-Definition für beide Systemteile
