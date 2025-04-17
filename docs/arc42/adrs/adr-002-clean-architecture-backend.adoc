@@ -1,0 +1,95 @@
+= ADR-002: Clean Architecture für Kotlin-Backend
+
+Status: angenommen
+Datum: zuletzt aktualisiert 2025-04-12
+Entscheider: Backend-Architekturteam
+Zuarbeit durch: Backend-Team-Leads, Systemarchitekten
+Zu informieren: Gesamtes Entwicklungsteam, DevOps-Team, Product Owner
+
+== Backend-Architekturansatz
+
+=== Kontext und Problembeschreibung
+
+Die Backend-Architektur unseres Projekts erfordert eine klare Strukturierung, die Geschäftslogik von technischen Details trennt, Testbarkeit gewährleistet und langfristige Wartbarkeit sicherstellt. Bisher fehlte eine konsistente Strukturierung, was zu enger Kopplung zwischen Geschäftslogik und Infrastrukturcode führte. Dies erschwert Tests, Wartung und Anpassungen an sich ändernde Anforderungen oder Technologien.
+
+=== Entscheidungskriterien
+
+* Trennung von Geschäftslogik und technischer Infrastruktur
+* Testbarkeit der Kernfunktionen ohne Abhängigkeiten zu externen Systemen
+* Langfristige Wartbarkeit und Erweiterbarkeit
+* Kompatibilität mit Kotlin und seinen Sprachfeatures
+* Unterstützung für domänengetriebene Entwicklung
+* Unabhängigkeit von spezifischen Frameworks und Bibliotheken
+* Skalierbarkeit bei wachsender Codebasis und Teammitgliedern
+
+=== Betrachtete Optionen
+
+* Hexagonale Architektur / Ports & Adapters
+* CQRS + Event Sourcing
+* Standard Service-Repository-Pattern
+* Clean Architecture
+
+=== Entscheidung
+
+Wir haben uns für Clean Architecture mit Kotlin als Architekturansatz für das Backend entschieden. Diese Architektur teilt die Anwendung in konzentrische Kreise ein, wobei die innersten Kreise die Geschäftslogik (Entitäten, Use Cases) enthalten und die äußeren Kreise die technischen Details (Frameworks, Datenbanken, UI). Abhängigkeiten dürfen nur von außen nach innen zeigen, niemals umgekehrt.
+
+Die Entscheidung basiert auf der Analyse verschiedener Prototypen und der Durchführung von Code-Reviews mit externen Architekturexperten. Clean Architecture erhielt die besten Bewertungen hinsichtlich Testbarkeit, Wartbarkeit und Zukunftssicherheit.
+
+=== Konsequenzen
+
+* Gut, weil die Kerngeschäftslogik unabhängig von externen Frameworks und Bibliotheken bleibt
+* Gut, weil Geschäftsregeln und Anwendungsfälle isoliert testbar sind ohne Mocks für externe Systeme
+* Gut, weil Kotlins Features (Nullsicherheit, Immutabilität, Extension Functions) die Architektur optimal unterstützen
+* Gut, weil technische Komponenten ausgetauscht werden können, ohne die Geschäftslogik zu ändern
+* Schlecht, weil mehr Boilerplate-Code durch zusätzliche Abstraktionsebenen entsteht
+* Schlecht, weil eine steilere Lernkurve für Entwickler ohne Erfahrung mit Clean Architecture existiert
+* Schlecht, weil einfache CRUD-Operationen teilweise übermäßig komplex erscheinen können
+
+=== Validierung
+
+Die Umsetzung wird durch folgende Maßnahmen validiert:
+* Automatisierte Tests mit mindestens 90% Abdeckung für Domänen- und Anwendungsfallschicht
+* Vierteljährliche Architektur-Reviews mit externen Experten
+* Messung der Fehlerrate und Wartungsaufwände im Vergleich zu vorherigen Projekten
+* Implementation von Architektur-Compliance-Tests mittels ArchUnit
+* Feedback-Workshops mit dem Entwicklungsteam nach den ersten drei Monaten
+
+=== Vor- und Nachteile der betrachteten Optionen
+
+==== Hexagonale Architektur / Ports & Adapters
+* Gut, weil sie eine klare Trennung zwischen Domäne und externen Systemen bietet
+* Gut, weil sie gut mit Dependency Injection harmoniert
+* Gut, weil sie die Substituierbarkeit von Adaptern unterstützt
+* Schlecht, weil die Unterscheidung zwischen Ports und Adaptern komplex sein kann
+* Schlecht, weil sie weniger spezifische Leitlinien für die interne Strukturierung der Domäne bietet
+
+==== CQRS + Event Sourcing
+* Gut, weil sie optimal für komplexe Domänen mit hohen Leistungsanforderungen ist
+* Gut, weil sie eine natürliche Audit-Trail-Funktionalität bietet
+* Gut, weil sie Skalierbarkeit bei Lese- und Schreiboperationen optimiert
+* Schlecht, weil sie die höchste Komplexität unter allen betrachteten Optionen aufweist
+* Schlecht, weil sie eine steile Lernkurve hat und Überengineering für einfachere Anwendungsfälle darstellt
+* Schlecht, weil die Eventually-Consistency zwischen Lese- und Schreibmodell zusätzliche Komplexität schafft
+
+==== Standard Service-Repository-Pattern
+* Gut, weil es einfach zu verstehen und zu implementieren ist
+* Gut, weil es für die meisten Entwickler bereits bekannt ist
+* Gut, weil es weniger Abstraktionsebenen benötigt
+* Schlecht, weil es zu enger Kopplung zwischen Geschäftslogik und Datenzugriffsschicht führen kann
+* Schlecht, weil es weniger Leitlinien für die Strukturierung komplexer Geschäftslogik bietet
+* Schlecht, weil es oft zu anämischen Domänenmodellen führt
+
+==== Clean Architecture
+* Gut, weil sie klare Abhängigkeitsrichtungen durch das Dependency Inversion Principle definiert
+* Gut, weil sie eine präzise Strukturierung über alle Ebenen hinweg vorgibt
+* Gut, weil sie den Austausch von Frameworks und Infrastrukturkomponenten erleichtert
+* Gut, weil sie optimal für testgetriebene Entwicklung geeignet ist
+* Schlecht, weil sie mehr Interfaces und Abstraktionen erfordert
+* Schlecht, weil sie initial mehr Aufwand bei der Implementierung verursacht
+* Schlecht, weil sie für sehr einfache CRUD-Anwendungen überdimensioniert sein kann
+
+=== Weitere Informationen
+
+Die Implementierung wird mit speziellen Schwerpunkten auf die Integration von Kotlin-spezifischen Features wie Coroutines, Flow und Sealed Classes erfolgen, um die Lesbarkeit und Prägnanz des Codes zu optimieren.
+
+Wir planen, innerhalb der nächsten 12 Monate ein internes Framework zu entwickeln, das die Implementierung der Clean Architecture in Kotlin vereinfach

@@ -1,0 +1,29 @@
+= M4: Komplette Domänenabdeckung
+
+*Ziel:* Implementierung aller fachlichen Domänen und Geschäftslogik
+
+*Liefergegenstände:*
+- Vollständige Implementierung aller Entitäten und Repositories
+- Kundenverwaltungsfunktionalität
+- Verpflichtungsverwaltungsfunktionalität
+- Einstellungsfunktionalität
+- Komplette Testsuite
+
+*Verantwortliche:* Domänenexperten, Frontend- und Backend-Entwickler
+
+*Abhängigkeiten:* M3
+
+*Messbare Erfolgskriterien:*
+- Alle Domänenmodelle vollständig implementiert und getestet
+- Beziehungen zwischen Entitäten korrekt abgebildet
+- Geschäftsregeln validiert durch Fachexperten
+- Testabdeckung für Geschäftslogik >90%
+- Komplexe Abfragen und Berichte implementiert
+
+*Ressourcen:*
+- 2 Domänenexperten (Teilzeit)
+- 4 Frontend-Entwickler (Vollzeit)
+- 4 Backend-Entwickler (Vollzeit)
+- 3 QA-Ingenieure (Vollzeit)
+
+*Dauer:* 8 Wochen

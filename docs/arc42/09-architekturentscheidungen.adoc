@@ -3,69 +3,8 @@
 
 == 9. Architekturentscheidungen
 
-=== 9.1 Frontend: Feature-Sliced Design Implementierung
+Die folgenden Architecture Decision Records (ADRs) dokumentieren die wichtigsten Architekturentscheidungen des Projekts. Jedes ADR folgt einer standardisierten Struktur, die Kontext, Optionen, Entscheidung und Konsequenzen transparent darstellt.
 
-*Entscheidung*: Implementierung der Feature-Sliced Design Architektur im Frontend.
+==== ADR-Übersicht
 
-*Kontext*: Bedarf an einem strukturierten Ansatz zur Organisation von React-Anwendungscode.
-
-*Betrachtete Alternativen*:
-* Konventionelle Schichtenarchitektur
-* Domain-Driven Design (DDD)
-* Atomic Design
-
-*Entscheidungsergebnis*: FSD wurde aufgrund seiner Fokussierung auf Features, klarer Schichtentrennung und Kompatibilität mit Reacts Komponentenmodell gewählt.
-
-=== 9.2 Backend: Clean Architecture mit Kotlin
-
-*Entscheidung*: Implementierung von Clean Architecture mit Kotlin im Backend.
-
-*Kontext*: Notwendigkeit einer klaren Strukturierung des Backends mit Fokus auf Testbarkeit und Wartbarkeit.
-
-*Betrachtete Alternativen*:
-* Hexagonale Architektur
-* CQRS+Event Sourcing
-* Standard MVC/Service-Repository
-
-*Entscheidungsergebnis*: Clean Architecture wurde gewählt, da sie eine klare Trennung der Belange ermöglicht, die Testbarkeit verbessert und die Abhängigkeit von Frameworks reduziert. Kotlin bietet als Sprache hervorragende Features für funktionale Programmierung und Nullsicherheit.
-
-=== 9.3 API-Kommunikation: OpenAPI mit TypeScript-Generierung
-
-*Entscheidung*: Verwendung von OpenAPI-Spezifikationen mit Codegenerierung für TypeScript-Clients.
-
-*Kontext*: Notwendigkeit einer konsistenten API-Definition zwischen Frontend und Backend.
-
-*Betrachtete Alternativen*:
-* Manuell definierte API-Clients
-* GraphQL
-* gRPC
-
-*Entscheidungsergebnis*: OpenAPI mit TypeScript-Generierung wurde gewählt, da es eine konsistente und typsichere API-Kommunikation ermöglicht, während gleichzeitig die Dokumentation automatisch aktualisiert wird.
-
-=== 9.4 Frontend-Datenabfrage: TanStack Query
-
-*Entscheidung*: Nutzung von TanStack Query für die Verwaltung von Serverzustand.
-
-*Kontext*: Bedarf an einer effizienten Lösung für das Caching, die Aktualisierung und das Invalidieren von Serverdaten.
-
-*Betrachtete Alternativen*:
-* Redux mit Thunks/Sagas
-* SWR
-* Apollo Client (auch ohne GraphQL)
-* Eigene Fetch-Hooks
-
-*Entscheidungsergebnis*: TanStack Query bietet ein überlegenes Serverzustandsmanagement mit automatischem Caching, Background-Updates und Optimistic UI. Die Integration mit TypeScript ist hervorragend, und die Devtools erleichtern das Debugging.
-
-=== 9.5 UI-Komponenten: ShadCN UI mit Tailwind CSS
-
-*Entscheidung*: Verwendung von ShadCN UI mit Tailwind CSS für Komponenten und Styling.
-
-*Kontext*: Notwendigkeit einer konsistenten, performanten und anpassbaren UI-Bibliothek.
-
-*Betrachtete Alternativen*:
-* Material UI
-* Chakra UI
-* Mantine
-* Eigenes Design-System von Grund auf
-
-*Entscheidungsergebnis*: ShadCN UI wurde gewählt, da es unstyled ist, direkt im Projekt gespeichert wird (kein npm-Paket) und vollständig anpassbar ist. Tailwind CSS ermöglicht eine schnelle Entwicklung ohne großen CSS-Overhead.
+include::adrs/index.adoc[leveloffset=+1]

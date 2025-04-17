@@ -1,0 +1,40 @@
+= Projektmeilensteine
+:toc: left
+:toclevels: 3
+:sectnums:
+:source-highlighter: highlightjs
+:icons: font
+:experimental:
+
+== Übersicht der Meilensteine
+
+Dieses Dokument definiert die Hauptmeilensteine für die Entwicklung unseres FSD Frontend mit Clean Architecture Kotlin Backend Projekts.
+
+[cols="1,2,3,2,1"]
+|===
+|ID |Meilenstein |Beschreibung |Fälligkeitsdatum |Status
+
+|M1 |Architekturkonzept |Abschluss der detaillierten Architekturplanung, Technologieauswahl und Validierung der Konzepte |2025-05-15 |Abgeschlossen
+|M2 |Basisinfrastruktur |Einrichtung der CI/CD-Pipeline, Entwicklungsumgebung, API-Schnittstellen und Grundgerüst (Scaffolding) |2025-06-15 |In Bearbeitung
+|M3 |MVP Kernfunktionen |Implementierung der grundlegenden Funktionen für Personenverwaltung und Authentifizierung |2025-08-01 |Geplant
+|M4 |Komplette Domänenabdeckung |Implementierung aller Kerndienste und -entities (Kunden, Verpflichtungen, Einstellungen) |2025-10-01 |Geplant
+|M5 |UI & UX Verfeinerung |Abschluss der Benutzeroberfläche mit vollständigem Design-System |2025-11-15 |Geplant
+|M6 |Beta-Release |Feature-vollständige Version für Betatests mit ausgewählten Benutzern |2025-12-15 |Geplant
+|M7 |Produktionsfreigabe |Finale Optimierungen, Sicherheitsaudits und Bereitstellung für Produktion |2026-02-01 |Geplant
+|===
+
+== Detaillierte Meilensteinbeschreibungen
+
+include::m1-architekturkonzept.adoc[leveloffset=+2]
+include::m2-basisinfrastruktur.adoc[leveloffset=+2]
+include::m3-mvp-kernfunktionen.adoc[leveloffset=+2]
+include::m4-domaenenabdeckung.adoc[leveloffset=+2]
+include::m5-ui-ux-verfeinerung.adoc[leveloffset=+2]
+include::m6-beta-release.adoc[leveloffset=+2]
+include::m7-produktionsfreigabe.adoc[leveloffset=+2]
+
+include::risiken-abhaengigkeiten.adoc[leveloffset=+1]
+
+== Aktualisierungsplan
+
+Der Meilensteinplan wird monatlich im Projektsteuerungsmeeting überprüft und bei Bedarf aktualisiert. Wesentliche Änderungen werden dokumentiert und an alle Stakeholder kommuniziert.

@@ -40,3 +40,22 @@
 * *Authentifizierung*: JWT-basierte Authentifizierung mit sicherer Speicherung
 * *REST-API*: Standardisierte Kommunikation zwischen Frontend und Backend
 * *OpenAPI-Spezifikation*: Formale API-Definition für beide Systemteile
+
+=== 4.3 Projektmeilensteine und Entwicklungsplanung
+
+Die Entwicklung des Systems ist in klar definierte Meilensteine unterteilt, um einen strukturierten und kontrollierbaren Fortschritt zu gewährleisten. Der detaillierte Meilensteinplan beschreibt die wichtigsten Etappen der Projektentwicklung, deren Abhängigkeiten und Risiken.
+
+[cols="1,2,2,1"]
+|===
+|Meilenstein |Beschreibung |Fälligkeitsdatum |Status
+
+|M1: Architekturkonzept |Architekturplanung und Validierung |2025-05-15 |Abgeschlossen
+|M2: Basisinfrastruktur |CI/CD und Grundgerüst |2025-06-15 |In Bearbeitung
+|M3: MVP Kernfunktionen |Authentifizierung und Personendaten |2025-08-01 |Geplant
+|M4: Domänenabdeckung |Alle Kernentitäten und -dienste |2025-10-01 |Geplant
+|M5: UI & UX Verfeinerung |Optimierte Benutzeroberfläche |2025-11-15 |Geplant
+|M6: Beta-Release |Bereitstellung für Betatests |2025-12-15 |Geplant
+|M7: Produktionsfreigabe |Finalisierung für Produktionsumgebung |2026-02-01 |Geplant
+|===
+
+Für detaillierte Informationen zu den einzelnen Meilensteinen, deren Liefergegenständen, Erfolgskriterien und Ressourcenplanung siehe die separate Meilenstein-Dokumentation unter `docs/meilensteine/`.

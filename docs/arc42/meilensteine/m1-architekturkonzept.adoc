@@ -1,0 +1,27 @@
+= M1: Architekturkonzept
+
+*Ziel:* Etablierung einer soliden architektonischen Grundlage für das Projekt
+
+*Liefergegenstände:*
+- Vollständige Architekturdokumentation nach arc42
+- Technischer Prototyp der Frontend-/Backend-Integration
+- Definierte API-Schnittstellen mit OpenAPI-Spezifikationen
+- Validierte FSD-Struktur für Frontend-Code
+
+*Verantwortliche:* Architekturteam, Tech Leads
+
+*Abhängigkeiten:* Keine
+
+*Messbare Erfolgskriterien:*
+- Alle Architekturdiagramme und -dokumentation abgeschlossen
+- API-Spezifikation zu 100% definiert und validiert
+- Funktionierender Prototyp für kritische Pfade implementiert
+- Peer-Review der Architektur durch externe Experten abgeschlossen
+
+*Ressourcen:*
+- 3 Architekten (Vollzeit)
+- 2 Senior Frontend-Entwickler (Teilzeit)
+- 2 Senior Backend-Entwickler (Teilzeit)
+- 1 DevOps-Spezialist (Teilzeit)
+
+*Dauer:* 4 Wochen

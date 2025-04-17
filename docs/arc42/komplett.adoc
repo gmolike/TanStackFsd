@@ -33,6 +33,21 @@ include::10-qualitätsanforderungen.adoc[leveloffset=+0]
 include::11-risiken-und-technische-schulden.adoc[leveloffset=+0]
 include::12-glossar.adoc[leveloffset=+0]
 
+// In docs/arc42/komplett.adoc, nach den bereits vorhandenen Anhängen:
+
+[appendix]
+= Architecture Decision Records (ADRs)
+:numbered!:
+
+include::adrs/index.adoc[leveloffset=+1]
+include::adrs/adr-001-fsd-architektur.adoc[leveloffset=+1]
+include::adrs/adr-002-clean-architecture-backend.adoc[leveloffset=+1]
+include::adrs/adr-003-openapi-integration.adoc[leveloffset=+1]
+include::adrs/adr-004-tanstack-query.adoc[leveloffset=+1]
+include::adrs/adr-005-shadcn-ui.adoc[leveloffset=+1]
+include::adrs/adr-006-authentication.adoc[leveloffset=+1]
+include::adrs/adr-007-monorepo-setup.adoc[leveloffset=+1]
+
 // Anhänge einbinden
 [appendix]
 = Anhänge
