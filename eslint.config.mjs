@@ -1,4 +1,3 @@
-// eslint.config.mjs
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactPlugin from 'eslint-plugin-react';
@@ -11,6 +10,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import prettierConfig from 'eslint-config-prettier';
 import playwrightPlugin from 'eslint-plugin-playwright';
 import { FlatCompat } from '@eslint/eslintrc';
+import importPlugin from 'eslint-plugin-import';
 import { tanstackConfig } from '@tanstack/eslint-config';
 
 // Import FSD layer rules
@@ -47,6 +47,7 @@ const compat = new FlatCompat();
 // Configuration Sections
 const baseConfig = [js.configs.recommended, ...tseslint.configs.recommended];
 
+// Define all plugins in one place to avoid duplication
 const pluginsConfig = {
   plugins: {
     react: reactPlugin,
@@ -57,17 +58,7 @@ const pluginsConfig = {
     prettier: prettierPlugin,
     'react-refresh': reactRefresh,
     playwright: playwrightPlugin,
-  },
-};
-
-// Define import plugin rules separately to avoid conflicts with tanstackConfig
-const importPluginConfig = {
-  rules: {
-    'import/order': 'off',
-    'import/first': 'error',
-    'import/no-duplicates': 'error',
-    'import/no-unresolved': 'off',
-    'import/newline-after-import': 'error',
+    import: importPlugin, // Import plugin defined once here
   },
 };
 
@@ -134,9 +125,17 @@ const commonJsRules = {
   },
 };
 
+// Import rules defined separately with no plugin reference
 const importRules = {
   files: ['**/*.{js,jsx,ts,tsx}'],
   rules: {
+    // Import plugin rules
+    'import/order': 'off',
+    'import/first': 'error',
+    'import/no-duplicates': 'error',
+    'import/no-unresolved': 'off',
+    'import/newline-after-import': 'error',
+    
     // FSD import groups configuration
     'simple-import-sort/imports': [
       'error',
@@ -276,14 +275,32 @@ const playwrightConfig = compat.config({
   ],
 });
 
+// Filter tanstack config to avoid plugin conflicts
+const filteredTanstackConfig = tanstackConfig.map(config => {
+  // If this config entry contains plugins, filter out any plugins 
+  // we're already defining to avoid conflicts
+  if (config.plugins) {
+    const filteredPlugins = { ...config.plugins };
+    // Remove any plugins we're defining ourselves
+    Object.keys(pluginsConfig.plugins).forEach(plugin => {
+      delete filteredPlugins[plugin];
+    });
+    
+    return {
+      ...config,
+      plugins: filteredPlugins
+    };
+  }
+  return config;
+});
+
 // Export the final ESLint config
 export default [
   // Base configurations
-  ...tanstackConfig,
+  ...filteredTanstackConfig,
   ...baseConfig,
   pluginsConfig,
   environmentConfig,
-  importPluginConfig, // Add import plugin rules without redefining the plugin
 
   // Rule configurations
   reactRules,
