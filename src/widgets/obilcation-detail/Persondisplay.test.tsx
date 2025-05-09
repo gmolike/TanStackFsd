@@ -1,57 +1,68 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { ClientDisplay } from '../ClientDisplay';
+import { PersonDisplay } from '../PersonDisplay';
 
 // Mock dependent components
-vi.mock('features/clients', () => ({
-  ClientDetail: ({ clientId, onCardTitleClick }) => (
-    <div data-testid="client-detail" onClick={onCardTitleClick}>
-      Client Detail {clientId}
+vi.mock('features/persons', () => ({
+  PersonsDetail: ({ personId, onCardTitleClick }) => (
+    <div data-testid="person-detail" onClick={onCardTitleClick}>
+      Person Detail {personId}
     </div>
   ),
-  ClientShortInfo: ({ shortName, type, city, detailBlockOnClick }) => (
-    <div data-testid="client-short-info" onClick={detailBlockOnClick}>
-      Client {shortName} {type} {city}
+  PersonsShortInfo: ({ rank, lastName, firstName, detailBlockOnClick }) => (
+    <div data-testid="person-short-info" onClick={detailBlockOnClick}>
+      Person {rank} {lastName} {firstName}
     </div>
   ),
 }));
 
-describe('ClientDisplay component', () => {
+describe('PersonDisplay component', () => {
   const mockObligationDetail = {
-    clientShortName: 'TestClient',
-    clientType: 'Company',
-    clientCity: 'Berlin',
+    obligatedPersonRank: 'Manager',
+    obligatedPersonLastName: 'Doe',
+    obligatedPersonFirstName: 'John',
   };
 
-  it('should render client short info by default', () => {
-    render(<ClientDisplay clientId="client-123" obligationDetail={mockObligationDetail as any} />);
+  it('should render person short info by default', () => {
+    render(<PersonDisplay personId="person-123" obligationDetail={mockObligationDetail as any} />);
 
-    expect(screen.getByTestId('client-short-info')).toBeInTheDocument();
-    expect(screen.queryByTestId('client-detail')).not.toBeInTheDocument();
+    expect(screen.getByTestId('person-short-info')).toBeInTheDocument();
+    expect(screen.queryByTestId('person-detail')).not.toBeInTheDocument();
   });
 
-  it('should switch to client detail view when clicked', () => {
-    render(<ClientDisplay clientId="client-123" obligationDetail={mockObligationDetail as any} />);
+  it('should not switch to detail view if personId is undefined', () => {
+    render(<PersonDisplay personId={undefined} obligationDetail={mockObligationDetail as any} />);
+
+    // Click on the short info
+    fireEvent.click(screen.getByTestId('person-short-info'));
+
+    // Should still show short info (no personId to fetch details)
+    expect(screen.getByTestId('person-short-info')).toBeInTheDocument();
+    expect(screen.queryByTestId('person-detail')).not.toBeInTheDocument();
+  });
+
+  it('should switch to person detail view when clicked with valid personId', () => {
+    render(<PersonDisplay personId="person-123" obligationDetail={mockObligationDetail as any} />);
 
     // Click on the short info to show details
-    fireEvent.click(screen.getByTestId('client-short-info'));
+    fireEvent.click(screen.getByTestId('person-short-info'));
 
-    // Should now show client detail
-    expect(screen.getByTestId('client-detail')).toBeInTheDocument();
-    expect(screen.queryByTestId('client-short-info')).not.toBeInTheDocument();
+    // Should now show person detail
+    expect(screen.getByTestId('person-detail')).toBeInTheDocument();
+    expect(screen.queryByTestId('person-short-info')).not.toBeInTheDocument();
   });
 
-  it('should switch back to short info when client detail is clicked', () => {
-    render(<ClientDisplay clientId="client-123" obligationDetail={mockObligationDetail as any} />);
+  it('should switch back to short info when person detail is clicked', () => {
+    render(<PersonDisplay personId="person-123" obligationDetail={mockObligationDetail as any} />);
 
     // Click to show details
-    fireEvent.click(screen.getByTestId('client-short-info'));
+    fireEvent.click(screen.getByTestId('person-short-info'));
 
     // Click again to hide details
-    fireEvent.click(screen.getByTestId('client-detail'));
+    fireEvent.click(screen.getByTestId('person-detail'));
 
     // Should show short info again
-    expect(screen.getByTestId('client-short-info')).toBeInTheDocument();
-    expect(screen.queryByTestId('client-detail')).not.toBeInTheDocument();
+    expect(screen.getByTestId('person-short-info')).toBeInTheDocument();
+    expect(screen.queryByTestId('person-detail')).not.toBeInTheDocument();
   });
 });
