@@ -1,6 +1,7 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+
 import { Detail } from '../Detail';
 
 // Mock the necessary API calls but use actual component implementations
@@ -32,12 +33,28 @@ vi.mock('entities/clients/api/useQuery', () => ({
 
 // Mock client and person related dependencies
 vi.mock('features/clients', () => ({
-  ClientDetail: ({ clientId, onCardTitleClick }) => (
+  ClientDetail: ({
+    clientId,
+    onCardTitleClick,
+  }: {
+    clientId: string;
+    onCardTitleClick: () => void;
+  }) => (
     <div data-testid="client-detail" onClick={onCardTitleClick}>
       Client Detail {clientId}
     </div>
   ),
-  ClientShortInfo: ({ shortName, type, city, detailBlockOnClick }) => (
+  ClientShortInfo: ({
+    shortName,
+    type,
+    city,
+    detailBlockOnClick,
+  }: {
+    shortName: string;
+    type: string;
+    city: string;
+    detailBlockOnClick: () => void;
+  }) => (
     <div data-testid="client-short-info" onClick={detailBlockOnClick}>
       Client {shortName} {type} {city}
     </div>
@@ -45,12 +62,28 @@ vi.mock('features/clients', () => ({
 }));
 
 vi.mock('features/persons', () => ({
-  PersonsDetail: ({ personId, onCardTitleClick }) => (
+  PersonsDetail: ({
+    personId,
+    onCardTitleClick,
+  }: {
+    personId: string;
+    onCardTitleClick: () => void;
+  }) => (
     <div data-testid="person-detail" onClick={onCardTitleClick}>
       Person Detail {personId}
     </div>
   ),
-  PersonsShortInfo: ({ rank, lastName, firstName, detailBlockOnClick }) => (
+  PersonsShortInfo: ({
+    rank,
+    lastName,
+    firstName,
+    detailBlockOnClick,
+  }: {
+    rank: string;
+    lastName: string;
+    firstName: string;
+    detailBlockOnClick: () => void;
+  }) => (
     <div data-testid="person-short-info" onClick={detailBlockOnClick}>
       Person {rank} {lastName} {firstName}
     </div>
@@ -59,10 +92,18 @@ vi.mock('features/persons', () => ({
 
 // Still need to mock some UI components
 vi.mock('shared/shadcn', () => ({
-  Card: ({ children, 'data-testid': testId }) => <div data-testid={testId}>{children}</div>,
-  CardContent: ({ children }) => <div>{children}</div>,
-  DropdownMenuContent: ({ children }) => <div>{children}</div>,
-  DropdownMenuItem: ({ children, disabled }) => <button disabled={disabled}>{children}</button>,
+  Card: ({
+    children,
+    'data-testid': testId,
+  }: {
+    children: React.ReactNode;
+    'data-testid': string;
+  }) => <div data-testid={testId}>{children}</div>,
+  CardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DropdownMenuItem: ({ children, disabled }: { children: React.ReactNode; disabled?: boolean }) => (
+    <button disabled={disabled}>{children}</button>
+  ),
 }));
 
 // The remaining shared UI components
@@ -72,17 +113,25 @@ vi.mock('shared/ui', () => {
 
   return {
     ...originalModule,
-    DetailCardHeader: ({ title, backlink }) => (
+    DetailCardHeader: ({ title, backlink }: { title: string; backlink: string }) => (
       <div data-testid="detail-card-header">
         {title} <a href={backlink}>Back</a>
       </div>
     ),
-    QueryStateHandler: ({ isLoading, isError, children }) => {
+    QueryStateHandler: ({
+      isLoading,
+      isError,
+      children,
+    }: {
+      isLoading: boolean;
+      isError: boolean;
+      children: React.ReactNode;
+    }) => {
       if (isLoading) return <div>Loading...</div>;
       if (isError) return <div>Error!</div>;
       return <>{children}</>;
     },
-    StatusBadge: ({ value }) => <div data-testid="status-badge">{value}</div>,
+    StatusBadge: ({ value }: { value: string }) => <div data-testid="status-badge">{value}</div>,
   };
 });
 
@@ -96,7 +145,7 @@ describe('Obligation Detail Integration', () => {
       },
     });
 
-    return ({ children }) => (
+    return ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
   };

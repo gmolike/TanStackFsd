@@ -1,5 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+import { useApi } from '../api/useApi';
 import { Detail } from '../Detail';
 
 // Mock the API hook
@@ -9,7 +11,13 @@ vi.mock('../api/useApi', () => ({
 
 // Mock the UI components
 vi.mock('../ui/ClientDisplay', () => ({
-  ClientDisplay: ({ clientId, obligationDetail }) => (
+  ClientDisplay: ({
+    clientId,
+    obligationDetail,
+  }: {
+    clientId: string;
+    obligationDetail?: { id: string };
+  }) => (
     <div data-testid="client-display">
       Client Display {clientId} {obligationDetail?.id}
     </div>
@@ -17,7 +25,13 @@ vi.mock('../ui/ClientDisplay', () => ({
 }));
 
 vi.mock('../ui/PersonDisplay', () => ({
-  PersonDisplay: ({ personId, obligationDetail }) => (
+  PersonDisplay: ({
+    personId,
+    obligationDetail,
+  }: {
+    personId: string;
+    obligationDetail?: { id: string };
+  }) => (
     <div data-testid="person-display">
       Person Display {personId} {obligationDetail?.id}
     </div>
@@ -26,37 +40,45 @@ vi.mock('../ui/PersonDisplay', () => ({
 
 // Mock shared UI components
 vi.mock('shared/ui', () => ({
-  DetailCardHeader: ({ title, backlink }) => (
+  DetailCardHeader: ({ title, backlink }: { title: string; backlink: string }) => (
     <div data-testid="detail-card-header">
       {title} <a href={backlink}>Back</a>
     </div>
   ),
-  DetailBlock: ({ headline, children }) => (
+  DetailBlock: ({ headline, children }: { headline: string; children: React.ReactNode }) => (
     <div data-testid="detail-block" data-headline={headline}>
       {children}
     </div>
   ),
-  DetailLabelValuePair: ({ label, text }) => (
+  DetailLabelValuePair: ({ label, text }: { label: string; text: string }) => (
     <div data-testid="detail-label-value">
       {label}: {text}
     </div>
   ),
-  EntityDetailTable: ({ title, data }) => (
+  EntityDetailTable: ({ title, data }: { title: string; data: Array<{ [key: string]: any }> }) => (
     <div data-testid="entity-detail-table" data-title={title}>
-      Table with {data?.length || 0} rows
+      Table with {data.length || 0} rows
     </div>
   ),
-  QueryStateHandler: ({ isLoading, isError, children }) => (
+  QueryStateHandler: ({
+    isLoading,
+    isError,
+    children,
+  }: {
+    isLoading: boolean;
+    isError: boolean;
+    children: React.ReactNode;
+  }) => (
     <div data-testid="query-state-handler">
       {isLoading && <div>Loading...</div>}
       {isError && <div>Error!</div>}
       {!isLoading && !isError && children}
     </div>
   ),
-  StatusBadge: ({ value }) => <div data-testid="status-badge">{value}</div>,
+  StatusBadge: ({ value }: { value: string | number }) => (
+    <div data-testid="status-badge">{value}</div>
+  ),
 }));
-
-import { useApi } from '../api/useApi';
 
 describe('Detail component', () => {
   const mockObligationDetail = {
@@ -126,8 +148,10 @@ describe('Detail component', () => {
       (block) => block.getAttribute('data-headline') === 'Gültigkeitszeitraum',
     );
     expect(validityBlock).toBeInTheDocument();
-    within(validityBlock).getByText(/2023-01-01/);
-    within(validityBlock).getByText(/2023-12-31/);
+    if (validityBlock) {
+      within(validityBlock).getByText(/2023-01-01/);
+      within(validityBlock).getByText(/2023-12-31/);
+    }
 
     // Check additional words table
     expect(screen.getByTestId('entity-detail-table')).toHaveAttribute('data-title', 'Zusatzwort');
@@ -138,6 +162,8 @@ describe('Detail component', () => {
       (block) => block.getAttribute('data-headline') === 'Hinweis',
     );
     expect(notesBlock).toBeInTheDocument();
-    within(notesBlock).getByText('Test notes');
+    if (notesBlock) {
+      within(notesBlock).getByText('Test notes');
+    }
   });
 });

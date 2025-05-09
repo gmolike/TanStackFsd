@@ -1,15 +1,32 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
 import { ClientDisplay } from '../ClientDisplay';
 
 // Mock dependent components
 vi.mock('features/clients', () => ({
-  ClientDetail: ({ clientId, onCardTitleClick }) => (
+  ClientDetail: ({
+    clientId,
+    onCardTitleClick,
+  }: {
+    clientId: string;
+    onCardTitleClick: () => void;
+  }) => (
     <div data-testid="client-detail" onClick={onCardTitleClick}>
       Client Detail {clientId}
     </div>
   ),
-  ClientShortInfo: ({ shortName, type, city, detailBlockOnClick }) => (
+  ClientShortInfo: ({
+    shortName,
+    type,
+    city,
+    detailBlockOnClick,
+  }: {
+    shortName: string;
+    type: string;
+    city: string;
+    detailBlockOnClick: () => void;
+  }) => (
     <div data-testid="client-short-info" onClick={detailBlockOnClick}>
       Client {shortName} {type} {city}
     </div>

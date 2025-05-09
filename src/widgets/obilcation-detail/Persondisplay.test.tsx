@@ -1,15 +1,32 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
 import { PersonDisplay } from '../PersonDisplay';
 
 // Mock dependent components
 vi.mock('features/persons', () => ({
-  PersonsDetail: ({ personId, onCardTitleClick }) => (
+  PersonsDetail: ({
+    personId,
+    onCardTitleClick,
+  }: {
+    personId: string;
+    onCardTitleClick: () => void;
+  }) => (
     <div data-testid="person-detail" onClick={onCardTitleClick}>
       Person Detail {personId}
     </div>
   ),
-  PersonsShortInfo: ({ rank, lastName, firstName, detailBlockOnClick }) => (
+  PersonsShortInfo: ({
+    rank,
+    lastName,
+    firstName,
+    detailBlockOnClick,
+  }: {
+    rank: string;
+    lastName: string;
+    firstName: string;
+    detailBlockOnClick: () => void;
+  }) => (
     <div data-testid="person-short-info" onClick={detailBlockOnClick}>
       Person {rank} {lastName} {firstName}
     </div>
