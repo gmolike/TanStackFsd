@@ -5,13 +5,19 @@ import { useQueryClient } from '@tanstack/react-query';
 import { RouterProvider as TanStackRouterProvider } from '@tanstack/react-router';
 
 import { useAuth } from '~/shared/auth';
-import { router } from '~/shared/router';
+import { router } from '~/shared/router/router';
+import { LoadingSpinner } from '~/shared/ui/LoadingSpinner';
 
 export const RouterProvider = (): JSX.Element => {
   const auth = useAuth();
   const queryClient = useQueryClient();
 
-  // Update router context with auth and queryClient
+  // Warten bis Auth geladen ist
+  if (auth.isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // Update router context mit auth und queryClient
   router.update({
     context: {
       auth,
