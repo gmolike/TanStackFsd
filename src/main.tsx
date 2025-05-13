@@ -1,18 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 
 import { App } from '~/app/app';
 
-import '../src/app/styles/main.css';
+import './app/styles/main.css';
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const rootElement = document.getElementById('root')!;
+// Sicherstellen, dass das root Element existiert
+const rootElement = document.getElementById('root');
 
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
+if (!rootElement) {
+  throw new Error('Root element not found');
 }
+
+// React 18+ API verwenden
+const root = createRoot(rootElement);
+
+root.render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
