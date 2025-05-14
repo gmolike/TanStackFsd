@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { RouterProvider as TanStackRouterProvider } from '@tanstack/react-router';
 
 import { useAuth } from '~/shared/auth';
-import { router } from '~/shared/router/router';
+import { Router } from '~/shared/auth/router';
 import { LoadingSpinner } from '~/shared/ui/LoadingSpinner';
 
 export const RouterProvider = (): JSX.Element => {
@@ -18,7 +18,7 @@ export const RouterProvider = (): JSX.Element => {
   }
 
   // Update router context mit auth und queryClient
-  router.update({
+  Router.update({
     context: {
       auth,
       queryClient,
@@ -27,7 +27,7 @@ export const RouterProvider = (): JSX.Element => {
 
   return (
     <StrictMode>
-      <TanStackRouterProvider router={router} />
+      <TanStackRouterProvider router={Router} />
     </StrictMode>
   );
 };
