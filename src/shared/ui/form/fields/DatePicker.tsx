@@ -1,15 +1,18 @@
 import { memo } from 'react';
-import type { ChangeEvent } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 import type { Locale } from 'date-fns';
 import { format, isValid, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 
-import { FormField } from '../Context';
-import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
+import { cn } from '~/shared/lib/utils';
+import { Button } from '~/shared/shadcn/button';
+import { Calendar } from '~/shared/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '~/shared/ui/popover';
+
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
 
 import type { BaseFieldProps } from './types';
 
@@ -18,55 +21,13 @@ type DatePickerProps<TFieldValues extends FieldValues = FieldValues> =
   BaseFieldProps<TFieldValues> & {
     dateFormat?: string;
     showTime?: boolean;
-    min?: string;
-    max?: string;
+    min?: Date;
+    max?: Date;
     locale?: Locale;
   };
 
-// Constants
-const DATE_INPUT_CLASSES = `
-  flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm
-  ring-offset-background focus-visible:outline-none focus-visible:ring-2
-  focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50
-`.trim();
-
-// Utility Functions
-const getErrorClasses = (hasError: boolean) =>
-  hasError ? 'border-destructive focus-visible:ring-destructive' : '';
-
-const formatDateValue = (value: Date | string | null, showTime: boolean): string => {
-  if (!value) return '';
-
-  try {
-    const date = value instanceof Date ? value : typeof value === 'string' ? parseISO(value) : null;
-
-    if (!date || !isValid(date)) return '';
-
-    return showTime ? format(date, "yyyy-MM-dd'T'HH:mm") : format(date, 'yyyy-MM-dd');
-  } catch {
-    return '';
-  }
-};
-
-const parseDateValue = (value: string): Date | null => {
-  if (!value) return null;
-
-  try {
-    const parsed = parseISO(value);
-    return isValid(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
-};
-
-const createDateChangeHandler =
-  (onChange: (value: Date | null) => void) => (e: ChangeEvent<HTMLInputElement>) => {
-    const parsedValue = parseDateValue(e.target.value);
-    onChange(parsedValue);
-  };
-
 /**
- * Date - Date picker with date-fns integration for robust date handling
+ * DatePicker - ShadCN DatePicker with Calendar component
  *
  * @param props.name - Unique field name for React Hook Form
  * @param props.label - Optional label text above date picker
@@ -76,9 +37,9 @@ const createDateChangeHandler =
  * @param props.placeholder - Placeholder text (default: "Datum auswählen")
  * @param props.className - Additional CSS classes
  * @param props.dateFormat - Display format for date (default: "dd.MM.yyyy")
- * @param props.showTime - Shows additional time selection (default: false)
- * @param props.min - Minimum date (YYYY-MM-DD format)
- * @param props.max - Maximum date (YYYY-MM-DD format)
+ * @param props.showTime - Shows additional time selection (for future enhancement)
+ * @param props.min - Minimum date
+ * @param props.max - Maximum date
  * @param props.locale - Localization for date-fns (default: German)
  */
 function DatePickerComponent<TFieldValues extends FieldValues = FieldValues>({
@@ -95,33 +56,58 @@ function DatePickerComponent<TFieldValues extends FieldValues = FieldValues>({
   max,
   locale = de,
 }: DatePickerProps<TFieldValues>) {
+  const form = useFormContext();
+
+  const formatDateValue = (date: Date | string | null): string => {
+    if (!date) return '';
+
+    try {
+      const dateObj = typeof date === 'string' ? parseISO(date) : date;
+      if (!isValid(dateObj)) return '';
+      return format(dateObj, dateFormat, { locale });
+    } catch {
+      return '';
+    }
+  };
+
   return (
-    <FormField name={name}>
-      <Controller
-        name={name}
-        render={({ field, fieldState }) => (
-          <FormItem className={className}>
-            {label && <FormLabel required={required}>{label}</FormLabel>}
-            <FormControl>
-              <div className="relative">
-                <input
-                  type={showTime ? 'datetime-local' : 'date'}
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel required={required}>{label}</FormLabel>}
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    'w-full pl-3 text-left font-normal',
+                    !field.value && 'text-muted-foreground',
+                  )}
                   disabled={disabled}
-                  min={min}
-                  max={max}
-                  value={formatDateValue(field.value, showTime)}
-                  onChange={createDateChangeHandler(field.onChange)}
-                  className={`${DATE_INPUT_CLASSES} ${getErrorClasses(!!fieldState.error)}`}
-                />
-                <CalendarIcon className="pointer-events-none absolute right-3 top-3 h-4 w-4 opacity-50" />
-              </div>
-            </FormControl>
-            {description && <FormDescription>{description}</FormDescription>}
-            {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
-          </FormItem>
-        )}
-      />
-    </FormField>
+                >
+                  {field.value ? formatDateValue(field.value) : placeholder}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={field.value ? new Date(field.value) : undefined}
+                onSelect={field.onChange}
+                disabled={(date) => (min && date < min) || (max && date > max) || disabled}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }
 

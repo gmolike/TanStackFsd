@@ -1,9 +1,17 @@
-// Context
-export { FormField, useFormField } from './Context';
+// Context - Now using ShadCN's built-in context
+export { useFormField } from '~/shared/shadcn/form';
 
-// Form Base Components
+// Form Base Components - Using ShadCN components
 export type { FormLayoutProps, FormProps } from './Form';
-export { Form, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from './Form';
+export {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from './Form';
 
 // Field Components - Import without "Form" prefix and re-export with "Form" prefix
 export { Checkbox as FormCheckbox } from './fields/Checkbox';
@@ -21,12 +29,6 @@ export type { InputProps as FormInputProps } from './fields/Input';
 export type { SelectProps as FormSelectProps } from './fields/Select';
 export type { TextAreaProps as FormTextAreaProps } from './fields/TextArea';
 export type { BaseFieldProps, SelectOption } from './fields/types';
-
-// Radix Components - Import without "Form" prefix and re-export with "Form" prefix
-export type { CheckboxRadixProps as FormCheckboxRadixProps } from './radix/CheckboxRadix';
-export { CheckboxRadix as FormCheckboxRadix } from './radix/CheckboxRadix';
-export type { SelectRadixProps as FormSelectRadixProps } from './radix/SelectRadix';
-export { SelectRadix as FormSelectRadix } from './radix/SelectRadix';
 
 // Header Components - Import without "Form" prefix and re-export with "Form" prefix
 export { Centered as FormHeaderCentered } from './header/Centered';
@@ -57,20 +59,3 @@ export type { StepsProps as FormFooterStepsProps } from './footer/Steps';
 // Re-export React Hook Form types for convenience
 export type { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
 export { useForm } from 'react-hook-form';
-
-/*
- * Usage Examples:
- *
- * // External usage stays the same
- * import { FormInput, FormHeader, FormFooter } from '~/shared/ui/form';
- *
- * // Internal files are cleaner
- * fields/Input.tsx instead of fields/FormInput.tsx
- * header/Header.tsx instead of header/FormHeader.tsx
- *
- * // Benefits:
- * - Cleaner internal file structure
- * - Same external API
- * - Better organization
- * - Easier to maintain
- */

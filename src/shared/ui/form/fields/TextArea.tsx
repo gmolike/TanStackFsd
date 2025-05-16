@@ -1,9 +1,10 @@
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
-import { FormField } from '../Context';
-import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
+import { Textarea as ShadcnTextarea } from '~/shared/ui/textarea';
+
+import { FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
 
 import type { BaseFieldProps } from './types';
 
@@ -13,20 +14,8 @@ export type TextAreaProps<TFieldValues extends FieldValues = FieldValues> =
     rows?: number;
   };
 
-// Constants
-const TEXTAREA_CLASSES = `
-  flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm
-  ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none
-  focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-  disabled:cursor-not-allowed disabled:opacity-50
-`.trim();
-
-// Utility Functions
-const getErrorClasses = (hasError: boolean) =>
-  hasError ? 'border-destructive focus-visible:ring-destructive' : '';
-
 /**
- * Textarea - Multi-line textarea field with automatic validation
+ * Textarea - ShadCN Textarea field with automatic validation
  *
  * @param props.name - Unique field name for React Hook Form
  * @param props.label - Optional label text above textarea
@@ -47,28 +36,23 @@ function TextAreaComponent<TFieldValues extends FieldValues = FieldValues>({
   className,
   rows = 3,
 }: TextAreaProps<TFieldValues>) {
+  const form = useFormContext();
+
   return (
-    <FormField name={name}>
-      <Controller
-        name={name}
-        render={({ field, fieldState }) => (
-          <FormItem className={className}>
-            {label && <FormLabel required={required}>{label}</FormLabel>}
-            <FormControl>
-              <textarea
-                placeholder={placeholder}
-                disabled={disabled}
-                rows={rows}
-                className={`${TEXTAREA_CLASSES} ${getErrorClasses(!!fieldState.error)}`}
-                {...field}
-              />
-            </FormControl>
-            {description && <FormDescription>{description}</FormDescription>}
-            {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
-          </FormItem>
-        )}
-      />
-    </FormField>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel required={required}>{label}</FormLabel>}
+          <FormControl>
+            <ShadcnTextarea placeholder={placeholder} disabled={disabled} rows={rows} {...field} />
+          </FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }
 

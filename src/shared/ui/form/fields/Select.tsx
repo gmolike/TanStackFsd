@@ -1,11 +1,16 @@
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
-import { ChevronDown } from 'lucide-react';
+import {
+  Select as ShadcnSelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/shared/ui/select';
 
-import { FormField } from '../Context';
-import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
+import { FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
 
 import type { BaseFieldProps, SelectOption } from './types';
 
@@ -16,20 +21,8 @@ export type SelectProps<TFieldValues extends FieldValues = FieldValues> =
     emptyOption?: string;
   };
 
-// Constants
-const SELECT_CLASSES = `
-  flex h-10 w-full cursor-pointer appearance-none rounded-md border border-input
-  bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none
-  focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-  disabled:cursor-not-allowed disabled:opacity-50
-`.trim();
-
-// Utility Functions
-const getErrorClasses = (hasError: boolean) =>
-  hasError ? 'border-destructive focus-visible:ring-destructive' : '';
-
 /**
- * Select - Native select dropdown with automatic validation
+ * Select - ShadCN Select dropdown with automatic validation
  *
  * @param props.name - Unique field name for React Hook Form
  * @param props.label - Optional label text above select
@@ -52,40 +45,35 @@ function SelectComponent<TFieldValues extends FieldValues = FieldValues>({
   options,
   emptyOption,
 }: SelectProps<TFieldValues>) {
+  const form = useFormContext();
+
   return (
-    <FormField name={name}>
-      <Controller
-        name={name}
-        render={({ field, fieldState }) => (
-          <FormItem className={className}>
-            {label && <FormLabel required={required}>{label}</FormLabel>}
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel required={required}>{label}</FormLabel>}
+          <ShadcnSelect onValueChange={field.onChange} value={field.value} disabled={disabled}>
             <FormControl>
-              <div className="relative">
-                <select
-                  disabled={disabled}
-                  className={`${SELECT_CLASSES} ${getErrorClasses(!!fieldState.error)}`}
-                  {...field}
-                >
-                  {(emptyOption || placeholder) && (
-                    <option value="" disabled={!emptyOption}>
-                      {emptyOption || placeholder}
-                    </option>
-                  )}
-                  {options.map((option) => (
-                    <option key={option.value} value={option.value} disabled={option.disabled}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-3 top-3 h-4 w-4 opacity-50" />
-              </div>
+              <SelectTrigger>
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
             </FormControl>
-            {description && <FormDescription>{description}</FormDescription>}
-            {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
-          </FormItem>
-        )}
-      />
-    </FormField>
+            <SelectContent>
+              {emptyOption && <SelectItem value="">{emptyOption}</SelectItem>}
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </ShadcnSelect>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }
 
