@@ -4,8 +4,8 @@ import type { JSX } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import { useAuth } from '~/shared/auth';
-import { Button } from '~/shared/ui/button';
-import { Input } from '~/shared/ui/input/index';
+import { Button } from '~/shared/shadcn/button';
+import { Input } from '~/shared/shadcn/input/index';
 
 export const LoginForm = (): JSX.Element => {
   const [email, setEmail] = useState('');

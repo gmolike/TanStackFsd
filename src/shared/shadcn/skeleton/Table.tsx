@@ -1,6 +1,6 @@
 import { cn } from '~/shared/lib/utils';
 
-import { Skeleton } from '../skeleton';
+import { Skeleton } from '.';
 
 export type TableProps = {
   rows?: number;

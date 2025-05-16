@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { User, UserFilters, UserRole } from '~/entities/user';
 import { userApi, UserBadge, UserRoleBadge, UserStatusBadge } from '~/entities/user';
 
-import { Button } from '~/shared/ui/button';
+import { Button } from '~/shared/shadcn/button';
 import {
   Dialog,
   DialogContent,
@@ -14,16 +14,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '~/shared/ui/dialog';
+} from '~/shared/shadcn/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '~/shared/ui/dropdown-menu';
-import { InputShadcn } from '~/shared/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/shared/ui/select';
+} from '~/shared/shadcn/dropdown-menu';
+import { InputShadcn } from '~/shared/shadcn/input/index';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/shared/shadcn/select';
 import {
   Table,
   TableBody,
@@ -32,7 +38,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '~/shared/ui/table';
+} from '~/shared/shadcn/table';
 
 // Paginierung
 const ITEMS_PER_PAGE = 5;
