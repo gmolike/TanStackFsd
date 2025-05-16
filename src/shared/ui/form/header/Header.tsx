@@ -1,3 +1,4 @@
+// src/shared/ui/form/header/Header.tsx
 import { memo } from 'react';
 import type { ReactNode } from 'react';
 
@@ -70,21 +71,9 @@ const getDescriptionMargin = (variant: keyof typeof HEADER_VARIANTS, hasIcon: bo
 };
 
 /**
- * Header - Flexible header for forms with configurable layout
- *
- * @param props.title - Main title (required)
- * @param props.description - Optional description text under title
- * @param props.subtitle - Additional subtitle directly under main title
- * @param props.icon - Lucide icon component for header
- * @param props.avatar - Custom avatar or image element
- * @param props.badge - Badge element (e.g., status indicator)
- * @param props.actions - Action buttons or elements in top right area
- * @param props.className - Additional CSS classes for header container
- * @param props.titleClassName - Additional CSS classes for title
- * @param props.descriptionClassName - Additional CSS classes for description
- * @param props.variant - Layout variant (default, centered, minimal)
+ * HeaderComponent - Flexible header for forms with configurable layout
  */
-function HeaderComponent({
+const HeaderComponent = ({
   title,
   description,
   subtitle,
@@ -96,7 +85,7 @@ function HeaderComponent({
   titleClassName,
   descriptionClassName,
   variant = 'default',
-}: HeaderProps) {
+}: HeaderProps) => {
   const variantClasses = getVariantClasses(variant);
   const hasIcon = !!(Icon || avatar);
   const isCentered = variant === 'centered';
@@ -170,7 +159,7 @@ function HeaderComponent({
       )}
     </div>
   );
-}
+};
 
 export const Header = memo(HeaderComponent);
 export type { HeaderProps };

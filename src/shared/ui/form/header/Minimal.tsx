@@ -4,12 +4,10 @@ import type { HeaderProps } from './Header';
 import { Header } from './Header';
 
 /**
- * HeaderMinimal - Minimal header variant with compact display
- *
- * Alternative to Header with variant="minimal" for consistent API
+ * MinimalComponent - Minimal header variant with compact display
  */
-function MinimalComponent(props: Omit<HeaderProps, 'variant'>) {
-  return <Header {...props} variant="minimal" />;
-}
+const MinimalComponent = (props: Omit<HeaderProps, 'variant'>) => (
+  <Header {...props} variant="minimal" />
+);
 
 export const Minimal = memo(MinimalComponent);

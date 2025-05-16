@@ -1,6 +1,6 @@
+// src/shared/ui/form/fields/Select.tsx
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { useFormContext } from 'react-hook-form';
 
 import {
   Select as ShadcnSelect,
@@ -11,6 +11,7 @@ import {
 } from '~/shared/shadcn/select';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
+import { useForm } from '../hook';
 
 import type { BaseFieldProps, SelectOption } from './types';
 
@@ -22,19 +23,9 @@ export type SelectProps<TFieldValues extends FieldValues = FieldValues> =
   };
 
 /**
- * Select - ShadCN Select dropdown with automatic validation
- *
- * @param props.name - Unique field name for React Hook Form
- * @param props.label - Optional label text above select
- * @param props.description - Optional help text below select
- * @param props.required - Shows asterisk (*) for required fields
- * @param props.disabled - Disables the select field
- * @param props.placeholder - Placeholder text (default: "Auswählen...")
- * @param props.className - Additional CSS classes
- * @param props.options - Array of options with value and label
- * @param props.emptyOption - Optional text for empty option
+ * SelectComponent - ShadCN Select dropdown with automatic validation
  */
-function SelectComponent<TFieldValues extends FieldValues = FieldValues>({
+const SelectComponent = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -44,8 +35,8 @@ function SelectComponent<TFieldValues extends FieldValues = FieldValues>({
   className,
   options,
   emptyOption,
-}: SelectProps<TFieldValues>) {
-  const form = useFormContext();
+}: SelectProps<TFieldValues>) => {
+  const form = useForm<TFieldValues>();
 
   return (
     <FormField
@@ -54,7 +45,11 @@ function SelectComponent<TFieldValues extends FieldValues = FieldValues>({
       render={({ field }) => (
         <FormItem className={className}>
           {label && <FormLabel required={required}>{label}</FormLabel>}
-          <ShadcnSelect onValueChange={field.onChange} value={field.value} disabled={disabled}>
+          <ShadcnSelect
+            onValueChange={field.onChange}
+            value={field.value}
+            disabled={disabled || form.formState.isSubmitting}
+          >
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder={placeholder} />
@@ -75,6 +70,6 @@ function SelectComponent<TFieldValues extends FieldValues = FieldValues>({
       )}
     />
   );
-}
+};
 
 export const Select = memo(SelectComponent);

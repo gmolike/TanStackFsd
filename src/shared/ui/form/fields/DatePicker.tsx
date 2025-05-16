@@ -1,6 +1,6 @@
+// src/shared/ui/form/fields/DatePicker.tsx
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { useFormContext } from 'react-hook-form';
 
 import type { Locale } from 'date-fns';
 import { format, isValid, parseISO } from 'date-fns';
@@ -13,6 +13,7 @@ import { Calendar } from '~/shared/shadcn/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '~/shared/shadcn/popover';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
+import { useForm } from '../hook';
 
 import type { BaseFieldProps } from './types';
 
@@ -27,22 +28,9 @@ type DatePickerProps<TFieldValues extends FieldValues = FieldValues> =
   };
 
 /**
- * DatePicker - ShadCN DatePicker with Calendar component
- *
- * @param props.name - Unique field name for React Hook Form
- * @param props.label - Optional label text above date picker
- * @param props.description - Optional help text below date picker
- * @param props.required - Shows asterisk (*) for required fields
- * @param props.disabled - Disables the date picker
- * @param props.placeholder - Placeholder text (default: "Datum auswählen")
- * @param props.className - Additional CSS classes
- * @param props.dateFormat - Display format for date (default: "dd.MM.yyyy")
- * @param props.showTime - Shows additional time selection (for future enhancement)
- * @param props.min - Minimum date
- * @param props.max - Maximum date
- * @param props.locale - Localization for date-fns (default: German)
+ * DatePickerComponent - ShadCN DatePicker with Calendar component
  */
-function DatePickerComponent<TFieldValues extends FieldValues = FieldValues>({
+const DatePickerComponent = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -51,12 +39,11 @@ function DatePickerComponent<TFieldValues extends FieldValues = FieldValues>({
   disabled,
   className,
   dateFormat = 'dd.MM.yyyy',
-  showTime = false,
   min,
   max,
   locale = de,
-}: DatePickerProps<TFieldValues>) {
-  const form = useFormContext();
+}: DatePickerProps<TFieldValues>) => {
+  const form = useForm<TFieldValues>();
 
   const formatDateValue = (date: Date | string | null): string => {
     if (!date) return '';
@@ -86,7 +73,7 @@ function DatePickerComponent<TFieldValues extends FieldValues = FieldValues>({
                     'w-full pl-3 text-left font-normal',
                     !field.value && 'text-muted-foreground',
                   )}
-                  disabled={disabled}
+                  disabled={disabled || form.formState.isSubmitting}
                 >
                   {field.value ? formatDateValue(field.value) : placeholder}
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -109,7 +96,7 @@ function DatePickerComponent<TFieldValues extends FieldValues = FieldValues>({
       )}
     />
   );
-}
+};
 
 export const DatePicker = memo(DatePickerComponent);
 export type { DatePickerProps };

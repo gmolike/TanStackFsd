@@ -1,10 +1,12 @@
+// src/shared/ui/form/footer/Footer.tsx
 import { memo } from 'react';
 import type { ReactNode } from 'react';
-import { useFormContext } from 'react-hook-form';
 
 import { AlertCircle, ArrowLeft, ArrowRight, Check, Loader2, RotateCcw } from 'lucide-react';
 
 import { cn } from '~/shared/lib/utils';
+
+import { useForm } from '../hook';
 
 // Types
 type FooterAction = {
@@ -73,24 +75,9 @@ const getLayoutClasses = (variant: FooterProps['variant']) =>
   LAYOUT_VARIANT_CLASSES[variant || 'default'];
 
 /**
- * Footer - Flexible footer for forms with automatic form state integration
- *
- * @param props.submitText - Text for submit button (default: "Speichern")
- * @param props.cancelText - Text for cancel button (default: "Abbrechen")
- * @param props.resetText - Text for reset button (default: "Zurücksetzen")
- * @param props.showCancel - Show cancel button (default: true)
- * @param props.showReset - Show reset button (default: false)
- * @param props.onCancel - Click handler for cancel button
- * @param props.onReset - Click handler for reset button
- * @param props.actions - Array of additional action buttons
- * @param props.links - Array of footer links (help, terms, etc.)
- * @param props.errors - Array of error messages to display
- * @param props.successMessage - Success message after submit
- * @param props.className - Additional CSS classes for footer
- * @param props.variant - Layout variant (default, compact, split, centered)
- * @param props.sticky - Fix footer to bottom of screen
+ * FooterComponent - Flexible footer for forms with automatic form state integration
  */
-function FooterComponent({
+const FooterComponent = ({
   submitText = 'Speichern',
   cancelText = 'Abbrechen',
   resetText = 'Zurücksetzen',
@@ -105,8 +92,8 @@ function FooterComponent({
   className,
   variant = 'default',
   sticky = false,
-}: FooterProps) {
-  const form = useFormContext();
+}: FooterProps) => {
+  const form = useForm();
   const { formState } = form;
   const { isSubmitting, isDirty, isSubmitted, isValid } = formState;
 
@@ -266,7 +253,7 @@ function FooterComponent({
       )}
     </div>
   );
-}
+};
 
 export const Footer = memo(FooterComponent);
 export type { FooterAction, FooterProps };

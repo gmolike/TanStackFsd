@@ -9,17 +9,14 @@ type WithProgressProps = HeaderProps & {
 };
 
 /**
- * HeaderWithProgress - Header with progress bar for upload or multi-step forms
- *
- * @param props.progress - Progress percentage (0-100)
- * @param props.showPercentage - Shows percentage next to progress bar (default: false)
+ * WithProgressComponent - Header with progress bar for upload or multi-step forms
  */
-function WithProgressComponent({
+const WithProgressComponent = ({
   progress,
   showPercentage = false,
   description,
   ...props
-}: WithProgressProps) {
+}: WithProgressProps) => {
   const progressElement = (
     <div className="w-full space-y-2">
       <div className="flex justify-between text-sm">
@@ -45,7 +42,7 @@ function WithProgressComponent({
   );
 
   return <Header {...props} description={enhancedDescription} descriptionClassName="space-y-3" />;
-}
+};
 
 export const WithProgress = memo(WithProgressComponent);
 export type { WithProgressProps };

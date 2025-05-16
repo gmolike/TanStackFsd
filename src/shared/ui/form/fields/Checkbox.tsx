@@ -1,10 +1,11 @@
+// src/shared/ui/form/fields/Checkbox.tsx
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { useFormContext } from 'react-hook-form';
 
 import { Checkbox as ShadcnCheckbox } from '~/shared/shadcn/checkbox';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
+import { useForm } from '../hook';
 
 import type { BaseFieldProps } from './types';
 
@@ -15,25 +16,17 @@ export type CheckboxProps<TFieldValues extends FieldValues = FieldValues> =
   };
 
 /**
- * Checkbox - ShadCN Checkbox with automatic validation
- *
- * @param props.name - Unique field name for React Hook Form
- * @param props.label - Optional label text next to checkbox
- * @param props.description - Optional help text below checkbox
- * @param props.required - Shows asterisk (*) for required fields
- * @param props.disabled - Disables the checkbox
- * @param props.className - Additional CSS classes
- * @param props.side - Position of label relative to checkbox (default: "right")
+ * CheckboxComponent - ShadCN Checkbox with automatic validation
  */
-function CheckboxComponent<TFieldValues extends FieldValues = FieldValues>({
+const CheckboxComponent = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
   required,
   disabled,
   className,
-}: CheckboxProps<TFieldValues>) {
-  const form = useFormContext();
+}: CheckboxProps<TFieldValues>) => {
+  const form = useForm<TFieldValues>();
 
   return (
     <FormField
@@ -46,7 +39,7 @@ function CheckboxComponent<TFieldValues extends FieldValues = FieldValues>({
               <ShadcnCheckbox
                 checked={field.value}
                 onCheckedChange={field.onChange}
-                disabled={disabled}
+                disabled={disabled || form.formState.isSubmitting}
               />
             </FormControl>
             {label && (
@@ -61,6 +54,6 @@ function CheckboxComponent<TFieldValues extends FieldValues = FieldValues>({
       )}
     />
   );
-}
+};
 
 export const Checkbox = memo(CheckboxComponent);

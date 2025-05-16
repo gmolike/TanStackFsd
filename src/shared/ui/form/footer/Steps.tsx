@@ -19,20 +19,9 @@ type StepsProps = Omit<FooterProps, 'actions' | 'submitText'> & {
 };
 
 /**
- * Steps - Special footer for multi-step s with automatic navigation
- *
- * @param props.currentStep - Current step (1-based)
- * @param props.totalSteps - Total number of steps
- * @param props.onNext - Handler for next button
- * @param props.onPrevious - Handler for previous button
- * @param props.onSkip - Handler for skip button
- * @param props.nextText - Text for next button (default: "Weiter")
- * @param props.previousText - Text for previous button (default: "Zurück")
- * @param props.finishText - Text for final submit button (default: "Abschließen")
- * @param props.skipText - Text for skip button (default: "Überspringen")
- * @param props.allowSkip - Allow skipping steps (default: false)
+ * StepsComponent - Special footer for multi-step forms with automatic navigation
  */
-function StepsComponent({
+const StepsComponent = ({
   currentStep,
   totalSteps,
   onNext,
@@ -44,7 +33,7 @@ function StepsComponent({
   skipText = 'Überspringen',
   allowSkip = false,
   ...props
-}: StepsProps) {
+}: StepsProps) => {
   const isFirst = currentStep === 1;
   const isLast = currentStep === totalSteps;
 
@@ -78,7 +67,7 @@ function StepsComponent({
   ];
 
   return <Footer {...props} actions={actions} showCancel={false} showReset={false} />;
-}
+};
 
 export const Steps = memo(StepsComponent);
 export type { StepsProps };

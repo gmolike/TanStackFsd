@@ -1,10 +1,11 @@
+// src/shared/ui/form/fields/TextArea.tsx
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { useFormContext } from 'react-hook-form';
 
 import { Textarea as ShadcnTextarea } from '~/shared/shadcn/textarea';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
+import { useForm } from '../hook';
 
 import type { BaseFieldProps } from './types';
 
@@ -15,18 +16,9 @@ export type TextAreaProps<TFieldValues extends FieldValues = FieldValues> =
   };
 
 /**
- * Textarea - ShadCN Textarea field with automatic validation
- *
- * @param props.name - Unique field name for React Hook Form
- * @param props.label - Optional label text above textarea
- * @param props.description - Optional help text below textarea
- * @param props.required - Shows asterisk (*) for required fields
- * @param props.disabled - Disables the textarea field
- * @param props.placeholder - Placeholder text
- * @param props.className - Additional CSS classes
- * @param props.rows - Number of visible text lines (default: 3)
+ * TextAreaComponent - ShadCN Textarea field with automatic validation
  */
-function TextAreaComponent<TFieldValues extends FieldValues = FieldValues>({
+const TextAreaComponent = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -35,8 +27,8 @@ function TextAreaComponent<TFieldValues extends FieldValues = FieldValues>({
   disabled,
   className,
   rows = 3,
-}: TextAreaProps<TFieldValues>) {
-  const form = useFormContext();
+}: TextAreaProps<TFieldValues>) => {
+  const form = useForm<TFieldValues>();
 
   return (
     <FormField
@@ -46,7 +38,12 @@ function TextAreaComponent<TFieldValues extends FieldValues = FieldValues>({
         <FormItem className={className}>
           {label && <FormLabel required={required}>{label}</FormLabel>}
           <FormControl>
-            <ShadcnTextarea placeholder={placeholder} disabled={disabled} rows={rows} {...field} />
+            <ShadcnTextarea
+              {...field}
+              placeholder={placeholder}
+              disabled={disabled || form.formState.isSubmitting}
+              rows={rows}
+            />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
@@ -54,6 +51,6 @@ function TextAreaComponent<TFieldValues extends FieldValues = FieldValues>({
       )}
     />
   );
-}
+};
 
 export const TextArea = memo(TextAreaComponent);

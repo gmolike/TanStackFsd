@@ -1,10 +1,11 @@
+// src/shared/ui/form/fields/Input.tsx
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { useFormContext } from 'react-hook-form';
 
 import { InputShadcn as ShadcnInput } from '~/shared/shadcn/input';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
+import { useForm } from '../hook';
 
 import type { BaseFieldProps } from './types';
 
@@ -16,19 +17,9 @@ export type InputProps<TFieldValues extends FieldValues = FieldValues> =
   };
 
 /**
- * Input - ShadCN Input field with automatic validation
- *
- * @param props.name - Unique field name for React Hook Form
- * @param props.label - Optional label text above input
- * @param props.description - Optional help text below input
- * @param props.required - Shows asterisk (*) for required fields
- * @param props.disabled - Disables the input field
- * @param props.placeholder - Placeholder text
- * @param props.className - Additional CSS classes
- * @param props.type - HTML input type
- * @param props.autoComplete - Browser autocomplete attribute
+ * InputComponent - ShadCN Input field with automatic validation
  */
-function InputComponent<TFieldValues extends FieldValues = FieldValues>({
+const InputComponent = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -38,8 +29,8 @@ function InputComponent<TFieldValues extends FieldValues = FieldValues>({
   autoComplete,
   disabled,
   className,
-}: InputProps<TFieldValues>) {
-  const form = useFormContext();
+}: InputProps<TFieldValues>) => {
+  const form = useForm<TFieldValues>();
 
   return (
     <FormField
@@ -50,11 +41,11 @@ function InputComponent<TFieldValues extends FieldValues = FieldValues>({
           {label && <FormLabel required={required}>{label}</FormLabel>}
           <FormControl>
             <ShadcnInput
+              {...field}
               type={type}
               placeholder={placeholder}
               autoComplete={autoComplete}
-              disabled={disabled}
-              {...field}
+              disabled={disabled || form.formState.isSubmitting}
             />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
@@ -63,6 +54,6 @@ function InputComponent<TFieldValues extends FieldValues = FieldValues>({
       )}
     />
   );
-}
+};
 
 export const Input = memo(InputComponent);
