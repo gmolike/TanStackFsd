@@ -2,9 +2,9 @@ import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useFormContext } from 'react-hook-form';
 
-import { Textarea as ShadcnTextarea } from '~/shared/ui/textarea';
+import { Textarea as ShadcnTextarea } from '~/shared/shadcn/textarea';
 
-import { FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
 
 import type { BaseFieldProps } from './types';
 

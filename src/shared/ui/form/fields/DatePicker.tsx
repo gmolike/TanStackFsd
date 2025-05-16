@@ -9,8 +9,8 @@ import { CalendarIcon } from 'lucide-react';
 
 import { cn } from '~/shared/lib/utils';
 import { Button } from '~/shared/shadcn/button';
-import { Calendar } from '~/shared/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '~/shared/ui/popover';
+import { Calendar } from '~/shared/shadcn/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '~/shared/shadcn/popover';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
 
@@ -98,7 +98,7 @@ function DatePickerComponent<TFieldValues extends FieldValues = FieldValues>({
                 mode="single"
                 selected={field.value ? new Date(field.value) : undefined}
                 onSelect={field.onChange}
-                disabled={(date) => (min && date < min) || (max && date > max) || disabled}
+                disabled={(date) => (!!min && date < min) || (!!max && date > max) || !!disabled}
                 initialFocus
               />
             </PopoverContent>

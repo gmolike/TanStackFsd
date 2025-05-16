@@ -2,9 +2,9 @@ import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useFormContext } from 'react-hook-form';
 
-import { Input as ShadcnInput } from '~/shared/ui/input';
+import { InputShadcn as ShadcnInput } from '~/shared/shadcn/input';
 
-import { FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
 
 import type { BaseFieldProps } from './types';
 

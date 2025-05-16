@@ -8,9 +8,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '~/shared/ui/select';
+} from '~/shared/shadcn/select';
 
-import { FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
 
 import type { BaseFieldProps, SelectOption } from './types';
 

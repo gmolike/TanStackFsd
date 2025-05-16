@@ -2,9 +2,9 @@ import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useFormContext } from 'react-hook-form';
 
-import { Checkbox as ShadcnCheckbox } from '~/shared/ui/checkbox';
+import { Checkbox as ShadcnCheckbox } from '~/shared/shadcn/checkbox';
 
-import { FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
 
 import type { BaseFieldProps } from './types';
 
@@ -32,7 +32,6 @@ function CheckboxComponent<TFieldValues extends FieldValues = FieldValues>({
   required,
   disabled,
   className,
-  side = 'right',
 }: CheckboxProps<TFieldValues>) {
   const form = useFormContext();
 
