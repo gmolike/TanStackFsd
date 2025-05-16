@@ -1,18 +1,20 @@
 import { memo } from 'react';
-import type { ChangeEvent, JSX } from 'react';
-import type { FieldPath, FieldValues } from 'react-hook-form';
+import type { ChangeEvent } from 'react';
+import type { FieldValues } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 
-import { format, isValid, Locale, parseISO } from 'date-fns';
+import type { Locale } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { CalendarIcon } from 'lucide-react';
 
-import { FormField } from './Context';
-import type { BaseFieldProps } from './Field';
-import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from './Form';
+import { FormField } from '../Context';
+import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '../Form';
+
+import type { BaseFieldProps } from './types';
 
 // Types
-type FormDateProps<TFieldValues extends FieldValues = FieldValues> =
+type DatePickerProps<TFieldValues extends FieldValues = FieldValues> =
   BaseFieldProps<TFieldValues> & {
     dateFormat?: string;
     showTime?: boolean;
@@ -20,18 +22,6 @@ type FormDateProps<TFieldValues extends FieldValues = FieldValues> =
     max?: string;
     locale?: Locale;
   };
-
-type FormDateRangeProps<TFieldValues extends FieldValues = FieldValues> = Omit<
-  BaseFieldProps<TFieldValues>,
-  'name'
-> & {
-  startName: FieldPath<TFieldValues>;
-  endName: FieldPath<TFieldValues>;
-  startLabel?: string;
-  endLabel?: string;
-  dateFormat?: string;
-  locale?: Locale;
-};
 
 // Constants
 const DATE_INPUT_CLASSES = `
@@ -48,9 +38,9 @@ const formatDateValue = (value: Date | string | null, showTime: boolean): string
   if (!value) return '';
 
   try {
-    const date = value instanceof Date ? value : parseISO(value);
+    const date = value instanceof Date ? value : typeof value === 'string' ? parseISO(value) : null;
 
-    if (!isValid(date)) return '';
+    if (!date || !isValid(date)) return '';
 
     return showTime ? format(date, "yyyy-MM-dd'T'HH:mm") : format(date, 'yyyy-MM-dd');
   } catch {
@@ -76,7 +66,7 @@ const createDateChangeHandler =
   };
 
 /**
- * FormDate - Date picker with date-fns integration for robust date handling
+ * Date - Date picker with date-fns integration for robust date handling
  *
  * @param props.name - Unique field name for React Hook Form
  * @param props.label - Optional label text above date picker
@@ -91,21 +81,21 @@ const createDateChangeHandler =
  * @param props.max - Maximum date (YYYY-MM-DD format)
  * @param props.locale - Localization for date-fns (default: German)
  */
-export const FormDate = memo(
-  <TFieldValues extends FieldValues = FieldValues>({
-    name,
-    label,
-    description,
-    required,
-    placeholder = 'Datum auswählen',
-    disabled,
-    className,
-    dateFormat = 'dd.MM.yyyy',
-    showTime = false,
-    min,
-    max,
-    locale = de,
-  }: FormDateProps<TFieldValues>) => (
+function DatePickerComponent<TFieldValues extends FieldValues = FieldValues>({
+  name,
+  label,
+  description,
+  required,
+  placeholder = 'Datum auswählen',
+  disabled,
+  className,
+  dateFormat = 'dd.MM.yyyy',
+  showTime = false,
+  min,
+  max,
+  locale = de,
+}: DatePickerProps<TFieldValues>) {
+  return (
     <FormField name={name}>
       <Controller
         name={name}
@@ -132,68 +122,8 @@ export const FormDate = memo(
         )}
       />
     </FormField>
-  ),
-) as <TFieldValues extends FieldValues = FieldValues>(
-  props: FormDateProps<TFieldValues>,
-) => JSX.Element;
+  );
+}
 
-FormDate.displayName = 'FormDate';
-
-/**
- * FormDateRange - Date range picker with two connected date pickers for from/to ranges
- *
- * @param props.startName - Field name for start date
- * @param props.endName - Field name for end date
- * @param props.label - Optional parent label text
- * @param props.startLabel - Label for start date (default: "Von")
- * @param props.endLabel - Label for end date (default: "Bis")
- * @param props.description - Optional help text below both fields
- * @param props.required - Shows asterisk (*) for required fields
- * @param props.disabled - Disables both date pickers
- * @param props.className - Additional CSS classes for container
- * @param props.dateFormat - Display format for both dates
- * @param props.locale - Localization for date-fns
- */
-export const FormDateRange = memo(
-  <TFieldValues extends FieldValues = FieldValues>({
-    startName,
-    endName,
-    label,
-    startLabel = 'Von',
-    endLabel = 'Bis',
-    description,
-    required,
-    disabled,
-    className,
-    dateFormat,
-    locale,
-  }: FormDateRangeProps<TFieldValues>) => (
-    <div className={className}>
-      {label && <FormLabel required={required}>{label}</FormLabel>}
-      <div className="grid grid-cols-2 gap-4">
-        <FormDate
-          name={startName}
-          label={startLabel}
-          disabled={disabled}
-          dateFormat={dateFormat}
-          locale={locale}
-        />
-        <FormDate
-          name={endName}
-          label={endLabel}
-          disabled={disabled}
-          dateFormat={dateFormat}
-          locale={locale}
-        />
-      </div>
-      {description && <FormDescription>{description}</FormDescription>}
-    </div>
-  ),
-) as <TFieldValues extends FieldValues = FieldValues>(
-  props: FormDateRangeProps<TFieldValues>,
-) => JSX.Element;
-
-FormDateRange.displayName = 'FormDateRange';
-
-// Exports
-export type { FormDateProps, FormDateRangeProps };
+export const DatePicker = memo(DatePickerComponent);
+export type { DatePickerProps };
