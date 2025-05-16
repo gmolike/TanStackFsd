@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { FormInput, Settings, User, UserCheck } from 'lucide-react';
+import { Settings, User, UserCheck } from 'lucide-react';
 import { z } from 'zod';
 
 import type { SelectOption } from '~/shared/ui/form';
@@ -10,6 +10,7 @@ import {
   FormDate,
   FormFooter,
   FormHeader,
+  FormInput,
   FormSelect,
   FormTextarea,
 } from '~/shared/ui/form';
@@ -163,7 +164,7 @@ export const UserProfileForm: React.FC = () => {
           />
         }
       >
-        {({ formState: { isSubmitting, isDirty } }) => (
+        {({ formState: { isDirty } }) => (
           <div className="space-y-6">
             {/* Personal Information Section */}
             <div className="space-y-4">

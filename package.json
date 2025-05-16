@@ -10,7 +10,6 @@
     "postbuild": "echo 'Build completed successfully!'",
     "preview": "vite preview",
     "_________________ Tests __________________": "",
-
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
@@ -74,6 +73,7 @@
     "axios": "^1.8.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.476.0",
     "next": "^15.2.1",
     "react": "^19.0.0",
@@ -136,10 +136,16 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "sharp"]
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   },
   "ignores": [
     "node_modules/**",

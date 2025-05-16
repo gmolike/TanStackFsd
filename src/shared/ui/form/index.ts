@@ -1,7 +1,7 @@
 export { FormField, useFormField } from './Context';
 export type { FormDateProps, FormDateRangeProps } from './Date';
 export { FormDate, FormDateRange } from './Date';
-export type { BaseFieldProps, FormInputProps, FormTextareaProps } from './Field';
+export type { BaseFieldProps, FormInputProps, FormTextareaProps, SelectOption } from './Field';
 export { FormInput, FormTextarea } from './Field';
 export type { FormFooterAction, FormFooterProps, FormFooterStepsProps } from './Footer';
 export {
@@ -11,7 +11,7 @@ export {
   FormFooterSplit,
   FormFooterSteps,
 } from './Footer';
-export type { FormLayoutProps } from './Form';
+export type { FormLayoutProps, FormProps } from './Form';
 export { Form, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from './Form';
 export type {
   FormHeaderProps,
@@ -27,6 +27,11 @@ export {
 } from './Header';
 export type { FormCheckboxRadixProps, FormSelectRadixProps } from './Radix';
 export { FormCheckboxRadix, FormSelectRadix } from './Radix';
-export type { FormCheckboxProps, FormSelectProps, SelectOption } from './Select';
+export type { FormCheckboxProps, FormSelectProps } from './Select';
 export { FormCheckbox, FormSelect } from './Select';
+
+// Re-export React Hook Form types for convenience
 export type { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
+
+// Export custom hook for form validation
+export { useForm } from 'react-hook-form';

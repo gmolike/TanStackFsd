@@ -1,4 +1,5 @@
-import React from 'react';
+import { memo } from 'react';
+import type { ReactNode } from 'react';
 
 import type { LucideIcon } from 'lucide-react';
 
@@ -6,12 +7,12 @@ import { cn } from '~/shared/lib/utils';
 
 export type FormHeaderProps = {
   title: string;
-  description?: string | React.ReactNode;
+  description?: string | ReactNode;
   subtitle?: string;
   icon?: LucideIcon;
-  avatar?: React.ReactNode;
-  badge?: React.ReactNode;
-  actions?: React.ReactNode;
+  avatar?: ReactNode;
+  badge?: ReactNode;
+  actions?: ReactNode;
   className?: string;
   titleClassName?: string;
   descriptionClassName?: string;
@@ -19,136 +20,129 @@ export type FormHeaderProps = {
 };
 
 /**
- * Ein flexibler Header für Formulare mit konfigurierbarem Layout und optionalen Elementen.
- *
- * @param title - Haupttitel des Headers (required)
- * @param description - Optionaler Beschreibungstext unter dem Titel
- * @param subtitle - Zusätzlicher Untertitel direkt unter dem Haupttitel
- * @param icon - Lucide Icon-Komponente für den Header
- * @param avatar - Custom Avatar oder Bild-Element
- * @param badge - Badge-Element (z.B. Status-Anzeige)
- * @param actions - Action-Buttons oder -Elemente im oberen rechten Bereich
- * @param className - Zusätzliche CSS-Klassen für den Header-Container
- * @param titleClassName - Zusätzliche CSS-Klassen für den Titel
- * @param descriptionClassName - Zusätzliche CSS-Klassen für die Beschreibung
- * @param variant - Layout-Variante (default, centered, minimal)
+ * Ein flexibler Header für Formulare mit konfigurierbarem Layout.
+ * Optimiert für React 19 Performance.
  */
-export const FormHeader: React.FC<FormHeaderProps> = ({
-  title,
-  description,
-  subtitle,
-  icon: Icon,
-  avatar,
-  badge,
-  actions,
-  className,
-  titleClassName,
-  descriptionClassName,
-  variant = 'default',
-}) => {
-  const isMinimal = variant === 'minimal';
-  const isCentered = variant === 'centered';
+export const FormHeader = memo<FormHeaderProps>(
+  ({
+    title,
+    description,
+    subtitle,
+    icon: Icon,
+    avatar,
+    badge,
+    actions,
+    className,
+    titleClassName,
+    descriptionClassName,
+    variant = 'default',
+  }) => {
+    const isMinimal = variant === 'minimal';
+    const isCentered = variant === 'centered';
 
-  return (
-    <div className={cn('space-y-3 pb-6', isCentered && 'text-center', className)}>
-      {/* Header with Icon/Avatar and Actions */}
-      <div
-        className={cn(
-          'flex items-start gap-4',
-          isCentered && 'flex-col items-center',
-          isMinimal && 'gap-2',
-        )}
-      >
-        {/* Icon or Avatar */}
-        {(Icon || avatar) && (
-          <div
-            className={cn(
-              'flex items-center justify-center',
-              isMinimal ? 'h-6 w-6' : 'h-10 w-10',
-              Icon && !isMinimal && 'rounded-lg bg-primary/10 text-primary',
-            )}
-          >
-            {Icon && <Icon className={cn(isMinimal ? 'h-5 w-5' : 'h-6 w-6')} />}
-            {avatar && avatar}
-          </div>
-        )}
+    return (
+      <div className={cn('space-y-3 pb-6', isCentered && 'text-center', className)}>
+        {/* Header with Icon/Avatar and Actions */}
+        <div
+          className={cn(
+            'flex items-start gap-4',
+            isCentered && 'flex-col items-center',
+            isMinimal && 'gap-2',
+          )}
+        >
+          {/* Icon or Avatar */}
+          {(Icon || avatar) && (
+            <div
+              className={cn(
+                'flex items-center justify-center',
+                isMinimal ? 'h-6 w-6' : 'h-10 w-10',
+                Icon && !isMinimal && 'rounded-lg bg-primary/10 text-primary',
+              )}
+            >
+              {Icon && <Icon className={cn(isMinimal ? 'h-5 w-5' : 'h-6 w-6')} />}
+              {avatar && avatar}
+            </div>
+          )}
 
-        {/* Title and Actions Container */}
-        <div className={cn('flex-1', isCentered && 'w-full')}>
-          <div className={cn('flex items-start justify-between', isCentered && 'flex-col gap-2')}>
-            {/* Title and Badge */}
-            <div className={cn('space-y-1', isCentered && 'flex flex-col items-center')}>
-              <div className="flex items-center gap-2">
-                <h1
-                  className={cn(
-                    'font-semibold tracking-tight',
-                    isMinimal ? 'text-lg' : 'text-2xl',
-                    titleClassName,
-                  )}
-                >
-                  {title}
-                </h1>
-                {badge && badge}
+          {/* Title and Actions Container */}
+          <div className={cn('flex-1', isCentered && 'w-full')}>
+            <div className={cn('flex items-start justify-between', isCentered && 'flex-col gap-2')}>
+              {/* Title and Badge */}
+              <div className={cn('space-y-1', isCentered && 'flex flex-col items-center')}>
+                <div className="flex items-center gap-2">
+                  <h1
+                    className={cn(
+                      'font-semibold tracking-tight',
+                      isMinimal ? 'text-lg' : 'text-2xl',
+                      titleClassName,
+                    )}
+                  >
+                    {title}
+                  </h1>
+                  {badge && badge}
+                </div>
+
+                {subtitle && (
+                  <p
+                    className={cn(
+                      'text-sm font-medium text-muted-foreground',
+                      isCentered && 'text-center',
+                    )}
+                  >
+                    {subtitle}
+                  </p>
+                )}
               </div>
 
-              {subtitle && (
-                <p
-                  className={cn(
-                    'text-sm font-medium text-muted-foreground',
-                    isCentered && 'text-center',
-                  )}
+              {/* Actions */}
+              {actions && (
+                <div
+                  className={cn('flex items-center gap-2', isCentered && 'w-full justify-center')}
                 >
-                  {subtitle}
-                </p>
+                  {actions}
+                </div>
               )}
             </div>
-
-            {/* Actions */}
-            {actions && (
-              <div className={cn('flex items-center gap-2', isCentered && 'w-full justify-center')}>
-                {actions}
-              </div>
-            )}
           </div>
         </div>
-      </div>
 
-      {/* Description */}
-      {description && (
-        <div
-          className={cn(Icon || avatar ? (isMinimal ? 'ml-8' : 'ml-14') : '', isCentered && 'ml-0')}
-        >
-          <p
+        {/* Description */}
+        {description && (
+          <div
             className={cn(
-              'text-muted-foreground',
-              isMinimal ? 'text-sm' : 'text-base',
-              isCentered && 'text-center',
-              descriptionClassName,
+              Icon || avatar ? (isMinimal ? 'ml-8' : 'ml-14') : '',
+              isCentered && 'ml-0',
             )}
           >
-            {description}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-};
+            <div
+              className={cn(
+                'text-muted-foreground',
+                isMinimal ? 'text-sm' : 'text-base',
+                isCentered && 'text-center',
+                descriptionClassName,
+              )}
+            >
+              {typeof description === 'string' ? <p>{description}</p> : description}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  },
+);
+
+FormHeader.displayName = 'FormHeader';
 
 // Pre-styled variants
-
-/**
- * Minimale Header-Variante mit kompakter Darstellung.
- */
-export const FormHeaderMinimal: React.FC<Omit<FormHeaderProps, 'variant'>> = (props) => (
+export const FormHeaderMinimal = memo<Omit<FormHeaderProps, 'variant'>>((props) => (
   <FormHeader {...props} variant="minimal" />
-);
+));
+FormHeaderMinimal.displayName = 'FormHeaderMinimal';
 
-/**
- * Zentrierte Header-Variante ideal für Onboarding und Login-Formulare.
- */
-export const FormHeaderCentered: React.FC<Omit<FormHeaderProps, 'variant'>> = (props) => (
+export const FormHeaderCentered = memo<Omit<FormHeaderProps, 'variant'>>((props) => (
   <FormHeader {...props} variant="centered" />
-);
+));
+FormHeaderCentered.displayName = 'FormHeaderCentered';
 
 // Header with common patterns
 export interface FormHeaderWithStepsProps extends Omit<FormHeaderProps, 'badge'> {
@@ -159,25 +153,21 @@ export interface FormHeaderWithStepsProps extends Omit<FormHeaderProps, 'badge'>
 
 /**
  * Header mit Schritt-Anzeige für mehrstufige Formulare.
- *
- * @param currentStep - Aktueller Schritt (1-basiert)
- * @param totalSteps - Gesamtanzahl der Schritte
- * @param stepLabel - Label für die Schritt-Anzeige (Standard: "Schritt")
+ * Optimiert für React 19.
  */
-export const FormHeaderWithSteps: React.FC<FormHeaderWithStepsProps> = ({
-  currentStep,
-  totalSteps,
-  stepLabel = 'Schritt',
-  ...props
-}) => {
-  const badge = (
-    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-      {stepLabel} {currentStep} / {totalSteps}
-    </span>
-  );
+export const FormHeaderWithSteps = memo<FormHeaderWithStepsProps>(
+  ({ currentStep, totalSteps, stepLabel = 'Schritt', ...props }) => {
+    const badge = (
+      <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+        {stepLabel} {currentStep} / {totalSteps}
+      </span>
+    );
 
-  return <FormHeader {...props} badge={badge} />;
-};
+    return <FormHeader {...props} badge={badge} />;
+  },
+);
+
+FormHeaderWithSteps.displayName = 'FormHeaderWithSteps';
 
 // Header with progress indicator
 export interface FormHeaderWithProgressProps extends FormHeaderProps {
@@ -187,41 +177,38 @@ export interface FormHeaderWithProgressProps extends FormHeaderProps {
 
 /**
  * Header mit Fortschrittsbalken für Upload- oder mehrstufige Formulare.
- *
- * @param progress - Fortschritt in Prozent (0-100)
- * @param showPercentage - Zeigt Prozentzahl neben dem Balken an (Standard: false)
+ * Optimiert für React 19.
  */
-export const FormHeaderWithProgress: React.FC<FormHeaderWithProgressProps> = ({
-  progress,
-  showPercentage = false,
-  description,
-  ...props
-}) => {
-  const progressElement = (
-    <div className="w-full space-y-2">
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Fortschritt</span>
-        {showPercentage && <span className="font-medium">{Math.round(progress)}%</span>}
+export const FormHeaderWithProgress = memo<FormHeaderWithProgressProps>(
+  ({ progress, showPercentage = false, description, ...props }) => {
+    const progressElement = (
+      <div className="w-full space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Fortschritt</span>
+          {showPercentage && <span className="font-medium">{Math.round(progress)}%</span>}
+        </div>
+        <div className="h-2 w-full rounded-full bg-secondary">
+          <div
+            className="h-2 rounded-full bg-primary transition-all duration-300"
+            style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+          />
+        </div>
       </div>
-      <div className="h-2 w-full rounded-full bg-secondary">
-        <div
-          className="h-2 rounded-full bg-primary transition-all duration-300"
-          style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-        />
+    );
+
+    const enhancedDescription = description ? (
+      <div className="space-y-3">
+        {typeof description === 'string' ? <p>{description}</p> : description}
+        {progressElement}
       </div>
-    </div>
-  );
+    ) : (
+      progressElement
+    );
 
-  const enhancedDescription = description ? (
-    <div className="space-y-3">
-      <p className="text-muted-foreground">{description}</p>
-      {progressElement}
-    </div>
-  ) : (
-    progressElement
-  );
+    return (
+      <FormHeader {...props} description={enhancedDescription} descriptionClassName="space-y-3" />
+    );
+  },
+);
 
-  return (
-    <FormHeader {...props} description={enhancedDescription} descriptionClassName="space-y-3" />
-  );
-};
+FormHeaderWithProgress.displayName = 'FormHeaderWithProgress';
