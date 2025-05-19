@@ -6,7 +6,7 @@ import { AlertCircle, ArrowLeft, ArrowRight, Check, Loader2, RotateCcw } from 'l
 
 import { cn } from '~/shared/lib/utils';
 
-import { useForm } from '../hook';
+import { useForm } from '../model/hook';
 
 // Types
 type FooterAction = {

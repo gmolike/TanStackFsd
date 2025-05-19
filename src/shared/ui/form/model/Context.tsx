@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext } from 'react';
 import type { ReactNode } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
@@ -9,8 +10,8 @@ interface FormContextValue<TFormValues extends FieldValues = FieldValues> {
   formId: string;
 }
 
-// Create context
-const FormContext = createContext<FormContextValue | null>(null);
+// Create context with proper typing - use any to allow for generic usage
+const FormContext = createContext<FormContextValue<any> | null>(null);
 
 // Provider Props
 interface FormProviderProps<TFormValues extends FieldValues = FieldValues> {
@@ -27,7 +28,7 @@ const FormProvider = <TFormValues extends FieldValues = FieldValues>({
   formId = 'form',
   children,
 }: FormProviderProps<TFormValues>) => (
-  <FormContext.Provider value={{ form, formId }}>
+  <FormContext.Provider value={{ form, formId } as FormContextValue<TFormValues>}>
     <RHFFormProvider {...form}>{children}</RHFFormProvider>
   </FormContext.Provider>
 );

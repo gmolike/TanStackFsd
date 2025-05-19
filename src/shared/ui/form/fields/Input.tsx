@@ -1,34 +1,70 @@
-// src/shared/ui/form/fields/Input.tsx
-import { memo } from 'react';
+import { forwardRef, memo } from 'react';
+import type { ComponentRef } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
+import { cn } from '~/shared/lib/utils';
 import { InputShadcn as ShadcnInput } from '~/shared/shadcn/input';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
-import { useForm } from '../hook';
+import { useForm } from '../model/hook';
 
 import type { BaseFieldProps } from './types';
 
-// Types
+// Types - only form-specific props, everything else goes through
 export type InputProps<TFieldValues extends FieldValues = FieldValues> =
   BaseFieldProps<TFieldValues> & {
-    type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'number';
-    autoComplete?: string;
-  };
+    startIcon?: React.ReactNode;
+    endIcon?: React.ReactNode;
+  } & Omit<React.ComponentPropsWithoutRef<typeof ShadcnInput>, 'name'>;
+
+// Enhanced Input with wrapper for icons
+const InputWithIcons = forwardRef<
+  ComponentRef<typeof ShadcnInput>,
+  React.ComponentPropsWithoutRef<typeof ShadcnInput> & {
+    startIcon?: React.ReactNode;
+    endIcon?: React.ReactNode;
+    wrapperClassName?: string;
+  }
+>(({ startIcon, endIcon, className, wrapperClassName, ...props }, ref) => {
+  if (!startIcon && !endIcon) {
+    return <ShadcnInput ref={ref} className={className} {...props} />;
+  }
+
+  return (
+    <div className={cn('relative', wrapperClassName)}>
+      {startIcon && (
+        <div className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground">
+          {startIcon}
+        </div>
+      )}
+      <ShadcnInput
+        ref={ref}
+        className={cn(startIcon && 'pl-10', endIcon && 'pr-10', className)}
+        {...props}
+      />
+      {endIcon && (
+        <div className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground">
+          {endIcon}
+        </div>
+      )}
+    </div>
+  );
+});
+InputWithIcons.displayName = 'InputWithIcons';
 
 /**
- * InputComponent - ShadCN Input field with automatic validation
+ * InputComponent - Enhanced ShadCN Input field with automatic validation and accessibility
  */
 const InputComponent = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
   required,
-  type = 'text',
-  placeholder,
-  autoComplete,
-  disabled,
   className,
+  startIcon,
+  endIcon,
+  disabled,
+  ...inputProps // All other props go directly to the input
 }: InputProps<TFieldValues>) => {
   const form = useForm<TFieldValues>();
 
@@ -36,20 +72,26 @@ const InputComponent = <TFieldValues extends FieldValues = FieldValues>({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem className={className}>
           {label && <FormLabel required={required}>{label}</FormLabel>}
           <FormControl>
-            <ShadcnInput
+            <InputWithIcons
               {...field}
-              type={type}
-              placeholder={placeholder}
-              autoComplete={autoComplete}
+              {...inputProps} // Pass all input-specific props
               disabled={disabled || form.formState.isSubmitting}
+              startIcon={startIcon}
+              endIcon={endIcon}
+              aria-invalid={fieldState.invalid}
+              aria-describedby={
+                description || fieldState.error ? `${name}-description ${name}-error` : undefined
+              }
             />
           </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
+          {description && (
+            <FormDescription id={`${name}-description`}>{description}</FormDescription>
+          )}
+          <FormMessage id={`${name}-error`} />
         </FormItem>
       )}
     />

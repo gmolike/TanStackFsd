@@ -11,7 +11,7 @@ import {
 } from '~/shared/shadcn/select';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
-import { useForm } from '../hook';
+import { useForm } from '../model/hook';
 
 import type { BaseFieldProps, SelectOption } from './types';
 

@@ -13,7 +13,7 @@ import { Calendar } from '~/shared/shadcn/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '~/shared/shadcn/popover';
 
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
-import { useForm } from '../hook';
+import { useForm } from '../model/hook';
 
 import type { BaseFieldProps } from './types';
 
