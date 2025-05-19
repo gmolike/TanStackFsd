@@ -60,7 +60,7 @@ export const TerminForm = () => {
   };
 
   return (
-    <Form
+    <Form<AppointmentFormValues>
       schema={appointmentSchema}
       onSubmit={handleSubmit}
       defaultValues={{

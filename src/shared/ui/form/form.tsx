@@ -1,3 +1,4 @@
+// src/shared/ui/form/form.tsx
 import { forwardRef, memo, useId } from 'react';
 import type { ComponentRef } from 'react';
 import type { FieldValues } from 'react-hook-form';
@@ -37,7 +38,7 @@ export const FormLabel = forwardRef<
 ));
 FormLabel.displayName = 'FormLabel';
 
-const FormComponent = <TFormValues extends FieldValues = FieldValues>({
+function FormComponent<TFormValues extends FieldValues = FieldValues>({
   schema,
   onSubmit,
   onError,
@@ -52,7 +53,7 @@ const FormComponent = <TFormValues extends FieldValues = FieldValues>({
   disabled = false,
   noValidate = true,
   ...formProps
-}: FormProps<TFormValues>) => {
+}: FormProps<TFormValues>) {
   const generatedId = useId();
   const formId = providedFormId || generatedId;
 
@@ -94,6 +95,7 @@ const FormComponent = <TFormValues extends FieldValues = FieldValues>({
       </form>
     </FormProvider>
   );
-};
+}
 
-export const Form = memo(FormComponent);
+// Wichtig: Typerhaltung beim memo-Export für Generics
+export const Form = memo(FormComponent) as typeof FormComponent;
