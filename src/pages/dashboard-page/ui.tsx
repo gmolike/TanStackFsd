@@ -4,6 +4,8 @@ import { DashboardHeader, DashboardSidebar } from '~/widgets';
 
 import { useAuth } from '~/shared/auth';
 
+import { TerminForm } from './ui/TerminForm';
+
 export const DashboardPage = (): JSX.Element => {
   const { user } = useAuth();
 
@@ -54,6 +56,7 @@ export const DashboardPage = (): JSX.Element => {
                 </div>
               ))}
             </div>
+            <TerminForm />
           </div>
         </main>
       </div>

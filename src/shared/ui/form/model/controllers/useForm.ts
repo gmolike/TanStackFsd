@@ -28,7 +28,7 @@ type Result<TFormValues extends FieldValues = FieldValues> = {
   isFormDisabled: boolean;
 };
 
-const useForm = <TFormValues extends FieldValues = FieldValues>({
+export const useForm = <TFormValues extends FieldValues = FieldValues>({
   schema,
   onSubmit,
   onError,
@@ -62,5 +62,3 @@ const useForm = <TFormValues extends FieldValues = FieldValues>({
     isFormDisabled: disabled || formState.isSubmitting,
   };
 };
-
-export default useForm;

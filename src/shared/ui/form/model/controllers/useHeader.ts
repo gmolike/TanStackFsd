@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import type { ReactNode } from 'react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -49,27 +49,32 @@ type Props = {
 type Result = {
   hasIcon: boolean;
   isCentered: boolean;
-  variantClasses: (typeof HEADER_VARIANTS)[HeaderVariant];
-  iconClasses: string;
-  iconSize: string;
-  descriptionMargin: string;
+  getVariantClasses: () => (typeof HEADER_VARIANTS)[HeaderVariant];
+  getIconClasses: () => string;
+  getIconSize: () => string;
+  getDescriptionMargin: () => string;
 };
 
 export const useHeader = ({ icon, avatar, variant = 'default' }: Props): Result => {
   const hasIcon = !!(icon || avatar);
   const isCentered = variant === 'centered';
 
-  const variantClasses = HEADER_VARIANTS[variant];
+  // Memoize functions to prevent unnecessary re-renders
+  const getVariantClasses = useCallback(() => HEADER_VARIANTS[variant], [variant]);
 
-  const iconClasses = cn(
-    'flex items-center justify-center',
-    variantClasses.iconSize,
-    hasIcon && variant !== 'minimal' && variantClasses.iconClasses,
+  const getIconClasses = useCallback(
+    () =>
+      cn(
+        'flex items-center justify-center',
+        HEADER_VARIANTS[variant].iconSize,
+        hasIcon && variant !== 'minimal' && HEADER_VARIANTS[variant].iconClasses,
+      ),
+    [hasIcon, variant],
   );
 
-  const iconSize = variant === 'minimal' ? 'h-5 w-5' : 'h-6 w-6';
+  const getIconSize = useCallback(() => (variant === 'minimal' ? 'h-5 w-5' : 'h-6 w-6'), [variant]);
 
-  const descriptionMargin = useMemo(() => {
+  const getDescriptionMargin = useCallback(() => {
     if (variant === 'centered') return 'ml-0';
     if (!hasIcon) return '';
     return variant === 'minimal' ? 'ml-8' : 'ml-14';
@@ -78,9 +83,9 @@ export const useHeader = ({ icon, avatar, variant = 'default' }: Props): Result 
   return {
     hasIcon,
     isCentered,
-    variantClasses,
-    iconClasses,
-    iconSize,
-    descriptionMargin,
+    getVariantClasses,
+    getIconClasses,
+    getIconSize,
+    getDescriptionMargin,
   };
 };
