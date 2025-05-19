@@ -7,6 +7,7 @@ import type { ZodType } from 'zod';
 export type FormControllerProps<TFormValues extends FieldValues = FieldValues> = {
   schema?: ZodType<TFormValues>;
   onSubmit: SubmitHandler<TFormValues>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onError?: (errors: any) => void;
   mode?: UseFormProps<TFormValues>['mode'];
   defaultValues?: UseFormProps<TFormValues>['defaultValues'];

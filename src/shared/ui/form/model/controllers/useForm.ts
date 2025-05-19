@@ -1,5 +1,5 @@
-// src/shared/ui/form/model/controllers/useForm.ts
 import { useCallback } from 'react';
+import type { BaseSyntheticEvent } from 'react';
 import type { FieldValues, SubmitHandler, UseFormProps, UseFormReturn } from 'react-hook-form';
 import { useForm as useRHFForm } from 'react-hook-form';
 
@@ -46,7 +46,10 @@ const useForm = <TFormValues extends FieldValues = FieldValues>({
   const form = externalForm || internalForm;
   const { formState } = form;
 
-  const handleSubmit = useCallback(form.handleSubmit(onSubmit, onError), [form, onSubmit, onError]);
+  const handleSubmit = useCallback(
+    (e?: BaseSyntheticEvent) => form.handleSubmit(onSubmit, onError)(e),
+    [form, onSubmit, onError],
+  );
 
   return {
     form,
