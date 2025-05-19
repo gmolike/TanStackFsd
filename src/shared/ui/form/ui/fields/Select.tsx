@@ -1,6 +1,5 @@
-// src/shared/ui/form/fields/Select.tsx
 import { memo } from 'react';
-import type { FieldValues } from 'react-hook-form';
+import type { ControllerFieldState, ControllerRenderProps, FieldValues } from 'react-hook-form';
 
 import {
   Select as ShadcnSelect,
@@ -10,21 +9,17 @@ import {
   SelectValue,
 } from '~/shared/shadcn/select';
 
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
-import { useForm } from '../model/hook';
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../../Form';
+import { useSelectController } from '../../model/controllers';
+import type { SelectProps } from '../../model/types/fieldTypes';
 
-import type { BaseFieldProps, SelectOption } from './types';
-
-// Types
-export type SelectProps<TFieldValues extends FieldValues = FieldValues> =
-  BaseFieldProps<TFieldValues> & {
-    options: Array<SelectOption>;
-    emptyOption?: string;
-  };
-
-/**
- * SelectComponent - ShadCN Select dropdown with automatic validation
- */
 const SelectComponent = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
@@ -36,28 +31,39 @@ const SelectComponent = <TFieldValues extends FieldValues = FieldValues>({
   options,
   emptyOption,
 }: SelectProps<TFieldValues>) => {
-  const form = useForm<TFieldValues>();
+  const {
+    isDisabled,
+    hasEmptyOption,
+    options: selectOptions,
+    emptyOption: emptyOptionText,
+  } = useSelectController({
+    name,
+    disabled,
+    required,
+    options,
+    emptyOption,
+  });
 
   return (
     <FormField
-      control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({
+        field,
+      }: {
+        field: ControllerRenderProps<TFieldValues>;
+        fieldState: ControllerFieldState;
+      }) => (
         <FormItem className={className}>
           {label && <FormLabel required={required}>{label}</FormLabel>}
-          <ShadcnSelect
-            onValueChange={field.onChange}
-            value={field.value}
-            disabled={disabled || form.formState.isSubmitting}
-          >
+          <ShadcnSelect onValueChange={field.onChange} value={field.value} disabled={isDisabled}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {emptyOption && <SelectItem value="">{emptyOption}</SelectItem>}
-              {options.map((option) => (
+              {hasEmptyOption && <SelectItem value="">{emptyOptionText}</SelectItem>}
+              {selectOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
                   {option.label}
                 </SelectItem>

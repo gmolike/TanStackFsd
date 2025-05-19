@@ -1,7 +1,7 @@
 // src/shared/ui/form/index.ts
 // Context and Provider
-export type { FormContextValue, FormProviderProps } from './model/Context';
-export { FormProvider } from './model/Context';
+export type { FormContextValue, FormProviderProps } from './model/contextXX';
+export { FormProvider } from './model/contextXX';
 
 // Hooks - All form-related hooks in one place
 export {
@@ -11,7 +11,7 @@ export {
   useFormField,
   useFormId,
   useFormState,
-} from './model/hook';
+} from './model/hooks';
 
 // Base Form Components
 export {

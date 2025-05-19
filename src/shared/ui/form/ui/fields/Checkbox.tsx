@@ -1,23 +1,19 @@
-// src/shared/ui/form/fields/Checkbox.tsx
 import { memo } from 'react';
-import type { FieldValues } from 'react-hook-form';
+import type { ControllerFieldState, ControllerRenderProps, FieldValues } from 'react-hook-form';
 
 import { Checkbox as ShadcnCheckbox } from '~/shared/shadcn/checkbox';
 
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../Form';
-import { useForm } from '../model/hook';
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../../Form';
+import { useCheckboxController } from '../../model/controllers';
+import type { CheckboxProps } from '../../model/types/fieldTypes';
 
-import type { BaseFieldProps } from './types';
-
-// Types
-export type CheckboxProps<TFieldValues extends FieldValues = FieldValues> =
-  BaseFieldProps<TFieldValues> & {
-    side?: 'top' | 'right' | 'bottom' | 'left';
-  };
-
-/**
- * CheckboxComponent - ShadCN Checkbox with automatic validation
- */
 const CheckboxComponent = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
@@ -25,21 +21,31 @@ const CheckboxComponent = <TFieldValues extends FieldValues = FieldValues>({
   required,
   disabled,
   className,
+  side = 'right',
 }: CheckboxProps<TFieldValues>) => {
-  const form = useForm<TFieldValues>();
+  const { isDisabled, groupClasses } = useCheckboxController({
+    name,
+    disabled,
+    required,
+    side,
+  });
 
   return (
     <FormField
-      control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({
+        field,
+      }: {
+        field: ControllerRenderProps<TFieldValues>;
+        fieldState: ControllerFieldState;
+      }) => (
         <FormItem className={className}>
-          <div className="flex items-center space-x-2">
+          <div className={groupClasses}>
             <FormControl>
               <ShadcnCheckbox
                 checked={field.value}
                 onCheckedChange={field.onChange}
-                disabled={disabled || form.formState.isSubmitting}
+                disabled={isDisabled}
               />
             </FormControl>
             {label && (

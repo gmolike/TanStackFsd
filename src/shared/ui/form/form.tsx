@@ -1,17 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// src/shared/ui/form/Form.tsx
-import { forwardRef, useId } from 'react';
-import type { ComponentRef, ReactNode } from 'react';
-import type { FieldValues, SubmitHandler, UseFormProps, UseFormReturn } from 'react-hook-form';
-import { useForm as useRHFForm } from 'react-hook-form';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { ZodType } from 'zod';
+import { forwardRef, memo, useId } from 'react';
+import type { ComponentRef } from 'react';
+import type { FieldValues } from 'react-hook-form';
 
 import { cn } from '~/shared/lib/utils';
 import { FormLabel as ShadcnFormLabel } from '~/shared/shadcn/form';
 
-import { FormProvider } from './model/Context';
+import type { FormProps } from './model';
+import { FormProvider, useFormController } from './model';
 
 export {
   FormControl,
@@ -21,7 +16,7 @@ export {
   FormMessage,
 } from '~/shared/shadcn/form';
 
-const FormLabel = forwardRef<
+export const FormLabel = forwardRef<
   ComponentRef<typeof ShadcnFormLabel>,
   React.ComponentPropsWithoutRef<typeof ShadcnFormLabel> & {
     required?: boolean;
@@ -42,35 +37,16 @@ const FormLabel = forwardRef<
 ));
 FormLabel.displayName = 'FormLabel';
 
-// Form Component Props
-interface FormProps<TFormValues extends FieldValues = FieldValues>
-  extends Omit<React.FormHTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children'> {
-  schema?: ZodType<TFormValues>;
-  onSubmit: SubmitHandler<TFormValues>;
-  onError?: (errors: any) => void;
-  children: ReactNode | ((form: UseFormReturn<TFormValues>) => ReactNode);
-  mode?: UseFormProps<TFormValues>['mode'];
-  defaultValues?: UseFormProps<TFormValues>['defaultValues'];
-  formId?: string;
-  form?: UseFormReturn<TFormValues>; // Allow external form instance
-  header?: ReactNode;
-  footer?: ReactNode;
-  disabled?: boolean; // Global form disable
-}
-
-/**
- * Form - Main form component with integrated contexts
- */
-const Form = <TFormValues extends FieldValues = FieldValues>({
+const FormComponent = <TFormValues extends FieldValues = FieldValues>({
   schema,
   onSubmit,
   onError,
   children,
   className,
-  mode = 'onSubmit',
+  mode,
   defaultValues,
   formId: providedFormId,
-  form: externalForm,
+  externalForm,
   header,
   footer,
   disabled = false,
@@ -80,14 +56,15 @@ const Form = <TFormValues extends FieldValues = FieldValues>({
   const generatedId = useId();
   const formId = providedFormId || generatedId;
 
-  const internalForm = useRHFForm<TFormValues>({
-    resolver: schema ? zodResolver(schema) : undefined,
+  const { form, handleSubmit, isFormDisabled } = useFormController<TFormValues>({
+    schema,
+    onSubmit,
+    onError,
     mode,
     defaultValues,
+    externalForm,
+    disabled,
   });
-  const form = externalForm || internalForm;
-
-  const handleSubmit = form.handleSubmit(onSubmit, onError);
 
   const formContent = (
     <>
@@ -104,10 +81,10 @@ const Form = <TFormValues extends FieldValues = FieldValues>({
         onSubmit={handleSubmit}
         className={cn('space-y-6', className)}
         noValidate={noValidate}
-        aria-disabled={disabled}
+        aria-disabled={isFormDisabled}
         {...formProps}
       >
-        {disabled ? (
+        {isFormDisabled ? (
           <fieldset disabled className="space-y-6">
             {formContent}
           </fieldset>
@@ -119,5 +96,4 @@ const Form = <TFormValues extends FieldValues = FieldValues>({
   );
 };
 
-export { Form, FormLabel };
-export type { FieldValues, FormProps, SubmitHandler, UseFormReturn };
+export const Form = memo(FormComponent);

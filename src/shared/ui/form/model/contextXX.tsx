@@ -1,20 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext } from 'react';
 import type { ReactNode } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { FormProvider as RHFFormProvider } from 'react-hook-form';
 
 // Form Context Type
-interface FormContextValue<TFormValues extends FieldValues = FieldValues> {
+export interface FormContextValue<TFormValues extends FieldValues = FieldValues> {
   form: UseFormReturn<TFormValues>;
   formId: string;
 }
 
-// Create context with proper typing - use any to allow for generic usage
-const FormContext = createContext<FormContextValue<any> | null>(null);
+// Create context with proper typing
+// eslint-disable-next-line react-refresh/only-export-components
+export const FormContext = createContext<FormContextValue<any> | null>(null);
 
 // Provider Props
-interface FormProviderProps<TFormValues extends FieldValues = FieldValues> {
+export interface FormProviderProps<TFormValues extends FieldValues = FieldValues> {
   form: UseFormReturn<TFormValues>;
   formId?: string;
   children: ReactNode;
@@ -23,7 +23,7 @@ interface FormProviderProps<TFormValues extends FieldValues = FieldValues> {
 /**
  * FormProvider - Provides both our custom context and React Hook Form context
  */
-const FormProvider = <TFormValues extends FieldValues = FieldValues>({
+export const FormProvider = <TFormValues extends FieldValues = FieldValues>({
   form,
   formId = 'form',
   children,
@@ -32,7 +32,3 @@ const FormProvider = <TFormValues extends FieldValues = FieldValues>({
     <RHFFormProvider {...form}>{children}</RHFFormProvider>
   </FormContext.Provider>
 );
-
-// Export context and types
-export { FormContext, FormProvider };
-export type { FormContextValue, FormProviderProps };

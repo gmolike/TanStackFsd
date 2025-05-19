@@ -1,78 +1,10 @@
-// src/shared/ui/form/header/Header.tsx
 import { memo } from 'react';
-import type { ReactNode } from 'react';
-
-import type { LucideIcon } from 'lucide-react';
 
 import { cn } from '~/shared/lib/utils';
 
-// Types
-type HeaderProps = {
-  title: string;
-  description?: string | ReactNode;
-  subtitle?: string;
-  icon?: LucideIcon;
-  avatar?: ReactNode;
-  badge?: ReactNode;
-  actions?: ReactNode;
-  className?: string;
-  titleClassName?: string;
-  descriptionClassName?: string;
-  variant?: 'default' | 'centered' | 'minimal';
-};
+import { useHeaderController } from '../../model/controllers';
+import type { HeaderProps } from '../../model/types/headerTypes';
 
-// Constants
-const HEADER_VARIANTS = {
-  default: {
-    container: 'space-y-3 pb-6',
-    flexLayout: 'flex items-start gap-4',
-    iconSize: 'h-10 w-10',
-    iconClasses: 'rounded-lg bg-primary/10 text-primary',
-    titleSize: 'text-2xl',
-    spacing: 'gap-4',
-  },
-  centered: {
-    container: 'space-y-3 pb-6 text-center',
-    flexLayout: 'flex flex-col items-center gap-4',
-    iconSize: 'h-10 w-10',
-    iconClasses: 'rounded-lg bg-primary/10 text-primary',
-    titleSize: 'text-2xl',
-    spacing: 'gap-4',
-  },
-  minimal: {
-    container: 'space-y-3 pb-6',
-    flexLayout: 'flex items-start gap-2',
-    iconSize: 'h-6 w-6',
-    iconClasses: '',
-    titleSize: 'text-lg',
-    spacing: 'gap-2',
-  },
-} as const;
-
-// Utility Functions
-const getVariantClasses = (variant: keyof typeof HEADER_VARIANTS) => HEADER_VARIANTS[variant];
-
-const getIconClasses = (variant: keyof typeof HEADER_VARIANTS, hasIcon: boolean) => {
-  const variantClasses = getVariantClasses(variant);
-  return cn(
-    'flex items-center justify-center',
-    variantClasses.iconSize,
-    hasIcon && variant !== 'minimal' && variantClasses.iconClasses,
-  );
-};
-
-const getIconSize = (variant: keyof typeof HEADER_VARIANTS) =>
-  variant === 'minimal' ? 'h-5 w-5' : 'h-6 w-6';
-
-const getDescriptionMargin = (variant: keyof typeof HEADER_VARIANTS, hasIcon: boolean) => {
-  if (variant === 'centered') return 'ml-0';
-  if (!hasIcon) return '';
-  return variant === 'minimal' ? 'ml-8' : 'ml-14';
-};
-
-/**
- * HeaderComponent - Flexible header for forms with configurable layout
- */
 const HeaderComponent = ({
   title,
   description,
@@ -86,9 +18,25 @@ const HeaderComponent = ({
   descriptionClassName,
   variant = 'default',
 }: HeaderProps) => {
-  const variantClasses = getVariantClasses(variant);
-  const hasIcon = !!(Icon || avatar);
-  const isCentered = variant === 'centered';
+  const {
+    hasIcon,
+    isCentered,
+    getVariantClasses,
+    getIconClasses,
+    getIconSize,
+    getDescriptionMargin,
+  } = useHeaderController({
+    title,
+    description,
+    subtitle,
+    icon: Icon,
+    avatar,
+    badge,
+    actions,
+    variant,
+  });
+
+  const variantClasses = getVariantClasses();
 
   return (
     <div className={cn(variantClasses.container, className)}>
@@ -96,8 +44,8 @@ const HeaderComponent = ({
       <div className={cn(variantClasses.flexLayout)}>
         {/* Icon or Avatar */}
         {hasIcon && (
-          <div className={getIconClasses(variant, !!Icon)}>
-            {Icon && <Icon className={getIconSize(variant)} />}
+          <div className={getIconClasses()}>
+            {Icon && <Icon className={getIconSize()} />}
             {avatar && avatar}
           </div>
         )}
@@ -144,7 +92,7 @@ const HeaderComponent = ({
 
       {/* Description */}
       {description && (
-        <div className={getDescriptionMargin(variant, hasIcon)}>
+        <div className={getDescriptionMargin()}>
           <div
             className={cn(
               'text-muted-foreground',
@@ -162,4 +110,3 @@ const HeaderComponent = ({
 };
 
 export const Header = memo(HeaderComponent);
-export type { HeaderProps };
