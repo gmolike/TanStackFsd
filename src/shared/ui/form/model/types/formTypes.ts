@@ -4,7 +4,7 @@ import type { FieldValues, SubmitHandler, UseFormProps, UseFormReturn } from 're
 import type { ZodType } from 'zod';
 
 // Form Controller Props
-export interface FormControllerProps<TFormValues extends FieldValues = FieldValues> {
+export type FormControllerProps<TFormValues extends FieldValues = FieldValues> = {
   schema?: ZodType<TFormValues>;
   onSubmit: SubmitHandler<TFormValues>;
   onError?: (errors: any) => void;
@@ -12,10 +12,10 @@ export interface FormControllerProps<TFormValues extends FieldValues = FieldValu
   defaultValues?: UseFormProps<TFormValues>['defaultValues'];
   externalForm?: UseFormReturn<TFormValues>;
   disabled?: boolean;
-}
+};
 
 // Form Controller Result
-export interface FormControllerResult<TFormValues extends FieldValues = FieldValues> {
+export type FormControllerResult<TFormValues extends FieldValues = FieldValues> = {
   form: UseFormReturn<TFormValues>;
   handleSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   isSubmitting: boolean;
@@ -24,14 +24,16 @@ export interface FormControllerResult<TFormValues extends FieldValues = FieldVal
   hasErrors: boolean;
   submitCount: number;
   isFormDisabled: boolean;
-}
+};
 
 // Form Component Props
-export interface FormProps<TFormValues extends FieldValues = FieldValues>
-  extends Omit<React.FormHTMLAttributes<HTMLFormElement>, 'onSubmit' | 'children' | 'onError'>,
-    FormControllerProps<TFormValues> {
-  children: ReactNode | ((form: UseFormReturn<TFormValues>) => ReactNode);
-  formId?: string;
-  header?: ReactNode;
-  footer?: ReactNode;
-}
+export type FormProps<TFormValues extends FieldValues = FieldValues> = Omit<
+  React.FormHTMLAttributes<HTMLFormElement>,
+  'onSubmit' | 'children'
+> &
+  FormControllerProps<TFormValues> & {
+    children: ReactNode | ((form: UseFormReturn<TFormValues>) => ReactNode);
+    formId?: string;
+    header?: ReactNode;
+    footer?: ReactNode;
+  };

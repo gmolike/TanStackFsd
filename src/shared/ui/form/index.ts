@@ -1,19 +1,4 @@
-// src/shared/ui/form/index.ts
-// Context and Provider
-export type { FormContextValue, FormProviderProps } from './model/contextXX';
-export { FormProvider } from './model/contextXX';
-
-// Hooks - All form-related hooks in one place
-export {
-  useFieldState,
-  useForm,
-  useFormContext,
-  useFormField,
-  useFormId,
-  useFormState,
-} from './model/hooks';
-
-// Base Form Components
+// 1. Form-Komponenten
 export {
   Form,
   FormControl,
@@ -24,54 +9,74 @@ export {
   FormMessage,
 } from './Form';
 
-// Form Field Components
-export { Checkbox as FormCheckbox } from './fields/Checkbox';
-export { DatePicker as FormDate } from './fields/DatePicker';
-export { DateRange as FormDateRange } from './fields/DateRange';
-export { Input as FormInput } from './fields/Input';
-export { Select as FormSelect } from './fields/Select';
-export { TextArea as FormTextArea } from './fields/TextArea';
+// 2. Formularfelder mit Form-Präfix
+export { Checkbox as FormCheckbox } from './ui/fields/Checkbox';
+export { DatePicker as FormDate } from './ui/fields/DatePicker';
+export { DateRange as FormDateRange } from './ui/fields/DateRange';
+export { Input as FormInput } from './ui/fields/Input';
+export { Select as FormSelect } from './ui/fields/Select';
+export { TextArea as FormTextArea } from './ui/fields/TextArea';
 
-// Types
-export type { FieldValues, FormProps, SubmitHandler, UseFormReturn } from './Form';
+// 3. Header-Komponenten
+export { Header as FormHeader } from './ui/header/Header';
 
-// Field Types
-export type { CheckboxProps as FormCheckboxProps } from './fields/Checkbox';
-export type { DatePickerProps as FormDateProps } from './fields/DatePicker';
-export type { DateRangeProps as FormDateRangeProps } from './fields/DateRange';
-export type { InputProps as FormInputProps } from './fields/Input';
-export type { SelectProps as FormSelectProps } from './fields/Select';
-export type { TextAreaProps as FormTextAreaProps } from './fields/TextArea';
-export type { BaseFieldProps, SelectOption } from './fields/types';
+// 4. Footer-Komponenten
+export { Footer as FormFooter } from './ui/footer/Footer';
+export { Steps as FormFooterSteps } from './ui/footer/Steps';
 
-// Header Components
-export { Centered as FormHeaderCentered } from './header/Centered';
-export { Header as FormHeader } from './header/Header';
-export { Minimal as FormHeaderMinimal } from './header/Minimal';
-export { WithProgress as FormHeaderWithProgress } from './header/WithProgress';
-export { WithSteps as FormHeaderWithSteps } from './header/WithSteps';
+// 5. Context und Provider für fortgeschrittene Anwendungsfälle
+export type { FormContextValue, FormProviderProps } from './model/Context';
+export { FormProvider } from './model/Context';
 
-// Header Types
-export type { HeaderProps as FormHeaderProps } from './header/Header';
-export type { WithProgressProps as FormHeaderWithProgressProps } from './header/WithProgress';
-export type { WithStepsProps as FormHeaderWithStepsProps } from './header/WithSteps';
+// 6. Hooks für direkte Verwendung
+export {
+  useFieldState,
+  useForm,
+  useFormContext,
+  useFormField,
+  useFormId,
+  useFormState,
+} from './model/hooks';
 
-// Footer Components
-export { Centered as FormFooterCentered } from './footer/Centered';
-export { Compact as FormFooterCompact } from './footer/Compact';
-export { Footer as FormFooter } from './footer/Footer';
-export { Split as FormFooterSplit } from './footer/Split';
-export { Steps as FormFooterSteps } from './footer/Steps';
+// 7. Controller für eigene UI-Implementierungen
+export {
+  useCheckboxController,
+  useDatePickerController,
+  useFooterController,
+  useFormController,
+  useHeaderController,
+  useInputController,
+  useSelectController,
+  useStepsController,
+  useTextAreaController,
+} from './model/controllers';
 
-// Footer Types
+// 8. Typen für Komponenten-Props
+export type {
+  BaseFieldProps,
+  CheckboxProps as FormCheckboxProps,
+  DatePickerProps as FormDateProps,
+  DateRangeProps as FormDateRangeProps,
+  InputProps as FormInputProps,
+  SelectProps as FormSelectProps,
+  TextAreaProps as FormTextAreaProps,
+  SelectOption,
+} from './model/types/fieldTypes';
 export type {
   FooterAction as FormFooterAction,
   FooterProps as FormFooterProps,
-} from './footer/Footer';
-export type { StepsProps as FormFooterStepsProps } from './footer/Steps';
+  StepsProps as FormFooterStepsProps,
+} from './model/types/footerTypes';
+export type {
+  FormControllerProps as FormControllerOptions,
+  FormProps,
+} from './model/types/formTypes';
+export type {
+  HeaderProps as FormHeaderProps,
+  WithProgressProps as FormHeaderWithProgressProps,
+  WithStepsProps as FormHeaderWithStepsProps,
+} from './model/types/headerTypes';
 
-// Re-export React Hook Form types for convenience
-export type { FieldPath, FieldValues as RHFFieldValues } from 'react-hook-form';
-
-// Re-export React Hook Form useForm as useRHFForm to avoid conflicts
+// 9. React Hook Form Re-Exports für Kompatibilität
+export type { FieldPath, FieldValues } from 'react-hook-form';
 export { useForm as useRHFForm } from 'react-hook-form';

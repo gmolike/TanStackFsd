@@ -1,6 +1,6 @@
+// src/shared/ui/form/model/controllers/useForm.ts
 import { useCallback } from 'react';
-import type { BaseSyntheticEvent } from 'react';
-import type { DefaultValues, FieldValues, SubmitHandler } from 'react-hook-form';
+import type { FieldValues, SubmitHandler, UseFormProps, UseFormReturn } from 'react-hook-form';
 import { useForm as useRHFForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,14 +10,15 @@ type Props<TFormValues extends FieldValues = FieldValues> = {
   schema?: ZodType<TFormValues>;
   onSubmit: SubmitHandler<TFormValues>;
   onError?: (errors: any) => void;
-  mode?: 'onSubmit' | 'onChange' | 'onBlur' | 'onTouched' | 'all';
-  defaultValues?: DefaultValues<TFormValues>;
-  externalForm?: ReturnType<typeof useRHFForm<TFormValues>>;
+  mode?: UseFormProps<TFormValues>['mode'];
+  // Verwenden von PropertyType direkt aus UseFormProps
+  defaultValues?: UseFormProps<TFormValues>['defaultValues'];
+  externalForm?: UseFormReturn<TFormValues>;
   disabled?: boolean;
 };
 
 type Result<TFormValues extends FieldValues = FieldValues> = {
-  form: ReturnType<typeof useRHFForm<TFormValues>>;
+  form: UseFormReturn<TFormValues>;
   handleSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   isSubmitting: boolean;
   isDirty: boolean;
@@ -27,7 +28,7 @@ type Result<TFormValues extends FieldValues = FieldValues> = {
   isFormDisabled: boolean;
 };
 
-export const useForm = <TFormValues extends FieldValues = FieldValues>({
+const useForm = <TFormValues extends FieldValues = FieldValues>({
   schema,
   onSubmit,
   onError,
@@ -45,10 +46,7 @@ export const useForm = <TFormValues extends FieldValues = FieldValues>({
   const form = externalForm || internalForm;
   const { formState } = form;
 
-  const handleSubmit = useCallback(
-    (e?: BaseSyntheticEvent) => form.handleSubmit(onSubmit, onError)(e),
-    [form, onSubmit, onError],
-  );
+  const handleSubmit = useCallback(form.handleSubmit(onSubmit, onError), [form, onSubmit, onError]);
 
   return {
     form,
@@ -61,3 +59,5 @@ export const useForm = <TFormValues extends FieldValues = FieldValues>({
     isFormDisabled: disabled || formState.isSubmitting,
   };
 };
+
+export default useForm;
