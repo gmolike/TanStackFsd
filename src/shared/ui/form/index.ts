@@ -1,58 +1,53 @@
-// src/shared/ui/form/index.ts
 /**
  * Form Components Library
- *
- * Enthält typsichere Formularkomponenten nach Feature-Sliced Design Architektur
  */
 
 // Form base components
 export {
-  Component as Form,
+  Form,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
-  Label as FormLabel,
+  FormLabel,
   FormMessage,
-  Provider as FormProvider,
+  FormProvider,
   useFieldState,
   useForm,
   useFormContext,
-  useController as useFormController,
+  useFormController,
   useFormField,
   useFormId,
   useFormState,
 } from './form';
 
 // Field components with Form prefix
-export { Component as FormCheckbox } from './checkbox';
-export { Component as FormDate } from './datepicker';
-export { Component as FormDateRange } from './daterange';
-export { Component as FormInput } from './input';
-export { Component as FormSelect } from './select';
-export { Component as FormTextArea } from './textarea';
+export { Checkbox as FormCheckbox } from './checkbox';
+export { DatePicker as FormDatePicker } from './datePickerxx';
+export { DateRange as FormDateRange } from './dateRangeXX';
+export { Input as FormInput } from './input';
+export { Select as FormSelect } from './select';
+export { TextArea as FormTextArea } from './textarea';
 
 // Layout components with Form prefix
-export { Component as FormFooter } from './footer';
-export { Component as FormFooterSteps } from './footer-steps';
-export { Component as FormHeader } from './header';
+export { Footer as FormFooter } from './footer';
+export { Header as FormHeader } from './header';
 
 // Re-export controllers for advanced usage
-export { useController as useCheckboxController } from './checkbox';
-export { useController as useDatePickerController } from './datepicker';
-export { useController as useFooterController } from './footer';
-export { useController as useFooterStepsController } from './footer-steps';
-export { useController as useHeaderController } from './header';
-export { useController as useInputController } from './input';
-export { useController as useSelectController } from './select';
-export { useController as useTextareaController } from './textarea';
+export { useCheckboxController } from './checkbox';
+export { useDatePickerController } from './datePickerxx';
+export { useFooterController } from './footer';
+export { useHeaderController } from './header';
+export { useInputController } from './input';
+export { useSelectController } from './select';
+export { useTextareaController } from './textarea';
 
 // Re-export types for all components
 // Form types
 export type {
   ContextValue as FormContextValue,
   ProviderProps as FormProviderProps,
-} from './form/model/context';
+} from './form/model/Context';
 export type {
   ControllerProps as FormControllerProps,
   Props as FormProps,
@@ -68,8 +63,8 @@ export type {
   ControllerProps as DatePickerControllerProps,
   ControllerResult as DatePickerControllerResult,
   Props as DatePickerProps,
-} from './datepicker/model/types';
-export type { Props as DateRangeProps } from './daterange/model/types';
+} from './datePickerxx/model/types';
+export type { Props as DateRangeProps } from './dateRangeXX/model/types';
 export type {
   ControllerProps as InputControllerProps,
   ControllerResult as InputControllerResult,
@@ -89,16 +84,12 @@ export type {
 
 // Layout types
 export type {
-  Action as FooterAction,
+  FooterButton,
   ControllerProps as FooterControllerProps,
   ControllerResult as FooterControllerResult,
   Props as FooterProps,
+  StandardButtons,
 } from './footer/model/types';
-export type {
-  ControllerProps as FooterStepsControllerProps,
-  ControllerResult as FooterStepsControllerResult,
-  StepsProps as FooterStepsProps,
-} from './footer-steps/model/types';
 export type {
   ControllerProps as HeaderControllerProps,
   ControllerResult as HeaderControllerResult,

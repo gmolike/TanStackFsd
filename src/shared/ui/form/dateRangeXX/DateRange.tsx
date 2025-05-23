@@ -1,12 +1,12 @@
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
-import { DatePicker } from '../datepicker';
+import { DatePicker } from '../datePickerxx';
 import { FormDescription, FormLabel } from '../form';
 
 import type { Props } from './model/types';
 
-const DateRangeComponent = <TFieldValues extends FieldValues = FieldValues>({
+const Component = <TFieldValues extends FieldValues = FieldValues>({
   startName,
   endName,
   label,
@@ -41,4 +41,4 @@ const DateRangeComponent = <TFieldValues extends FieldValues = FieldValues>({
   </div>
 );
 
-export const Component = memo(DateRangeComponent);
+export const DateRange = memo(Component);

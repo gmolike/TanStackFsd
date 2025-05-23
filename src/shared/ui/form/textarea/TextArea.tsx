@@ -8,7 +8,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
-const TextareaComponent = <TFieldValues extends FieldValues = FieldValues>({
+const Component = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -63,4 +63,4 @@ const TextareaComponent = <TFieldValues extends FieldValues = FieldValues>({
   );
 };
 
-export const Component = memo(TextareaComponent);
+export const TextArea = memo(Component);

@@ -5,4 +5,4 @@ export type {
   Props as SelectProps,
 } from './model/types';
 export { useController as useSelectController } from './model/useController';
-export { Component as Select } from './ui';
+export { Select } from './Select';

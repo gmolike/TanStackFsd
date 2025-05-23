@@ -1,4 +1,3 @@
-// src/shared/ui/form/select/ui.tsx
 import { memo } from 'react';
 import type { ControllerFieldState, ControllerRenderProps, FieldValues } from 'react-hook-form';
 
@@ -15,7 +14,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
-const SelectComponent = <TFieldValues extends FieldValues = FieldValues>({
+const Component = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -73,4 +72,4 @@ const SelectComponent = <TFieldValues extends FieldValues = FieldValues>({
   );
 };
 
-export const Component = memo(SelectComponent);
+export const Select = memo(Component);

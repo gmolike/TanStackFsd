@@ -4,7 +4,9 @@ import type { z } from 'zod';
 
 import type { InputShadcn } from '~/shared/shadcn/input';
 
-// Unterstützte HTML Input-Typen
+/**
+ * Unterstützte HTML Input-Typen
+ */
 export type InputHTMLType =
   | 'text'
   | 'email'
@@ -19,7 +21,17 @@ export type InputHTMLType =
   | 'month'
   | 'week';
 
-// Basistyp für alle Formular-Felder
+/**
+ * Basis-Props für alle Formular-Felder
+ * @template TFieldValues - Der Typ der Formularwerte
+ * @param name - Feldname im Formular
+ * @param label - Anzeigelabel für das Feld
+ * @param description - Beschreibungstext unter dem Feld
+ * @param required - Ob das Feld erforderlich ist
+ * @param disabled - Ob das Feld deaktiviert ist
+ * @param placeholder - Platzhaltertext
+ * @param className - Zusätzliche CSS-Klassen
+ */
 export type BaseFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   name: FieldPath<TFieldValues>;
   label?: string;
@@ -30,7 +42,9 @@ export type BaseFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   className?: string;
 };
 
-// Verbesserte Typen für Zod-Schemas
+/**
+ * Zod-Schema-Typdefinitionen
+ */
 export type ZodSchemaOf<T> = z.ZodType<T, z.ZodTypeDef, T>;
 
 export type InferFieldSchema<TFieldValues> =
@@ -38,7 +52,6 @@ export type InferFieldSchema<TFieldValues> =
     ? { [K in keyof TFieldValues]: ZodSchemaOf<TFieldValues[K]> }
     : never;
 
-// Typkompatible Schema-Typen
 export type FormSchema<TFieldValues extends FieldValues> = z.ZodObject<
   InferFieldSchema<TFieldValues>
 >;
@@ -47,7 +60,15 @@ export type FieldSchema<TFieldValues extends FieldValues> = ZodSchemaOf<
   TFieldValues[keyof TFieldValues]
 >;
 
-// Erweiterte Input-Props mit Zod-Schema-Integration
+/**
+ * Props für die Input-Komponente
+ * @template TFieldValues - Der Typ der Formularwerte
+ * @param startIcon - Icon am Anfang des Inputs
+ * @param endIcon - Icon am Ende des Inputs
+ * @param type - HTML-Input-Typ
+ * @param schema - Zod-Schema für Feldvalidierung
+ * @param fullSchema - Vollständiges Formular-Schema
+ */
 export type Props<TFieldValues extends FieldValues = FieldValues> = Omit<
   BaseFieldProps<TFieldValues>,
   'required'
@@ -55,12 +76,23 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = Omit<
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
   type?: InputHTMLType;
-  schema?: FieldSchema<TFieldValues>; // Typsicher
-  fullSchema?: FormSchema<TFieldValues>; // Typsicher
-  required?: boolean; // Wichtig: required hier explizit hinzufügen
+  schema?: FieldSchema<TFieldValues>;
+  fullSchema?: FormSchema<TFieldValues>;
+  required?: boolean;
 } & Omit<React.ComponentPropsWithoutRef<typeof InputShadcn>, 'name' | 'type' | 'required'>;
 
-// Controller-Props
+/**
+ * Props für den Input-Controller
+ * @template TFieldValues - Der Typ der Formularwerte
+ * @param name - Feldname im Formular
+ * @param disabled - Ob das Feld deaktiviert ist
+ * @param required - Ob das Feld erforderlich ist
+ * @param startIcon - Icon am Anfang des Inputs
+ * @param endIcon - Icon am Ende des Inputs
+ * @param type - HTML-Input-Typ
+ * @param schema - Zod-Schema für Feldvalidierung
+ * @param fullSchema - Vollständiges Formular-Schema
+ */
 export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
   name: FieldPath<TFieldValues>;
   disabled?: boolean;
@@ -68,11 +100,23 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
   type?: InputHTMLType;
-  schema?: FieldSchema<TFieldValues>; // Typsicher
-  fullSchema?: FormSchema<TFieldValues>; // Typsicher
+  schema?: FieldSchema<TFieldValues>;
+  fullSchema?: FormSchema<TFieldValues>;
 };
 
-// Controller-Rückgabetyp
+/**
+ * Rückgabewert des Input-Controllers
+ * @template TFieldValues - Der Typ der Formularwerte
+ * @param form - React Hook Form Instanz
+ * @param isDisabled - Ob das Feld deaktiviert ist
+ * @param hasIcons - Ob Icons vorhanden sind
+ * @param startIconClasses - CSS-Klassen für Start-Icon
+ * @param endIconClasses - CSS-Klassen für End-Icon
+ * @param inputClasses - CSS-Klassen für Input
+ * @param isRequired - Ob das Feld erforderlich ist
+ * @param inputType - HTML-Input-Typ
+ * @param ariaProps - ARIA-Eigenschaften für Barrierefreiheit
+ */
 export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
   form: UseFormReturn<TFieldValues>;
   isDisabled: boolean;
@@ -89,8 +133,9 @@ export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
   };
 };
 
-// Zod-Typen, um die interne Schema-Struktur zu typisieren
-// Bekannte Zod-Typnamen als literale Typen
+/**
+ * Bekannte Zod-Typnamen
+ */
 export type KnownZodTypeName =
   | 'ZodString'
   | 'ZodNumber'
@@ -103,5 +148,4 @@ export type KnownZodTypeName =
   | 'ZodNull'
   | 'ZodUndefined';
 
-// Einfach mit z.ZodTypeAny arbeiten statt eigene Typen zu definieren
 export type ZodSchema = z.ZodTypeAny;

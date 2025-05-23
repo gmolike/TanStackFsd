@@ -5,7 +5,7 @@ import { cn } from '~/shared/lib/utils';
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
-const HeaderComponent = ({
+const Component = ({
   title,
   description,
   subtitle,
@@ -65,7 +65,7 @@ const HeaderComponent = ({
                 >
                   {title}
                 </h1>
-                {badge && badge}
+                {badge}
               </div>
 
               {subtitle && (
@@ -109,4 +109,4 @@ const HeaderComponent = ({
   );
 };
 
-export const Component = memo(HeaderComponent);
+export const Header = memo(Component);

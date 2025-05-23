@@ -44,7 +44,7 @@ const InputWithIcons = forwardRef<
 });
 InputWithIcons.displayName = 'InputWithIcons';
 
-const InputComponent = <TFieldValues extends FieldValues = FieldValues>({
+const Component = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -100,4 +100,4 @@ const InputComponent = <TFieldValues extends FieldValues = FieldValues>({
   );
 };
 
-export const Component = memo(InputComponent);
+export const Input = memo(Component);

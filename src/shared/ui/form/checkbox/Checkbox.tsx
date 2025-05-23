@@ -8,7 +8,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
-const CheckboxComponent = <TFieldValues extends FieldValues = FieldValues>({
+const Component = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -56,4 +56,4 @@ const CheckboxComponent = <TFieldValues extends FieldValues = FieldValues>({
   );
 };
 
-export const Component = memo(CheckboxComponent);
+export const Checkbox = memo(Component);

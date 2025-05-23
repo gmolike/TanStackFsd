@@ -38,7 +38,7 @@ export const Label = forwardRef<
 ));
 Label.displayName = 'FormLabel';
 
-const FormComponent = <TFormValues extends FieldValues = FieldValues>({
+const Component = <TFieldValues extends FieldValues = FieldValues>({
   schema,
   onSubmit,
   onError,
@@ -53,11 +53,11 @@ const FormComponent = <TFormValues extends FieldValues = FieldValues>({
   disabled = false,
   noValidate = true,
   ...formProps
-}: Props<TFormValues>) => {
+}: Props<TFieldValues>) => {
   const generatedId = useId();
   const formId = providedFormId || generatedId;
 
-  const { form, handleSubmit, isFormDisabled } = useController<TFormValues>({
+  const { form, handleSubmit, isFormDisabled } = useController<TFieldValues>({
     schema,
     onSubmit,
     onError,
@@ -97,5 +97,4 @@ const FormComponent = <TFormValues extends FieldValues = FieldValues>({
   );
 };
 
-// Wichtig: Typerhaltung beim memo-Export für Generics
-export const Component = memo(FormComponent) as typeof FormComponent;
+export const Form = memo(Component) as typeof Component;

@@ -12,7 +12,6 @@ import type {
   KnownZodTypeName,
 } from './types';
 
-// Vereinfachte Hilfsfunktion zur Extraktion von Metadaten
 const extractSchemaMetadata = <TFieldValues extends FieldValues = FieldValues>(
   name: FieldPath<TFieldValues>,
   schema?: z.ZodTypeAny,
@@ -20,7 +19,6 @@ const extractSchemaMetadata = <TFieldValues extends FieldValues = FieldValues>(
 ): { isRequired: boolean; inputType: InputHTMLType } => {
   let fieldSchema: z.ZodTypeAny | undefined = schema;
 
-  // Wenn kein direktes Schema übergeben wurde, versuche es aus dem vollständigen Schema zu extrahieren
   if (!fieldSchema && fullSchema) {
     try {
       const shape = fullSchema._def.shape();
@@ -31,12 +29,10 @@ const extractSchemaMetadata = <TFieldValues extends FieldValues = FieldValues>(
     }
   }
 
-  // Standardwerte
   let isRequired = false;
   let inputType: InputHTMLType = 'text';
 
   if (fieldSchema) {
-    // Prüfe Schema-Typ und Optionen
     isRequired = isSchemaRequired(fieldSchema);
     inputType = inferInputType(fieldSchema);
   }
@@ -44,9 +40,7 @@ const extractSchemaMetadata = <TFieldValues extends FieldValues = FieldValues>(
   return { isRequired, inputType };
 };
 
-// Vereinfachte Hilfsfunktion zum Prüfen, ob ein Schema erforderlich ist
 const isSchemaRequired = (schema: z.ZodTypeAny): boolean => {
-  // Prüfe auf ZodOptional, ZodNullable, ZodDefault oder ZodUnion mit Null/Undefined
   const typeName = schema._def.typeName as KnownZodTypeName;
 
   if (typeName === 'ZodOptional' || typeName === 'ZodNullable') {
@@ -67,7 +61,6 @@ const isSchemaRequired = (schema: z.ZodTypeAny): boolean => {
   return true;
 };
 
-// Vereinfachte Funktion zum Extrahieren des Basis-Schemas
 const getBaseSchema = (schema: z.ZodTypeAny): z.ZodTypeAny => {
   let current = schema;
   while (
@@ -80,7 +73,6 @@ const getBaseSchema = (schema: z.ZodTypeAny): z.ZodTypeAny => {
   return current;
 };
 
-// Vereinfachte Funktion zum Ableiten des Eingabetyps
 const inferInputType = (schema: z.ZodTypeAny): InputHTMLType => {
   const baseSchema = getBaseSchema(schema);
   const typeName = baseSchema._def.typeName as KnownZodTypeName;
@@ -107,6 +99,11 @@ const inferInputType = (schema: z.ZodTypeAny): InputHTMLType => {
   }
 };
 
+/**
+ * Hook für Input-Controller
+ * @param props - Controller-Props
+ * @returns Controller-Ergebnis mit Form-State und Konfiguration
+ */
 export const useController = <TFieldValues extends FieldValues = FieldValues>({
   name,
   disabled,
@@ -121,14 +118,12 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
   const { formState } = form;
   const isDisabled = disabled || formState.isSubmitting;
 
-  // Schema-Metadaten extrahieren
   const { isRequired: schemaRequired, inputType: schemaType } = extractSchemaMetadata(
     name,
     schema,
     fullSchema,
   );
 
-  // Bestimme finale Werte
   const isRequired = explicitRequired !== undefined ? explicitRequired : schemaRequired;
   const inputType = explicitType || schemaType;
 
@@ -137,7 +132,6 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
 
   const hasIcons = !!startIcon || !!endIcon;
 
-  // Konstante Klassen
   const startIconClasses = 'absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground';
   const endIconClasses = 'absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground';
   const inputClasses = `${startIcon ? 'pl-10' : ''} ${endIcon ? 'pr-10' : ''}`.trim();

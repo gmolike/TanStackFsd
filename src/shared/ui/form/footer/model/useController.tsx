@@ -4,91 +4,89 @@ import { ArrowLeft, ArrowRight, Check, Loader2, RotateCcw } from 'lucide-react';
 
 import { useForm } from '../..';
 
-import type { Action, ControllerProps, ControllerResult } from './types';
+import type { ControllerProps, ControllerResult, FooterButton } from './types';
 
+/**
+ * Hook für Footer-Controller
+ * @param buttons - Standard-Button-Konfiguration
+ * @param customActions - Benutzerdefinierte Buttons
+ * @returns Controller-Ergebnis mit Form-State und allen Buttons
+ */
 export const useController = ({
-  submitText = 'Speichern',
-  cancelText = 'Abbrechen',
-  resetText = 'Zurücksetzen',
-  showCancel = true,
-  showReset = false,
-  onCancel,
-  onReset,
-  actions = [],
+  buttons = {},
+  customActions = [],
 }: ControllerProps): ControllerResult => {
   const form = useForm();
   const { formState } = form;
   const { isSubmitting, isDirty, isSubmitted, isValid } = formState;
 
-  const defaultActions = useMemo(() => {
-    const buttonActions: Array<Action> = [];
+  const allButtons = useMemo(() => {
+    const buttonsList: Array<FooterButton> = [];
 
-    // Reset button
-    if (showReset) {
-      buttonActions.push({
-        label: resetText,
-        variant: 'outline',
+    // Reset Button
+    if (buttons.reset?.display) {
+      buttonsList.push({
+        label: buttons.reset.label || 'Zurücksetzen',
+        display: true,
+        variant: buttons.reset.variant || 'outline',
         onClick: () => {
           form.reset();
-          onReset?.();
+          buttons.reset?.onClick?.();
         },
-        disabled: !isDirty || isSubmitting,
-        icon: <RotateCcw className="h-4 w-4" />,
-        type: 'button',
+        disabled: buttons.reset.disabled ?? (!isDirty || isSubmitting),
+        icon: buttons.reset.icon || <RotateCcw className="h-4 w-4" />,
+        type: buttons.reset.type || 'button',
+        className: buttons.reset.className,
       });
     }
 
-    // Cancel button
-    if (showCancel) {
-      buttonActions.push({
-        label: cancelText,
-        variant: 'outline',
-        onClick: onCancel,
-        disabled: isSubmitting,
-        icon: <ArrowLeft className="h-4 w-4" />,
-        type: 'button',
+    // Cancel Button
+    if (buttons.cancel?.display) {
+      buttonsList.push({
+        label: buttons.cancel.label || 'Abbrechen',
+        display: true,
+        variant: buttons.cancel.variant || 'outline',
+        onClick: buttons.cancel.onClick,
+        disabled: buttons.cancel.disabled ?? isSubmitting,
+        icon: buttons.cancel.icon || <ArrowLeft className="h-4 w-4" />,
+        type: buttons.cancel.type || 'button',
+        className: buttons.cancel.className,
       });
     }
 
-    // Submit button
-    buttonActions.push({
-      label: isSubmitting
-        ? 'Wird gespeichert...'
-        : isSubmitted && isValid
-          ? 'Gespeichert'
-          : submitText,
-      variant: 'primary',
-      type: 'submit',
-      disabled: isSubmitting,
-      loading: isSubmitting,
-      icon: isSubmitting ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : isSubmitted && isValid ? (
-        <Check className="h-4 w-4" />
-      ) : (
-        <ArrowRight className="h-4 w-4" />
-      ),
-    });
+    // Submit Button (immer anzeigen, wenn nicht explizit deaktiviert)
+    if (buttons.submit?.display !== false) {
+      buttonsList.push({
+        label: isSubmitting
+          ? 'Wird gespeichert...'
+          : isSubmitted && isValid
+            ? 'Gespeichert'
+            : buttons.submit?.label || 'Speichern',
+        display: true,
+        variant: buttons.submit?.variant || 'primary',
+        type: buttons.submit?.type || 'submit',
+        disabled: buttons.submit?.disabled ?? isSubmitting,
+        loading: buttons.submit?.loading ?? isSubmitting,
+        icon: isSubmitting ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : isSubmitted && isValid ? (
+          <Check className="h-4 w-4" />
+        ) : (
+          buttons.submit?.icon || <ArrowRight className="h-4 w-4" />
+        ),
+        onClick: buttons.submit?.onClick,
+        className: buttons.submit?.className,
+      });
+    }
 
-    return buttonActions;
-  }, [
-    showReset,
-    resetText,
-    onReset,
-    showCancel,
-    cancelText,
-    onCancel,
-    submitText,
-    isSubmitting,
-    isDirty,
-    isSubmitted,
-    isValid,
-    form,
-  ]);
+    // Custom Actions hinzufügen
+    const visibleCustomActions = customActions.filter((action) => action.display !== false);
+
+    return [...visibleCustomActions, ...buttonsList];
+  }, [buttons, customActions, isSubmitting, isDirty, isSubmitted, isValid, form]);
 
   return {
     formState: { isSubmitting, isDirty, isSubmitted, isValid },
-    defaultActions,
-    allActions: [...actions, ...defaultActions],
+    allButtons,
   };
 };

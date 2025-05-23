@@ -14,7 +14,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
-const DatePickerComponent = <TFieldValues extends FieldValues = FieldValues>({
+const Component = <TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   description,
@@ -82,4 +82,4 @@ const DatePickerComponent = <TFieldValues extends FieldValues = FieldValues>({
   );
 };
 
-export const Component = memo(DatePickerComponent);
+export const DatePicker = memo(Component);

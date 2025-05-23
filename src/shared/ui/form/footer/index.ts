@@ -1,8 +1,9 @@
+export { Footer } from './Footer';
 export type {
-  Action as FooterAction,
+  FooterButton,
   ControllerProps as FooterControllerProps,
   ControllerResult as FooterControllerResult,
   Props as FooterProps,
+  StandardButtons,
 } from './model/types';
 export { useController as useFooterController } from './model/useController';
-export { Component as Footer } from './ui';

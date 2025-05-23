@@ -4,4 +4,4 @@ export type {
   Props as TextareaProps,
 } from './model/types';
 export { useController as useTextareaController } from './model/useController';
-export { Component as Textarea } from './ui';
+export { TextArea } from './TextArea';
