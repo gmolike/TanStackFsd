@@ -1,25 +1,69 @@
-import type { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 import type { BaseFieldProps } from '../../input/model/types';
 
-// TextArea Component Props
+/**
+ * Props for the TextArea component
+ *
+ * @template TFieldValues - Type of the form values
+ */
 export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldProps<TFieldValues> & {
+  /**
+   * Number of visible text rows
+   * @default 3
+   */
   rows?: number;
 };
 
-// Controller Props and Result
-export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = Pick<
-  Props<TFieldValues>,
-  'disabled' | 'required' | 'rows'
-> & {
+/**
+ * Props for the TextArea controller hook
+ *
+ * @template TFieldValues - Type of the form values
+ */
+export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
+  /**
+   * React Hook Form control object
+   */
+  control: Control<TFieldValues>;
+
+  /**
+   * Field name in the form
+   */
   name: FieldPath<TFieldValues>;
+
+  /**
+   * Whether the textarea is disabled
+   */
+  disabled?: boolean;
+
+  /**
+   * Whether the field is required
+   */
+  required?: boolean;
+
+  /**
+   * Number of rows
+   */
+  rows?: number;
 };
 
-// Import UseFormReturn von react-hook-form für korrekte Typisierung
-export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
-  form: UseFormReturn<TFieldValues>; // Korrigiert von any zu UseFormReturn<TFieldValues>
+/**
+ * Return value of the TextArea controller hook
+ */
+export type ControllerResult = {
+  /**
+   * Whether the textarea is disabled (considering form state)
+   */
   isDisabled: boolean;
+
+  /**
+   * Number of rows to display
+   */
   rows: number;
+
+  /**
+   * ARIA props for accessibility
+   */
   ariaProps: {
     'aria-invalid': boolean;
     'aria-required': boolean;

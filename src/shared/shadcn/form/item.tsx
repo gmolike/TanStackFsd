@@ -4,7 +4,7 @@ import { cn } from '~/shared/lib/utils';
 
 import { FormItemContext } from './itemContext';
 
-const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+export const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
     const id = React.useId();
 

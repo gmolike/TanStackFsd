@@ -4,7 +4,7 @@ import { cn } from '~/shared/lib/utils';
 
 import { useFormField } from './useForm';
 
-const FormMessage = React.forwardRef<
+export const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {

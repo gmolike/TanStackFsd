@@ -1,154 +1,138 @@
-import type { FieldPath, FieldValues } from 'react-hook-form';
+import type { FieldValues } from 'react-hook-form';
+import { useFormState } from 'react-hook-form';
 
-import type { z } from 'zod';
+import { z } from 'zod';
 
-import { useForm } from '../../form';
+import type { ControllerProps, ControllerResult, InputHTMLType } from './types';
 
-import type {
-  ControllerProps,
-  ControllerResult,
-  InferFieldSchema,
-  InputHTMLType,
-  KnownZodTypeName,
-} from './types';
+/**
+ * Extract schema metadata from the form's resolver
+ */
+const getFieldSchema = <TFieldValues extends FieldValues>(
+  control: TFieldValues,
+  fieldName: string,
+): z.ZodTypeAny | undefined => {
+  try {
+    // Access the schema through the resolver
+    const resolver = control._options?.resolver;
+    if (!resolver) return undefined;
 
-const extractSchemaMetadata = <TFieldValues extends FieldValues = FieldValues>(
-  name: FieldPath<TFieldValues>,
-  schema?: z.ZodTypeAny,
-  fullSchema?: z.ZodObject<InferFieldSchema<TFieldValues>>,
-): { isRequired: boolean; inputType: InputHTMLType } => {
-  let fieldSchema: z.ZodTypeAny | undefined = schema;
+    // Try to get the schema from the resolver context
+    const schema = resolver.__zodSchema;
+    if (!schema || !schema.shape) return undefined;
 
-  if (!fieldSchema && fullSchema) {
-    try {
-      const shape = fullSchema._def.shape();
-      const fieldName = name.toString();
-      fieldSchema = shape[fieldName as keyof typeof shape];
-    } catch (error) {
-      console.warn(`Konnte Schema für Feld "${name}" nicht extrahieren:`, error);
+    // Get the field schema
+    const fieldParts = fieldName.split('.');
+    let currentSchema = schema.shape;
+
+    for (const part of fieldParts) {
+      currentSchema = currentSchema[part];
+      if (!currentSchema) return undefined;
     }
+
+    return currentSchema;
+  } catch {
+    return undefined;
   }
-
-  let isRequired = false;
-  let inputType: InputHTMLType = 'text';
-
-  if (fieldSchema) {
-    isRequired = isSchemaRequired(fieldSchema);
-    inputType = inferInputType(fieldSchema);
-  }
-
-  return { isRequired, inputType };
 };
 
+/**
+ * Check if a Zod schema is required
+ */
 const isSchemaRequired = (schema: z.ZodTypeAny): boolean => {
-  const typeName = schema._def.typeName as KnownZodTypeName;
-
-  if (typeName === 'ZodOptional' || typeName === 'ZodNullable') {
+  // Check if it's optional
+  if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
     return false;
   }
 
-  if (typeName === 'ZodDefault') {
+  // Check if it's a default
+  if (schema instanceof z.ZodDefault) {
     return false;
-  }
-
-  if (typeName === 'ZodUnion') {
-    return !schema._def.options.some(
-      (option: z.ZodTypeAny) =>
-        option._def.typeName === 'ZodNull' || option._def.typeName === 'ZodUndefined',
-    );
   }
 
   return true;
 };
 
-const getBaseSchema = (schema: z.ZodTypeAny): z.ZodTypeAny => {
-  let current = schema;
-  while (
-    current._def.typeName === 'ZodOptional' ||
-    current._def.typeName === 'ZodNullable' ||
-    current._def.typeName === 'ZodDefault'
-  ) {
-    current = current._def.innerType;
-  }
-  return current;
-};
-
+/**
+ * Infer input type from Zod schema
+ */
 const inferInputType = (schema: z.ZodTypeAny): InputHTMLType => {
-  const baseSchema = getBaseSchema(schema);
-  const typeName = baseSchema._def.typeName as KnownZodTypeName;
-
-  switch (typeName) {
-    case 'ZodString': {
-      const checks = baseSchema._def.checks || [];
-      for (const check of checks) {
-        if (check.kind === 'email') return 'email';
-        if (check.kind === 'url') return 'url';
-      }
-      return 'text';
-    }
-
-    case 'ZodNumber':
-    case 'ZodInt':
-      return 'number';
-
-    case 'ZodDate':
-      return 'date';
-
-    default:
-      return 'text';
+  // Unwrap optional/nullable/default
+  let baseSchema = schema;
+  while (
+    baseSchema instanceof z.ZodOptional ||
+    baseSchema instanceof z.ZodNullable ||
+    baseSchema instanceof z.ZodDefault
+  ) {
+    baseSchema = baseSchema._def.innerType;
   }
+
+  // Check for string with specific checks
+  if (baseSchema instanceof z.ZodString) {
+    const checks = baseSchema._def.checks;
+    for (const check of checks) {
+      if (check.kind === 'email') return 'email';
+      if (check.kind === 'url') return 'url';
+    }
+    return 'text';
+  }
+
+  // Check for number
+  if (baseSchema instanceof z.ZodNumber) {
+    return 'number';
+  }
+
+  // Check for date
+  if (baseSchema instanceof z.ZodDate) {
+    return 'date';
+  }
+
+  return 'text';
 };
 
 /**
- * Hook für Input-Controller
- * @param props - Controller-Props
- * @returns Controller-Ergebnis mit Form-State und Konfiguration
+ * Hook for Input controller logic
+ *
+ * @template TFieldValues - Type of the form values
+ *
+ * @param control - React Hook Form control object
+ * @param name - Field name in the form
+ * @param disabled - Whether the field is disabled
+ * @param required - Whether the field is required (overrides schema detection)
+ * @param type - HTML input type (overrides schema detection)
+ *
+ * @returns Controller result with disabled state, required state, input type, and ARIA props
  */
 export const useController = <TFieldValues extends FieldValues = FieldValues>({
+  control,
   name,
   disabled,
   required: explicitRequired,
-  startIcon,
-  endIcon,
   type: explicitType,
-  schema,
-  fullSchema,
-}: ControllerProps<TFieldValues>): ControllerResult<TFieldValues> => {
-  const form = useForm<TFieldValues>();
-  const { formState } = form;
-  const isDisabled = disabled || formState.isSubmitting;
+}: ControllerProps<TFieldValues>): ControllerResult => {
+  const { isSubmitting, errors } = useFormState({ control });
+  const fieldError = errors[name];
 
-  const { isRequired: schemaRequired, inputType: schemaType } = extractSchemaMetadata(
-    name,
-    schema,
-    fullSchema,
-  );
+  // Get field schema
+  const fieldSchema = getFieldSchema(control, name as string);
 
-  const isRequired = explicitRequired !== undefined ? explicitRequired : schemaRequired;
-  const inputType = explicitType || schemaType;
+  // Determine if required (explicit takes precedence)
+  const isRequired =
+    explicitRequired !== undefined ? explicitRequired : isSchemaRequired(fieldSchema ?? z.string());
 
-  const fieldState = form.getFieldState(name, formState);
-  const { error } = fieldState;
+  // Determine input type (explicit takes precedence)
+  const inputType = explicitType || inferInputType(fieldSchema ?? z.string());
 
-  const hasIcons = !!startIcon || !!endIcon;
-
-  const startIconClasses = 'absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground';
-  const endIconClasses = 'absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground';
-  const inputClasses = `${startIcon ? 'pl-10' : ''} ${endIcon ? 'pr-10' : ''}`.trim();
+  const isDisabled = disabled || isSubmitting;
 
   const ariaProps = {
-    'aria-invalid': !!error,
+    'aria-invalid': !!fieldError,
     'aria-required': isRequired,
     'aria-disabled': isDisabled,
   };
 
   return {
-    form,
     isDisabled,
-    hasIcons,
-    startIconClasses,
-    endIconClasses,
-    inputClasses,
     isRequired,
     inputType,
     ariaProps,

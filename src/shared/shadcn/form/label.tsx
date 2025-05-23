@@ -1,26 +1,23 @@
-import React from 'react';
-
-import type * as LabelPrimitive from '@radix-ui/react-label';
+import { forwardRef } from 'react';
+import type { ComponentPropsWithoutRef, ElementRef } from 'react';
 
 import { cn } from '~/shared/lib/utils';
+import { Label } from '~/shared/shadcn/label';
 
-import { Label } from '../label';
+interface FormLabelProps extends ComponentPropsWithoutRef<typeof Label> {
+  required?: boolean;
+}
 
-import { useFormField } from './useForm';
-
-const FormLabel = React.forwardRef<
-  React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField();
-
-  return (
-    <Label
-      ref={ref}
-      className={cn(error && 'text-destructive', className)}
-      htmlFor={formItemId}
-      {...props}
-    />
-  );
-});
+export const FormLabel = forwardRef<ElementRef<typeof Label>, FormLabelProps>(
+  ({ className, required, children, ...props }, ref) => (
+    <Label ref={ref} className={cn(className)} {...props}>
+      {children}
+      {required && (
+        <span className="ml-1 text-destructive" aria-label="erforderlich">
+          *
+        </span>
+      )}
+    </Label>
+  ),
+);
 FormLabel.displayName = 'FormLabel';

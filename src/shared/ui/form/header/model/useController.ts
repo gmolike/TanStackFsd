@@ -32,6 +32,15 @@ const VARIANTS = {
   },
 } as const;
 
+/**
+ * Hook for Header controller logic
+ *
+ * @param icon - Lucide icon component
+ * @param avatar - Custom avatar element
+ * @param variant - Layout variant
+ *
+ * @returns Controller result with layout helpers
+ */
 export const useController = ({
   icon,
   avatar,

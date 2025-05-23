@@ -1,40 +1,68 @@
-import type { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 import type { BaseFieldProps } from '../../input/model/types';
 
 /**
- * Props für die Checkbox-Komponente
- * @template TFieldValues - Der Typ der Formularwerte
- * @param side - Position des Labels relativ zur Checkbox
+ * Label position relative to the checkbox
+ */
+export type LabelSide = 'top' | 'right' | 'bottom' | 'left';
+
+/**
+ * Props for the Checkbox component
+ *
+ * @template TFieldValues - Type of the form values
  */
 export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldProps<TFieldValues> & {
-  side?: 'top' | 'right' | 'bottom' | 'left';
+  /**
+   * Position of the label relative to the checkbox
+   * @default 'right'
+   */
+  side?: LabelSide;
 };
 
 /**
- * Props für den Checkbox-Controller
- * @template TFieldValues - Der Typ der Formularwerte
- * @param name - Feldname im Formular
- * @param disabled - Ob die Checkbox deaktiviert ist
- * @param required - Ob die Checkbox erforderlich ist
- * @param side - Position des Labels relativ zur Checkbox
+ * Props for the Checkbox controller hook
+ *
+ * @template TFieldValues - Type of the form values
  */
 export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
+  /**
+   * React Hook Form control object
+   */
+  control: Control<TFieldValues>;
+
+  /**
+   * Field name in the form
+   */
   name: FieldPath<TFieldValues>;
+
+  /**
+   * Whether the checkbox is disabled
+   */
   disabled?: boolean;
+
+  /**
+   * Whether the field is required
+   */
   required?: boolean;
-  side?: 'top' | 'right' | 'bottom' | 'left';
+
+  /**
+   * Label position
+   */
+  side?: LabelSide;
 };
 
 /**
- * Rückgabewert des Checkbox-Controllers
- * @template TFieldValues - Der Typ der Formularwerte
- * @param form - React Hook Form Instanz
- * @param isDisabled - Ob die Checkbox deaktiviert ist
- * @param groupClasses - CSS-Klassen für das Layout
+ * Return value of the Checkbox controller hook
  */
-export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
-  form: UseFormReturn<TFieldValues>;
+export type ControllerResult = {
+  /**
+   * Whether the checkbox is disabled (considering form state)
+   */
   isDisabled: boolean;
+
+  /**
+   * CSS classes for the label/checkbox group layout
+   */
   groupClasses: string;
 };

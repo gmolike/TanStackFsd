@@ -1,4 +1,4 @@
-export { DatePicker } from './DatePickerXX';
+export { DatePicker } from './DatePicker';
 export type {
   ControllerProps as DatePickerControllerProps,
   ControllerResult as DatePickerControllerResult,

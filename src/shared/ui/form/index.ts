@@ -1,30 +1,29 @@
 /**
  * Form Components Library
+ *
+ * @module shared/ui/form
  */
 
-// Form base components
-export {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormProvider,
-  useFieldState,
-  useForm,
-  useFormContext,
-  useFormController,
-  useFormField,
-  useFormId,
-  useFormState,
-} from './form';
+// Export our Form wrapper component
+export type { FormProps } from './form/Form';
+export { Form } from './form/Form';
+
+// Re-export React Hook Form utilities
+export type {
+  Control,
+  FieldErrors,
+  FieldPath,
+  FieldValues,
+  SubmitHandler,
+  UseFormProps,
+  UseFormReturn,
+} from 'react-hook-form';
+export { FormProvider, useFormContext } from 'react-hook-form';
 
 // Field components with Form prefix
 export { Checkbox as FormCheckbox } from './checkbox';
-export { DatePicker as FormDatePicker } from './datePickerxx';
-export { DateRange as FormDateRange } from './dateRangeXX';
+export { DatePicker as FormDatePicker } from './datePicker';
+export { DateRange as FormDateRange } from './dateRange';
 export { Input as FormInput } from './input';
 export { Select as FormSelect } from './select';
 export { TextArea as FormTextArea } from './textarea';
@@ -35,7 +34,7 @@ export { Header as FormHeader } from './header';
 
 // Re-export controllers for advanced usage
 export { useCheckboxController } from './checkbox';
-export { useDatePickerController } from './datePickerxx';
+export { useDatePickerController } from './datePicker';
 export { useFooterController } from './footer';
 export { useHeaderController } from './header';
 export { useInputController } from './input';
@@ -43,16 +42,6 @@ export { useSelectController } from './select';
 export { useTextareaController } from './textarea';
 
 // Re-export types for all components
-// Form types
-export type {
-  ContextValue as FormContextValue,
-  ProviderProps as FormProviderProps,
-} from './form/model/Context';
-export type {
-  ControllerProps as FormControllerProps,
-  Props as FormProps,
-} from './form/model/types';
-
 // Field types
 export type {
   ControllerProps as CheckboxControllerProps,
@@ -63,11 +52,13 @@ export type {
   ControllerProps as DatePickerControllerProps,
   ControllerResult as DatePickerControllerResult,
   Props as DatePickerProps,
-} from './datePickerxx/model/types';
-export type { Props as DateRangeProps } from './dateRangeXX/model/types';
+} from './datePicker/model/types';
+export type { Props as DateRangeProps } from './dateRange/model/types';
 export type {
+  BaseFieldProps,
   ControllerProps as InputControllerProps,
   ControllerResult as InputControllerResult,
+  InputHTMLType,
   Props as InputProps,
 } from './input/model/types';
 export type {
@@ -84,11 +75,13 @@ export type {
 
 // Layout types
 export type {
+  ButtonType,
+  ButtonVariant,
   FooterButton,
   ControllerProps as FooterControllerProps,
   ControllerResult as FooterControllerResult,
   Props as FooterProps,
-  StandardButtons,
+  StandardButtonConfig,
 } from './footer/model/types';
 export type {
   ControllerProps as HeaderControllerProps,
@@ -97,7 +90,3 @@ export type {
   WithProgressProps as HeaderWithProgressProps,
   WithStepsProps as HeaderWithStepsProps,
 } from './header/model/types';
-
-// React Hook Form Re-Exports für Kompatibilität
-export type { FieldPath, FieldValues } from 'react-hook-form';
-export { useForm as useRHFForm } from 'react-hook-form';

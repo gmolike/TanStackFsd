@@ -1,89 +1,103 @@
+// src/shared/ui/form/footer/model/useController.tsx
 import { useMemo } from 'react';
+import type { FieldValues } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 import { ArrowLeft, ArrowRight, Check, Loader2, RotateCcw } from 'lucide-react';
-
-import { useForm } from '../..';
 
 import type { ControllerProps, ControllerResult, FooterButton } from './types';
 
 /**
- * Hook für Footer-Controller
- * @param buttons - Standard-Button-Konfiguration
- * @param customActions - Benutzerdefinierte Buttons
- * @returns Controller-Ergebnis mit Form-State und allen Buttons
+ * Hook for Footer controller logic
+ *
+ * @template TFieldValues - Type of the form values
+ *
+ * @param form - React Hook Form instance (optional, will use context if not provided)
+ * @param submit - Submit button configuration (presence shows button)
+ * @param cancel - Cancel button configuration (presence shows button)
+ * @param reset - Reset button configuration (presence shows button)
+ * @param customActions - Custom buttons to add
+ *
+ * @returns Controller result with form state and all buttons
  */
-export const useController = ({
-  buttons = {},
+export const useController = <TFieldValues extends FieldValues = FieldValues>({
+  form: providedForm,
+  submit,
+  cancel,
+  reset,
   customActions = [],
-}: ControllerProps): ControllerResult => {
-  const form = useForm();
+}: ControllerProps<TFieldValues>): ControllerResult => {
+  // Always call useFormContext to comply with hooks rules
+  const contextForm = useFormContext<TFieldValues>();
+  const form = providedForm ?? contextForm;
+
   const { formState } = form;
   const { isSubmitting, isDirty, isSubmitted, isValid } = formState;
 
   const allButtons = useMemo(() => {
     const buttonsList: Array<FooterButton> = [];
 
-    // Reset Button
-    if (buttons.reset?.display) {
+    // Reset Button - shown if reset object is provided
+    if (reset) {
       buttonsList.push({
-        label: buttons.reset.label || 'Zurücksetzen',
+        label: reset.label || 'Zurücksetzen',
         display: true,
-        variant: buttons.reset.variant || 'outline',
+        variant: reset.variant || 'outline',
         onClick: () => {
           form.reset();
-          buttons.reset?.onClick?.();
+          reset.onClick?.();
         },
-        disabled: buttons.reset.disabled ?? (!isDirty || isSubmitting),
-        icon: buttons.reset.icon || <RotateCcw className="h-4 w-4" />,
-        type: buttons.reset.type || 'button',
-        className: buttons.reset.className,
+        disabled: reset.disabled ?? (!isDirty || isSubmitting),
+        icon: reset.icon || <RotateCcw className="h-4 w-4" />,
+        type: 'button',
+        className: reset.className,
       });
     }
 
-    // Cancel Button
-    if (buttons.cancel?.display) {
+    // Cancel Button - shown if cancel object is provided
+    if (cancel) {
       buttonsList.push({
-        label: buttons.cancel.label || 'Abbrechen',
+        label: cancel.label || 'Abbrechen',
         display: true,
-        variant: buttons.cancel.variant || 'outline',
-        onClick: buttons.cancel.onClick,
-        disabled: buttons.cancel.disabled ?? isSubmitting,
-        icon: buttons.cancel.icon || <ArrowLeft className="h-4 w-4" />,
-        type: buttons.cancel.type || 'button',
-        className: buttons.cancel.className,
+        variant: cancel.variant || 'outline',
+        onClick: cancel.onClick,
+        disabled: cancel.disabled ?? isSubmitting,
+        icon: cancel.icon || <ArrowLeft className="h-4 w-4" />,
+        type: 'button',
+        className: cancel.className,
       });
     }
 
-    // Submit Button (immer anzeigen, wenn nicht explizit deaktiviert)
-    if (buttons.submit?.display !== false) {
+    // Submit Button - shown if submit object is provided
+    if (submit) {
       buttonsList.push({
         label: isSubmitting
           ? 'Wird gespeichert...'
           : isSubmitted && isValid
             ? 'Gespeichert'
-            : buttons.submit?.label || 'Speichern',
+            : submit.label || 'Speichern',
         display: true,
-        variant: buttons.submit?.variant || 'primary',
-        type: buttons.submit?.type || 'submit',
-        disabled: buttons.submit?.disabled ?? isSubmitting,
-        loading: buttons.submit?.loading ?? isSubmitting,
+        variant: submit.variant || 'primary',
+        type: 'submit',
+        disabled: submit.disabled ?? isSubmitting,
+        loading: isSubmitting,
         icon: isSubmitting ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : isSubmitted && isValid ? (
           <Check className="h-4 w-4" />
         ) : (
-          buttons.submit?.icon || <ArrowRight className="h-4 w-4" />
+          submit.icon || <ArrowRight className="h-4 w-4" />
         ),
-        onClick: buttons.submit?.onClick,
-        className: buttons.submit?.className,
+        onClick: submit.onClick,
+        className: submit.className,
       });
     }
 
-    // Custom Actions hinzufügen
+    // Add custom actions
     const visibleCustomActions = customActions.filter((action) => action.display !== false);
 
     return [...visibleCustomActions, ...buttonsList];
-  }, [buttons, customActions, isSubmitting, isDirty, isSubmitted, isValid, form]);
+  }, [submit, cancel, reset, customActions, isSubmitting, isDirty, isSubmitted, isValid, form]);
 
   return {
     formState: { isSubmitting, isDirty, isSubmitted, isValid },

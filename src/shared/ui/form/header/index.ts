@@ -1,3 +1,4 @@
+// src/shared/ui/form/header/index.ts
 export { Header } from './Header';
 export type {
   ControllerProps as HeaderControllerProps,

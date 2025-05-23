@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import type { FieldValues } from 'react-hook-form';
 
 import { AlertCircle, Check, Loader2 } from 'lucide-react';
 
@@ -8,8 +9,41 @@ import { footerStyles } from './model/styles';
 import type { FooterButton, Props } from './model/types';
 import { useController } from './model/useController';
 
-const Component = ({
-  buttons,
+/**
+ * Footer Component - Form footer with action buttons and messages
+ *
+ * @template TFieldValues - Type of the form values
+ *
+ * @param form - React Hook Form instance (optional, will use context if not provided)
+ * @param submit - Submit button configuration (button shown if object is provided)
+ * @param cancel - Cancel button configuration (button shown if object is provided)
+ * @param reset - Reset button configuration (button shown if object is provided)
+ * @param customActions - Array of custom action buttons
+ * @param links - Array of footer links (e.g., Help, Privacy)
+ * @param errors - Array of error messages to display
+ * @param successMessage - Success message to display
+ * @param className - Additional CSS classes for the footer container
+ * @param variant - Layout variant for the footer
+ * @param sticky - Whether the footer should stick to the bottom
+ *
+ * @example
+ * ```tsx
+ * const form = useForm<FormData>();
+ *
+ * <FormFooter
+ *   form={form}
+ *   submit={{ label: "Speichern" }}
+ *   cancel={{ onClick: handleCancel }}
+ *   reset={{}}
+ *   variant="default"
+ * />
+ * ```
+ */
+const Component = <TFieldValues extends FieldValues = FieldValues>({
+  form,
+  submit,
+  cancel,
+  reset,
   customActions = [],
   links = [],
   errors = [],
@@ -17,9 +51,12 @@ const Component = ({
   className,
   variant = 'default',
   sticky = false,
-}: Props) => {
+}: Props<TFieldValues>) => {
   const { allButtons } = useController({
-    buttons,
+    form,
+    submit,
+    cancel,
+    reset,
     customActions,
   });
 
@@ -144,4 +181,4 @@ const Component = ({
   );
 };
 
-export const Footer = memo(Component);
+export const Footer = memo(Component) as typeof Component;

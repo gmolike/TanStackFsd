@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
+import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
 /**
- * Button-Varianten für Footer-Buttons
+ * Button variants for footer buttons
  */
 export type ButtonVariant =
   | 'default'
@@ -12,91 +13,190 @@ export type ButtonVariant =
   | 'link';
 
 /**
- * Button-Typen für HTML-Form-Elemente
+ * Button types for HTML form elements
  */
 export type ButtonType = 'button' | 'submit' | 'reset';
 
 /**
- * Konfiguration für einen einzelnen Footer-Button
- * @param label - Anzeigetext des Buttons
- * @param display - Ob der Button angezeigt werden soll
- * @param onClick - Click-Handler für den Button
- * @param variant - Visuelle Variante des Buttons
- * @param disabled - Ob der Button deaktiviert ist
- * @param loading - Ob der Button im Ladezustand ist
- * @param icon - Icon-Element für den Button
- * @param type - HTML-Button-Typ
- * @param className - Zusätzliche CSS-Klassen
+ * Configuration for a single footer button
  */
 export type FooterButton = {
+  /**
+   * Button label text
+   */
   label: string;
+
+  /**
+   * Whether to display this button
+   */
   display: boolean;
+
+  /**
+   * Click handler for the button
+   */
   onClick?: () => void;
+
+  /**
+   * Visual variant of the button
+   */
   variant?: ButtonVariant;
+
+  /**
+   * Whether the button is disabled
+   */
   disabled?: boolean;
+
+  /**
+   * Whether the button is in loading state
+   */
   loading?: boolean;
+
+  /**
+   * Icon element to display in the button
+   */
   icon?: ReactNode;
+
+  /**
+   * HTML button type
+   */
   type?: ButtonType;
+
+  /**
+   * Additional CSS classes
+   */
   className?: string;
 };
 
 /**
- * Standard-Button-Konfiguration für Footer
- * @param submit - Submit-Button Konfiguration
- * @param cancel - Cancel-Button Konfiguration
- * @param reset - Reset-Button Konfiguration
+ * Configuration for standard buttons (presence of object shows button)
  */
-export type StandardButtons = {
-  submit?: Partial<FooterButton>;
-  cancel?: Partial<FooterButton>;
-  reset?: Partial<FooterButton>;
+export type StandardButtonConfig = {
+  /**
+   * Button label text
+   * @default Automatic based on button type
+   */
+  label?: string;
+
+  /**
+   * Click handler for the button
+   */
+  onClick?: () => void;
+
+  /**
+   * Visual variant of the button
+   * @default Based on button type
+   */
+  variant?: ButtonVariant;
+
+  /**
+   * Whether the button is disabled
+   */
+  disabled?: boolean;
+
+  /**
+   * Icon element to display in the button
+   * @default Automatic based on button type
+   */
+  icon?: ReactNode;
+
+  /**
+   * Additional CSS classes
+   */
+  className?: string;
 };
 
 /**
- * Props für den Footer-Controller
- * @param buttons - Standard-Buttons Konfiguration
- * @param customActions - Zusätzliche benutzerdefinierte Buttons
+ * Props for the footer controller hook
+ *
+ * @template TFieldValues - Type of the form values
  */
-export type ControllerProps = {
-  buttons?: StandardButtons;
+export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
+  /**
+   * React Hook Form instance
+   */
+  form?: UseFormReturn<TFieldValues>;
+
+  /**
+   * Submit button configuration (presence shows button)
+   */
+  submit?: StandardButtonConfig;
+
+  /**
+   * Cancel button configuration (presence shows button)
+   */
+  cancel?: StandardButtonConfig;
+
+  /**
+   * Reset button configuration (presence shows button)
+   */
+  reset?: StandardButtonConfig;
+
+  /**
+   * Additional custom buttons
+   */
   customActions?: Array<FooterButton>;
 };
 
 /**
- * Rückgabewert des Footer-Controllers
- * @param formState - Aktueller Zustand des Formulars
- * @param allButtons - Alle anzuzeigenden Buttons
+ * Return value of the footer controller hook
  */
 export type ControllerResult = {
+  /**
+   * Current form state
+   */
   formState: {
     isSubmitting: boolean;
     isDirty: boolean;
     isSubmitted: boolean;
     isValid: boolean;
   };
+
+  /**
+   * All buttons to display
+   */
   allButtons: Array<FooterButton>;
 };
 
 /**
- * Footer-Komponenten Props
- * @param buttons - Standard-Buttons Konfiguration
- * @param customActions - Zusätzliche benutzerdefinierte Buttons
- * @param links - Footer-Links
- * @param errors - Array von Fehlermeldungen
- * @param successMessage - Erfolgsmeldung
- * @param className - Zusätzliche CSS-Klassen
- * @param variant - Layout-Variante
- * @param sticky - Ob der Footer am unteren Rand fixiert wird
+ * Footer component props
+ *
+ * @template TFieldValues - Type of the form values
  */
-export type Props = ControllerProps & {
-  links?: Array<{
-    label: string;
-    href: string;
-    external?: boolean;
-  }>;
-  errors?: Array<string>;
-  successMessage?: string;
-  className?: string;
-  variant?: 'default' | 'compact' | 'split' | 'centered';
-  sticky?: boolean;
-};
+export type Props<TFieldValues extends FieldValues = FieldValues> =
+  ControllerProps<TFieldValues> & {
+    /**
+     * Array of footer links
+     */
+    links?: Array<{
+      label: string;
+      href: string;
+      external?: boolean;
+    }>;
+
+    /**
+     * Array of error messages to display
+     */
+    errors?: Array<string>;
+
+    /**
+     * Success message to display
+     */
+    successMessage?: string;
+
+    /**
+     * Additional CSS classes
+     */
+    className?: string;
+
+    /**
+     * Layout variant
+     * @default 'default'
+     */
+    variant?: 'default' | 'compact' | 'split' | 'centered';
+
+    /**
+     * Whether to stick footer to bottom
+     * @default false
+     */
+    sticky?: boolean;
+  };

@@ -1,60 +1,103 @@
-import type { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 import type { BaseFieldProps } from '../../input/model/types';
 
 /**
- * Option für Select-Dropdown
- * @param value - Wert der Option
- * @param label - Anzeigetext der Option
- * @param disabled - Ob die Option deaktiviert ist
+ * Option for Select dropdown
  */
 export type Option = {
+  /**
+   * The value that will be submitted
+   */
   value: string;
+
+  /**
+   * The label displayed to the user
+   */
   label: string;
+
+  /**
+   * Whether this option is disabled
+   */
   disabled?: boolean;
 };
 
 /**
- * Props für die Select-Komponente
- * @template TFieldValues - Der Typ der Formularwerte
- * @param options - Array von Optionen für das Dropdown
- * @param emptyOption - Text für leere Option
+ * Props for the Select component
+ *
+ * @template TFieldValues - Type of the form values
  */
 export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldProps<TFieldValues> & {
+  /**
+   * Array of options to display in the dropdown
+   */
   options: Array<Option>;
+
+  /**
+   * Text for an empty/null option (e.g., "None selected")
+   * If provided, adds an empty option at the beginning
+   */
   emptyOption?: string;
 };
 
 /**
- * Props für den Select-Controller
- * @template TFieldValues - Der Typ der Formularwerte
- * @param name - Feldname im Formular
- * @param disabled - Ob das Select deaktiviert ist
- * @param required - Ob das Select erforderlich ist
- * @param options - Array von Optionen für das Dropdown
- * @param emptyOption - Text für leere Option
+ * Props for the Select controller hook
+ *
+ * @template TFieldValues - Type of the form values
  */
 export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
+  /**
+   * React Hook Form control object
+   */
+  control: Control<TFieldValues>;
+
+  /**
+   * Field name in the form
+   */
   name: FieldPath<TFieldValues>;
+
+  /**
+   * Whether the select is disabled
+   */
   disabled?: boolean;
+
+  /**
+   * Whether the field is required
+   */
   required?: boolean;
+
+  /**
+   * Array of options
+   */
   options: Array<Option>;
+
+  /**
+   * Text for empty option
+   */
   emptyOption?: string;
 };
 
 /**
- * Rückgabewert des Select-Controllers
- * @template TFieldValues - Der Typ der Formularwerte
- * @param form - React Hook Form Instanz
- * @param isDisabled - Ob das Select deaktiviert ist
- * @param hasEmptyOption - Ob eine leere Option vorhanden ist
- * @param options - Array von Optionen für das Dropdown
- * @param emptyOption - Text für leere Option
+ * Return value of the Select controller hook
  */
-export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
-  form: UseFormReturn<TFieldValues>;
+export type ControllerResult = {
+  /**
+   * Whether the select is disabled (considering form state)
+   */
   isDisabled: boolean;
+
+  /**
+   * Whether to show an empty option
+   */
   hasEmptyOption: boolean;
-  options: Array<Option>;
-  emptyOption?: string;
+
+  /**
+   * Processed options array
+   */
+  selectOptions: Array<Option>;
+
+  /**
+   * Text for the empty option
+   */
+  emptyOptionText: string;
 };

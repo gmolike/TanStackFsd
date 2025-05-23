@@ -5,6 +5,31 @@ import { cn } from '~/shared/lib/utils';
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
+/**
+ * Header Component - Form header with flexible layout options
+ *
+ * @param title - Main title text (required)
+ * @param description - Description text or ReactNode
+ * @param subtitle - Additional subtitle text
+ * @param icon - Lucide icon component
+ * @param avatar - Custom avatar/image element
+ * @param badge - Badge element (e.g., status indicator)
+ * @param actions - Action buttons to display on the right
+ * @param className - Additional CSS classes
+ * @param titleClassName - CSS classes for the title
+ * @param descriptionClassName - CSS classes for the description
+ * @param variant - Layout variant ('default' | 'centered' | 'minimal')
+ *
+ * @example
+ * ```tsx
+ * <FormHeader
+ *   title="Create User"
+ *   description="Fill in all required fields"
+ *   icon={UserPlus}
+ *   variant="default"
+ * />
+ * ```
+ */
 const Component = ({
   title,
   description,
