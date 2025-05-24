@@ -1,4 +1,4 @@
-// src/shared/ui/form/footer/model/useController.tsx - REFACTORED IN THIS CHAT
+// src/shared/ui/form/footer/model/useController.tsx
 import type { FieldValues } from 'react-hook-form';
 import { useFormContext } from 'react-hook-form';
 
@@ -26,6 +26,7 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
   const { isSubmitting, isDirty, isValid } = formState;
 
   const handleReset = () => {
+    // Reset to default values (not clear the form)
     form.reset();
     onReset?.();
   };

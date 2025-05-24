@@ -1,8 +1,8 @@
-// src/shared/ui/form/footer/Footer.tsx - REFACTORED IN THIS CHAT
+// src/shared/ui/form/footer/Footer.tsx
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
-import { ArrowLeft, ArrowRight, Loader2, RotateCcw } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, Loader2, RotateCcw } from 'lucide-react';
 
 import { cn } from '~/shared/lib/utils';
 import { Button } from '~/shared/shadcn';
@@ -11,7 +11,7 @@ import type { Props } from './model/types';
 import { useController } from './model/useController';
 
 /**
- * Footer Component - Simplified form footer with fixed button order
+ * Footer Component - Form footer with error/success messages
  * Button order is always: Reset -> Cancel -> Submit
  *
  * @template TFieldValues - Type of the form values
@@ -25,6 +25,8 @@ import { useController } from './model/useController';
  * @param submitText - Text for submit button
  * @param cancelText - Text for cancel button
  * @param resetText - Text for reset button
+ * @param error - Error message to display
+ * @param success - Success message to display
  * @param className - Additional CSS classes
  *
  * @example
@@ -35,6 +37,8 @@ import { useController } from './model/useController';
  *   showCancel={true}
  *   onCancel={handleCancel}
  *   submitText="Speichern"
+ *   error={submitError}
+ *   success={submitSuccess}
  * />
  * ```
  */
@@ -48,6 +52,8 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   submitText = 'Speichern',
   cancelText = 'Abbrechen',
   resetText = 'Zurücksetzen',
+  error,
+  success,
   className,
 }: Props<TFieldValues>) => {
   const { formState, handleReset } = useController({
@@ -58,42 +64,61 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   const { isSubmitting, isDirty, isValid } = formState;
 
   return (
-    <div className={cn('flex items-center justify-end gap-2 border-t pt-6', className)}>
-      {/* Reset Button - always first */}
-      {showReset && (
-        <Button
-          type="button"
-          variant="danger"
-          onClick={handleReset}
-          disabled={!isDirty || isSubmitting}
-        >
-          <RotateCcw className="h-4 w-4" />
-          {resetText}
-        </Button>
+    <div className={cn('space-y-4 border-t pt-6', className)}>
+      {/* Error Message */}
+      {error && (
+        <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </div>
       )}
 
-      {/* Cancel Button - always second */}
-      {showCancel && (
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          <ArrowLeft className="h-4 w-4" />
-          {cancelText}
-        </Button>
+      {/* Success Message */}
+      {success && (
+        <div className="flex items-center gap-2 rounded-md bg-green-50 p-3 text-sm text-green-600">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <span>{success}</span>
+        </div>
       )}
 
-      {/* Submit Button - always last */}
-      <Button type="submit" disabled={isSubmitting || !isValid} onClick={onSubmit}>
-        {isSubmitting ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Wird gespeichert...
-          </>
-        ) : (
-          <>
-            {submitText}
-            <ArrowRight className="h-4 w-4" />
-          </>
+      {/* Buttons */}
+      <div className="flex items-center justify-end gap-2">
+        {/* Reset Button - always first */}
+        {showReset && (
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleReset}
+            disabled={!isDirty || isSubmitting}
+          >
+            <RotateCcw className="h-4 w-4" />
+            {resetText}
+          </Button>
         )}
-      </Button>
+
+        {/* Cancel Button - always second */}
+        {showCancel && (
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            <ArrowLeft className="h-4 w-4" />
+            {cancelText}
+          </Button>
+        )}
+
+        {/* Submit Button - always last */}
+        <Button type="submit" disabled={isSubmitting || !isValid} onClick={onSubmit}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Wird gespeichert...
+            </>
+          ) : (
+            <>
+              {submitText}
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 };

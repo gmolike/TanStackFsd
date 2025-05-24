@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { UsersPage } from '~/pages/admin/user';
+import { UserForm } from '~/pages/dashboard-page/ui/TerminForm';
 
 export const Route = createFileRoute('/_auth/admin/users')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <UsersPage />;
+  return <UserForm />;
 }

@@ -1,4 +1,4 @@
-// src/shared/ui/form/datePicker/model/types.ts - REFACTORED IN THIS CHAT
+// src/shared/ui/form/datePicker/model/types.ts
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 import type { Locale } from 'date-fns';
@@ -49,6 +49,13 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldPro
    * Button appears when a date is selected
    */
   showClear?: boolean;
+
+  /**
+   * Whether to allow manual date input
+   * @default true
+   * Shows an input field above the calendar for typing dates
+   */
+  allowInput?: boolean;
 };
 
 /**

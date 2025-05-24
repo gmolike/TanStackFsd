@@ -1,8 +1,8 @@
-// src/shared/ui/form/footer/model/types.ts - REFACTORED IN THIS CHAT
+// src/shared/ui/form/footer/model/types.ts
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
 /**
- * Props for the simplified Footer component
+ * Props for the Footer component with error/success handling
  *
  * @template TFieldValues - Type of the form values
  */
@@ -60,6 +60,18 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = {
    * @default 'Zurücksetzen'
    */
   resetText?: string;
+
+  /**
+   * Error message to display
+   * @optional Shows error alert when provided
+   */
+  error?: string;
+
+  /**
+   * Success message to display
+   * @optional Shows success alert when provided
+   */
+  success?: string;
 
   /**
    * Additional CSS classes for the footer container

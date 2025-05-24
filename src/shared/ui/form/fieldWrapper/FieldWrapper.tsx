@@ -1,4 +1,4 @@
-// src/shared/ui/form/fieldWrapper/FormFieldWrapper.tsx - CREATED IN THIS CHAT
+// src/shared/ui/form/fieldWrapper/FieldWrapper.tsx
 import { memo, useEffect, useRef } from 'react';
 import type { FieldValues, PathValue } from 'react-hook-form';
 import { useFormContext, useWatch } from 'react-hook-form';
@@ -99,18 +99,21 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
         <FormItem className={className}>
           <div className="flex items-center justify-between">
             {label && <FormLabel required={required}>{label}</FormLabel>}
-            {showReset && isDifferentFromDefault && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={handleReset}
-                aria-label="Auf Standardwert zurücksetzen"
-              >
-                <RotateCcw className="h-3 w-3" />
-              </Button>
-            )}
+            {/* Always reserve space for reset button to prevent layout shift */}
+            <div className="h-6 w-6">
+              {showReset && isDifferentFromDefault && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={handleReset}
+                  aria-label="Auf Standardwert zurücksetzen"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
           </div>
           <FormControl>{render(field)}</FormControl>
           {description && <FormDescription>{description}</FormDescription>}

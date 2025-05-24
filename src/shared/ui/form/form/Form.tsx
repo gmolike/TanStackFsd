@@ -91,7 +91,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   defaultValues,
   onSubmit,
   onError,
-  mode = 'onSubmit',
+  mode = 'onBlur',
   children,
   className,
   id,

@@ -1,4 +1,4 @@
-// src/shared/ui/form/datePicker/DatePicker.tsx - REFACTORED IN THIS CHAT
+// src/shared/ui/form/datePicker/DatePicker.tsx - MERGED VERSION
 import { memo, useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
@@ -14,10 +14,6 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
 } from '~/shared/shadcn';
 
 import { FormFieldWrapper } from '../fieldWrapper';
@@ -44,6 +40,7 @@ import { useController } from './model/useController';
  * @param locale - Locale for date formatting
  * @param showReset - Whether to show reset to default button
  * @param showClear - Whether to show clear date button
+ * @param allowInput - Whether to allow manual date input
  *
  * @example
  * ```tsx
@@ -56,6 +53,7 @@ import { useController } from './model/useController';
  *   max={new Date()}
  *   dateFormat="dd/MM/yyyy"
  *   showClear={true}
+ *   allowInput={true}
  * />
  * ```
  */
@@ -74,6 +72,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   locale = de,
   showReset = true,
   showClear = true,
+  allowInput = true,
 }: Props<TFieldValues>) => {
   const { isDisabled, formattedValue, isDateDisabled } = useController({
     control,
@@ -92,11 +91,27 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   const handleInputChange = (value: string, onChange: (date: Date | null) => void) => {
     setInputValue(value);
 
-    // Try to parse the input
+    // Try to parse the input immediately as user types
+    if (value === '') {
+      onChange(null);
+      return;
+    }
+
     const parsedDate = parse(value, dateFormat, new Date(), { locale });
     if (isValid(parsedDate) && !isDateDisabled(parsedDate)) {
       onChange(parsedDate);
     }
+  };
+
+  const handleCalendarSelect = (date: Date | undefined, onChange: (date: Date | null) => void) => {
+    onChange(date || null);
+    setOpen(false);
+    setInputValue('');
+  };
+
+  const handleClear = (onChange: (date: Date | null) => void) => {
+    onChange(null);
+    setInputValue('');
   };
 
   return (
@@ -117,7 +132,6 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                 className={cn(
                   'flex-1 justify-start text-left font-normal',
                   !field.value && 'text-muted-foreground',
-                  showClear && field.value && 'pr-16',
                 )}
                 disabled={isDisabled}
                 type="button"
@@ -126,25 +140,9 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Tabs defaultValue="calendar" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="calendar">Kalender</TabsTrigger>
-                  <TabsTrigger value="input">Eingabe</TabsTrigger>
-                </TabsList>
-                <TabsContent value="calendar" className="mt-0">
-                  <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date) => {
-                      field.onChange(date);
-                      setOpen(false);
-                    }}
-                    disabled={isDateDisabled}
-                    initialFocus
-                  />
-                </TabsContent>
-                <TabsContent value="input" className="p-3">
+            <PopoverContent className="w-auto p-3" align="start">
+              <div className="space-y-3">
+                {allowInput && (
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Datum eingeben ({dateFormat})</label>
                     <InputShadcn
@@ -152,21 +150,18 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                       placeholder={dateFormat}
                       value={inputValue || formattedValue}
                       onChange={(e) => handleInputChange(e.target.value, field.onChange)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          const parsedDate = parse(inputValue, dateFormat, new Date(), { locale });
-                          if (isValid(parsedDate) && !isDateDisabled(parsedDate)) {
-                            setOpen(false);
-                          }
-                        }
-                      }}
+                      autoFocus
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Drücken Sie Enter zum Bestätigen
-                    </p>
                   </div>
-                </TabsContent>
-              </Tabs>
+                )}
+                <Calendar
+                  mode="single"
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => handleCalendarSelect(date, field.onChange)}
+                  disabled={isDateDisabled}
+                  initialFocus={!allowInput}
+                />
+              </div>
             </PopoverContent>
           </Popover>
           {showClear && field.value && (
@@ -174,8 +169,9 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => field.onChange('')}
+              onClick={() => handleClear(field.onChange)}
               aria-label="Auswahl löschen"
+              className="shrink-0"
             >
               <X className="h-4 w-4" />
             </Button>
