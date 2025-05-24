@@ -6,7 +6,7 @@ import { useForm as useRHFForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ZodType } from 'zod';
 
-import { Form as ShadcnForm } from '~/shared/shadcn/form';
+import { Form as ShadcnForm } from '~/shared/shadcn';
 
 /**
  * Props for the Form component

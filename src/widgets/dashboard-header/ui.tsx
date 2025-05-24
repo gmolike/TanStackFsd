@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 import { UserAvatar, UserInfo } from '~/entities';
 
 import { Router, useAuth } from '~/shared/auth';
-import { Button } from '~/shared/shadcn/button';
+import { Button } from '~/shared/shadcn';
 
 import type { User } from '~/entities';
 import { Route } from '~/routes';

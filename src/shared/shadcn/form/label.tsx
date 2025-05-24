@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import type { ComponentPropsWithoutRef, ElementRef } from 'react';
 
 import { cn } from '~/shared/lib/utils';
-import { Label } from '~/shared/shadcn/label';
+import { Label } from '~/shared/shadcn';
 
 interface FormLabelProps extends ComponentPropsWithoutRef<typeof Label> {
   required?: boolean;

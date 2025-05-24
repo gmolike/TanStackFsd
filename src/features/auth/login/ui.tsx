@@ -4,8 +4,7 @@ import type { JSX } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import { useAuth } from '~/shared/auth';
-import { Button } from '~/shared/shadcn/button';
-import { Input } from '~/shared/shadcn/input/index';
+import { Button, InputShadcn } from '~/shared/shadcn';
 
 export const LoginForm = (): JSX.Element => {
   const [email, setEmail] = useState('');
@@ -52,15 +51,13 @@ export const LoginForm = (): JSX.Element => {
           E-Mail
         </label>
         <div className="mt-1">
-          <Input
+          <InputShadcn
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@beispiel.de"
             disabled={isLoading}
-            fullWidth
-            error={!!error && !email}
           />
         </div>
       </div>
@@ -70,15 +67,13 @@ export const LoginForm = (): JSX.Element => {
           Passwort
         </label>
         <div className="mt-1">
-          <Input
+          <InputShadcn
             id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             disabled={isLoading}
-            fullWidth
-            error={!!error && !password}
           />
         </div>
       </div>
@@ -92,7 +87,7 @@ export const LoginForm = (): JSX.Element => {
       )}
 
       <div>
-        <Button type="submit" disabled={isLoading} fullWidth className="mt-4">
+        <Button type="submit" disabled={isLoading} className="mt-4">
           {isLoading ? (
             <div className="flex items-center justify-center">
               <svg

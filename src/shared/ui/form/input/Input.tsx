@@ -1,17 +1,12 @@
+// src/shared/ui/form/input/Input.tsx - REFACTORED IN THIS CHAT
 import { forwardRef, memo } from 'react';
 import type { ComponentRef } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
 import { cn } from '~/shared/lib/utils';
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/shared/shadcn/form';
-import { InputShadcn } from '~/shared/shadcn/input';
+import { InputShadcn } from '~/shared/shadcn';
+
+import { FormFieldWrapper } from '../fieldWrapper';
 
 import type { Props } from './model/types';
 import { useController } from './model/useController';
@@ -23,6 +18,7 @@ import { useController } from './model/useController';
  * @param endIcon - Icon to display at the end of the input
  * @param className - Additional CSS classes for the input
  * @param wrapperClassName - Additional CSS classes for the wrapper div
+ * @param ...props - All other props passed to the input element
  */
 const InputWithIcons = forwardRef<
   ComponentRef<typeof InputShadcn>,
@@ -59,7 +55,7 @@ const InputWithIcons = forwardRef<
 InputWithIcons.displayName = 'InputWithIcons';
 
 /**
- * Input Component - Form input field with validation and accessibility features
+ * Input Component - Form input field with reset functionality
  *
  * @template TFieldValues - Type of the form values
  *
@@ -67,25 +63,25 @@ InputWithIcons.displayName = 'InputWithIcons';
  * @param name - Field name in the form (must be a valid path in TFieldValues)
  * @param label - Label text to display above the input
  * @param description - Helper text to display below the input
- * @param required - Whether the field is required (auto-detected from schema if not provided)
+ * @param required - Whether the field is required
  * @param placeholder - Placeholder text for the input
  * @param className - Additional CSS classes for the form item container
  * @param startIcon - Icon component to display at the start of the input
  * @param endIcon - Icon component to display at the end of the input
  * @param disabled - Whether the input is disabled
- * @param type - HTML input type (auto-detected from schema if not provided)
+ * @param type - HTML input type
+ * @param showReset - Whether to show reset to default button
  * @param ...inputProps - Additional props passed to the underlying input element
  *
  * @example
  * ```tsx
- * const form = useForm<FormData>();
- *
- * <Input
+ * <FormInput
  *   control={form.control}
  *   name="email"
  *   label="Email Address"
  *   placeholder="Enter your email"
  *   startIcon={<Mail className="h-4 w-4" />}
+ *   showReset={true}
  * />
  * ```
  */
@@ -101,6 +97,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   endIcon,
   disabled,
   type,
+  showReset = true,
   ...inputProps
 }: Props<TFieldValues>) => {
   const { isDisabled, ariaProps, isRequired, inputType } = useController({
@@ -112,32 +109,26 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   });
 
   return (
-    <FormField
+    <FormFieldWrapper
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <FormItem className={className}>
-          {label && <FormLabel required={isRequired}>{label}</FormLabel>}
-          <FormControl>
-            <InputWithIcons
-              {...field}
-              {...inputProps}
-              type={inputType}
-              placeholder={placeholder}
-              disabled={isDisabled}
-              startIcon={startIcon}
-              endIcon={endIcon}
-              {...ariaProps}
-              aria-describedby={
-                description || fieldState.error ? `${name}-description ${name}-error` : undefined
-              }
-            />
-          </FormControl>
-          {description && (
-            <FormDescription id={`${name}-description`}>{description}</FormDescription>
-          )}
-          <FormMessage id={`${name}-error`} />
-        </FormItem>
+      label={label}
+      description={description}
+      required={isRequired}
+      className={className}
+      showReset={showReset}
+      render={(field) => (
+        <InputWithIcons
+          {...field}
+          {...inputProps}
+          type={inputType}
+          placeholder={placeholder}
+          disabled={isDisabled}
+          startIcon={startIcon}
+          endIcon={endIcon}
+          {...ariaProps}
+          className={cn(showReset && 'pr-10')}
+        />
       )}
     />
   );

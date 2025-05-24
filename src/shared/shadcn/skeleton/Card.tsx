@@ -1,6 +1,6 @@
 import { cn } from '~/shared/lib/utils';
 
-import { Skeleton } from '.';
+import { Skeleton } from '../skeleton';
 
 export type CardProps = {
   rows?: number;

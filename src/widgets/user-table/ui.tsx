@@ -2,7 +2,7 @@ import type { JSX } from 'react';
 
 import { UserListFeature } from '~/features/user';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/shadcn/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/shadcn';
 
 type UserTableWidgetProps = {
   title?: string;

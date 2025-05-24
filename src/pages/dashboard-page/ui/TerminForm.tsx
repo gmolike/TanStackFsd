@@ -2,9 +2,7 @@ import { z } from 'zod';
 
 import {
   Form,
-  FormCheckbox,
   FormDatePicker,
-  FormDateRange,
   FormFooter,
   FormHeader,
   FormInput,
@@ -12,66 +10,60 @@ import {
   FormTextArea,
 } from '~/shared/ui/form';
 
-// Define the validation schema
-const personSchema = z.object({
-  firstName: z.string().min(2, 'Vorname muss mindestens 2 Zeichen haben'),
-  lastName: z.string().min(2, 'Nachname muss mindestens 2 Zeichen haben'),
+// Schema Definition
+const userSchema = z.object({
+  firstName: z.string().min(2, 'Mindestens 2 Zeichen'),
+  lastName: z.string().min(2, 'Mindestens 2 Zeichen'),
   email: z.string().email('Ungültige E-Mail-Adresse'),
-  role: z.string().min(1, 'Bitte wählen Sie eine Rolle'),
   birthDate: z.date().optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
+  country: z.string().min(1, 'Bitte wählen Sie ein Land'),
   bio: z.string().max(500, 'Maximal 500 Zeichen').optional(),
-  acceptTerms: z.boolean().refine((val) => val === true, {
-    message: 'Sie müssen die Bedingungen akzeptieren',
-  }),
 });
 
-// Infer the type from the schema
-type PersonFormData = z.infer<typeof personSchema>;
+type UserFormData = z.infer<typeof userSchema>;
 
-// Role options for the select
-const roleOptions = [
-  { value: 'admin', label: 'Administrator' },
-  { value: 'user', label: 'Benutzer' },
-  { value: 'guest', label: 'Gast' },
-];
-
-export function PersonForm() {
-  // Handle form submission
-  const handleSubmit = async (data: PersonFormData) => {
+// Beispiel-Komponente
+export const UserForm = () => {
+  const handleSubmit = async (data: UserFormData) => {
     console.log('Form submitted:', data);
-    // Your submission logic here
+    // API-Aufruf hier
   };
 
   const handleCancel = () => {
     console.log('Form cancelled');
-    // Your cancel logic here
+    // Navigation oder Modal schließen
   };
+
+  const countryOptions = [
+    { value: 'de', label: 'Deutschland' },
+    { value: 'at', label: 'Österreich' },
+    { value: 'ch', label: 'Schweiz' },
+    { value: 'us', label: 'USA' },
+    { value: 'fr', label: 'Frankreich' },
+  ];
 
   return (
     <Form
-      schema={personSchema}
+      schema={userSchema}
       defaultValues={{
         firstName: '',
         lastName: '',
         email: '',
-        role: '',
+        country: '',
         bio: '',
-        acceptTerms: false,
       }}
       onSubmit={handleSubmit}
     >
       {(form) => (
         <>
-          {/* Form Header as child */}
+          {/* Vereinfachter Header */}
           <FormHeader
-            title="Person anlegen"
-            description="Füllen Sie alle erforderlichen Felder aus, um eine neue Person anzulegen."
+            title="Benutzer erstellen"
+            description="Füllen Sie die folgenden Felder aus, um einen neuen Benutzer anzulegen."
             variant="default"
           />
 
-          {/* Form Fields */}
+          {/* Form Fields mit Reset-Funktion */}
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <FormInput
@@ -80,6 +72,7 @@ export function PersonForm() {
                 label="Vorname"
                 placeholder="Max"
                 required
+                showReset={true} // Standard ist true
               />
 
               <FormInput
@@ -94,90 +87,56 @@ export function PersonForm() {
             <FormInput
               control={form.control}
               name="email"
-              label="E-Mail"
+              label="E-Mail-Adresse"
               type="email"
               placeholder="max.mustermann@example.com"
               required
             />
 
-            <FormSelect
-              control={form.control}
-              name="role"
-              label="Rolle"
-              options={roleOptions}
-              placeholder="Rolle auswählen"
-              emptyOption="Keine Rolle"
-              required
-            />
-
+            {/* DatePicker mit Clear-Button und Eingabefeld */}
             <FormDatePicker
               control={form.control}
               name="birthDate"
               label="Geburtsdatum"
+              placeholder="Datum wählen"
+              showClear={true} // Standard ist true
               max={new Date()}
-              placeholder="Datum auswählen"
             />
 
-            <FormDateRange
+            {/* Select mit Clear-Button */}
+            <FormSelect
               control={form.control}
-              startName="startDate"
-              endName="endDate"
-              label="Beschäftigungszeitraum"
-              startLabel="Beginn"
-              endLabel="Ende"
+              name="country"
+              label="Land"
+              placeholder="Land auswählen"
+              options={countryOptions}
+              required
+              showClear={true}
             />
 
+            {/* TextArea mit Reset-Button */}
             <FormTextArea
               control={form.control}
               name="bio"
-              label="Biografie"
-              placeholder="Erzählen Sie uns etwas über sich..."
+              label="Über mich"
+              placeholder="Erzählen Sie etwas über sich..."
               rows={4}
-            />
-
-            <FormCheckbox
-              control={form.control}
-              name="acceptTerms"
-              label="Ich akzeptiere die Allgemeinen Geschäftsbedingungen"
-              required
+              showReset={true}
             />
           </div>
 
-          {/* Form Footer as child */}
+          {/* Vereinfachter Footer mit fester Button-Reihenfolge */}
           <FormFooter
             form={form}
-            submit={{ label: 'Person anlegen' }}
-            cancel={{ onClick: handleCancel }}
-            reset={{}}
-            links={[
-              { label: 'Hilfe', href: '/help' },
-              { label: 'Datenschutz', href: '/privacy' },
-            ]}
-            variant="default"
+            showReset={true}
+            showCancel={true}
+            onCancel={handleCancel}
+            submitText="Benutzer erstellen"
+            cancelText="Abbrechen"
+            resetText="Formular zurücksetzen"
           />
         </>
       )}
     </Form>
   );
-}
-
-// Alternative: Simple form with only submit button
-export function SimpleForm() {
-  return (
-    <Form
-      schema={personSchema}
-      defaultValues={{ firstName: '', lastName: '' }}
-      onSubmit={(data) => console.log(data)}
-    >
-      {(form) => (
-        <>
-          <FormInput control={form.control} name="firstName" label="Vorname" />
-          <FormInput control={form.control} name="lastName" label="Nachname" />
-
-          {/* Only submit button is shown */}
-          <FormFooter form={form} submit={{}} />
-        </>
-      )}
-    </Form>
-  );
-}
+};

@@ -2,7 +2,7 @@ import type { JSX } from 'react';
 
 import { ProductListFeature } from '~/features/product/list/list';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/shadcn/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/shared/shadcn';
 
 type ProductTableWidgetProps = {
   title?: string;

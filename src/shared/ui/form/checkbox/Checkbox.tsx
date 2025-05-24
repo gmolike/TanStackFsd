@@ -1,15 +1,15 @@
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
-import { Checkbox as ShadcnCheckbox } from '~/shared/shadcn/checkbox';
 import {
+  Checkbox as ShadcnCheckbox,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '~/shared/shadcn/form';
+} from '~/shared/shadcn';
 
 import type { Props } from './model/types';
 import { useController } from './model/useController';

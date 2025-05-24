@@ -8,6 +8,9 @@
 export type { FormProps } from './form/Form';
 export { Form } from './form/Form';
 
+// Export FormFieldWrapper
+export { FormFieldWrapper } from './fieldWrapper';
+
 // Re-export React Hook Form utilities
 export type {
   Control,
@@ -75,13 +78,9 @@ export type {
 
 // Layout types
 export type {
-  ButtonType,
-  ButtonVariant,
-  FooterButton,
   ControllerProps as FooterControllerProps,
   ControllerResult as FooterControllerResult,
   Props as FooterProps,
-  StandardButtonConfig,
 } from './footer/model/types';
 export type {
   ControllerProps as HeaderControllerProps,

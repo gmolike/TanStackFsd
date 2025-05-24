@@ -1,21 +1,17 @@
+// src/shared/ui/form/textarea/TextArea.tsx - REFACTORED IN THIS CHAT
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/shared/shadcn/form';
-import { Textarea as ShadcnTextarea } from '~/shared/shadcn/textarea';
+import { cn } from '~/shared/lib/utils';
+import { Textarea as ShadcnTextarea } from '~/shared/shadcn';
+
+import { FormFieldWrapper } from '../fieldWrapper';
 
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
 /**
- * TextArea Component - Multi-line text input field with validation
+ * TextArea Component - Multi-line text input with reset functionality
  *
  * @template TFieldValues - Type of the form values
  *
@@ -28,18 +24,18 @@ import { useController } from './model/useController';
  * @param disabled - Whether the textarea is disabled
  * @param className - Additional CSS classes for the form item container
  * @param rows - Number of visible text rows
+ * @param showReset - Whether to show reset to default button
  *
  * @example
  * ```tsx
- * const form = useForm<FormData>();
- *
- * <TextArea
+ * <FormTextArea
  *   control={form.control}
  *   name="description"
  *   label="Description"
  *   required
  *   placeholder="Enter a detailed description..."
  *   rows={5}
+ *   showReset={true}
  * />
  * ```
  */
@@ -53,6 +49,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   disabled,
   className,
   rows = 3,
+  showReset = true,
 }: Props<TFieldValues>) => {
   const {
     isDisabled,
@@ -67,29 +64,23 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   });
 
   return (
-    <FormField
+    <FormFieldWrapper
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <FormItem className={className}>
-          {label && <FormLabel required={required}>{label}</FormLabel>}
-          <FormControl>
-            <ShadcnTextarea
-              {...field}
-              placeholder={placeholder}
-              disabled={isDisabled}
-              rows={controllerRows}
-              {...ariaProps}
-              aria-describedby={
-                description || fieldState.error ? `${name}-description ${name}-error` : undefined
-              }
-            />
-          </FormControl>
-          {description && (
-            <FormDescription id={`${name}-description`}>{description}</FormDescription>
-          )}
-          <FormMessage id={`${name}-error`} />
-        </FormItem>
+      label={label}
+      description={description}
+      required={required}
+      className={className}
+      showReset={showReset}
+      render={(field) => (
+        <ShadcnTextarea
+          {...field}
+          placeholder={placeholder}
+          disabled={isDisabled}
+          rows={controllerRows}
+          {...ariaProps}
+          className={cn(showReset && 'pr-10')}
+        />
       )}
     />
   );

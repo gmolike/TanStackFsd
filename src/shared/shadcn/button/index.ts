@@ -1,3 +1,2 @@
-export { Button as ShadcnButton } from './button';
-export { Button, type ButtonProps } from './ui';
-export { variants as buttonVariants } from './variants';
+export { Button } from './button';
+export { buttonVariants } from './buttonVariants';

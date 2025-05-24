@@ -1,182 +1,99 @@
+// src/shared/ui/form/footer/Footer.tsx - REFACTORED IN THIS CHAT
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
-import { AlertCircle, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, RotateCcw } from 'lucide-react';
 
 import { cn } from '~/shared/lib/utils';
+import { Button } from '~/shared/shadcn';
 
-import { footerStyles } from './model/styles';
-import type { FooterButton, Props } from './model/types';
+import type { Props } from './model/types';
 import { useController } from './model/useController';
 
 /**
- * Footer Component - Form footer with action buttons and messages
+ * Footer Component - Simplified form footer with fixed button order
+ * Button order is always: Reset -> Cancel -> Submit
  *
  * @template TFieldValues - Type of the form values
  *
  * @param form - React Hook Form instance (optional, will use context if not provided)
- * @param submit - Submit button configuration (button shown if object is provided)
- * @param cancel - Cancel button configuration (button shown if object is provided)
- * @param reset - Reset button configuration (button shown if object is provided)
- * @param customActions - Array of custom action buttons
- * @param links - Array of footer links (e.g., Help, Privacy)
- * @param errors - Array of error messages to display
- * @param successMessage - Success message to display
- * @param className - Additional CSS classes for the footer container
- * @param variant - Layout variant for the footer
- * @param sticky - Whether the footer should stick to the bottom
+ * @param onSubmit - Submit handler (form submission is handled automatically)
+ * @param onCancel - Cancel handler
+ * @param onReset - Reset handler (in addition to form reset)
+ * @param showReset - Whether to show reset button
+ * @param showCancel - Whether to show cancel button
+ * @param submitText - Text for submit button
+ * @param cancelText - Text for cancel button
+ * @param resetText - Text for reset button
+ * @param className - Additional CSS classes
  *
  * @example
  * ```tsx
- * const form = useForm<FormData>();
- *
  * <FormFooter
  *   form={form}
- *   submit={{ label: "Speichern" }}
- *   cancel={{ onClick: handleCancel }}
- *   reset={{}}
- *   variant="default"
+ *   showReset={true}
+ *   showCancel={true}
+ *   onCancel={handleCancel}
+ *   submitText="Speichern"
  * />
  * ```
  */
 const Component = <TFieldValues extends FieldValues = FieldValues>({
   form,
-  submit,
-  cancel,
-  reset,
-  customActions = [],
-  links = [],
-  errors = [],
-  successMessage,
+  onSubmit,
+  onCancel,
+  onReset,
+  showReset = false,
+  showCancel = false,
+  submitText = 'Speichern',
+  cancelText = 'Abbrechen',
+  resetText = 'Zurücksetzen',
   className,
-  variant = 'default',
-  sticky = false,
 }: Props<TFieldValues>) => {
-  const { allButtons } = useController({
+  const { formState, handleReset } = useController({
     form,
-    submit,
-    cancel,
-    reset,
-    customActions,
+    onReset,
   });
 
-  const getButtonClasses = (button: FooterButton) =>
-    cn(
-      footerStyles.button.base,
-      footerStyles.button.variant[button.variant || 'default'],
-      button.variant === 'link' ? footerStyles.button.size.link : footerStyles.button.size.default,
-      button.className,
-    );
-
-  const containerClasses = cn(
-    footerStyles.container.base,
-    sticky && footerStyles.container.sticky,
-    className,
-  );
-
-  const layoutClasses = footerStyles.layout[variant];
-
-  const actionsContainerClasses = cn(
-    footerStyles.buttonContainer.base,
-    variant === 'centered'
-      ? footerStyles.buttonContainer.centered
-      : variant === 'compact'
-        ? footerStyles.buttonContainer.compact
-        : footerStyles.buttonContainer.default,
-  );
-
-  const renderMessages = () => (
-    <>
-      {errors.length > 0 && (
-        <div className={footerStyles.message.error.container}>
-          <div className={footerStyles.message.error.wrapper}>
-            <AlertCircle className={footerStyles.message.error.icon} />
-            <div className="text-sm">
-              {errors.length === 1 ? (
-                <p className={footerStyles.message.error.text}>{errors[0]}</p>
-              ) : (
-                <ul className={footerStyles.message.error.list}>
-                  {errors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {successMessage && (
-        <div className={footerStyles.message.success.container}>
-          <div className={footerStyles.message.success.wrapper}>
-            <Check className={footerStyles.message.success.icon} />
-            <p className={footerStyles.message.success.text}>{successMessage}</p>
-          </div>
-        </div>
-      )}
-    </>
-  );
-
-  const renderLinks = () => {
-    if (links.length === 0) return null;
-
-    return (
-      <div className={footerStyles.links.container}>
-        {links.map((link, index) => (
-          <a
-            key={index}
-            href={link.href}
-            className={footerStyles.links.link}
-            {...(link.external && { target: '_blank', rel: 'noopener noreferrer' })}
-          >
-            {link.label}
-          </a>
-        ))}
-      </div>
-    );
-  };
+  const { isSubmitting, isDirty, isValid } = formState;
 
   return (
-    <div className={containerClasses}>
-      <div className={layoutClasses}>
-        {variant !== 'split' && renderMessages()}
-
-        <div className={actionsContainerClasses}>
-          {allButtons.map((button: FooterButton, index: number) => (
-            <button
-              key={index}
-              type={button.type || 'button'}
-              onClick={button.onClick}
-              disabled={button.disabled}
-              className={getButtonClasses(button)}
-            >
-              {button.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : button.icon}
-              {button.label}
-            </button>
-          ))}
-        </div>
-
-        {variant === 'split' && <div className="flex-1">{renderMessages()}</div>}
-
-        {variant !== 'compact' && renderLinks()}
-      </div>
-
-      {variant === 'compact' && links.length > 0 && (
-        <div className={footerStyles.links.containerCompact}>
-          <div className={footerStyles.links.container}>
-            {links.map((link, index) => (
-              <a
-                key={index}
-                href={link.href}
-                className={footerStyles.links.link}
-                {...(link.external && { target: '_blank', rel: 'noopener noreferrer' })}
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-        </div>
+    <div className={cn('flex items-center justify-end gap-2 border-t pt-6', className)}>
+      {/* Reset Button - always first */}
+      {showReset && (
+        <Button
+          type="button"
+          variant="danger"
+          onClick={handleReset}
+          disabled={!isDirty || isSubmitting}
+        >
+          <RotateCcw className="h-4 w-4" />
+          {resetText}
+        </Button>
       )}
+
+      {/* Cancel Button - always second */}
+      {showCancel && (
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+          <ArrowLeft className="h-4 w-4" />
+          {cancelText}
+        </Button>
+      )}
+
+      {/* Submit Button - always last */}
+      <Button type="submit" disabled={isSubmitting || !isValid} onClick={onSubmit}>
+        {isSubmitting ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Wird gespeichert...
+          </>
+        ) : (
+          <>
+            {submitText}
+            <ArrowRight className="h-4 w-4" />
+          </>
+        )}
+      </Button>
     </div>
   );
 };

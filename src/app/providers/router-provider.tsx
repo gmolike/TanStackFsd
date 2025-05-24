@@ -6,7 +6,7 @@ import { RouterProvider as TanStackRouterProvider } from '@tanstack/react-router
 
 import { useAuth } from '~/shared/auth';
 import { Router } from '~/shared/auth/router';
-import { LoadingSpinner } from '~/shared/shadcn/LoadingSpinner';
+import { LoadingSpinner } from '~/shared/shadcn';
 
 export const RouterProvider = (): JSX.Element => {
   const auth = useAuth();

@@ -1,106 +1,68 @@
-import type { ReactNode } from 'react';
+// src/shared/ui/form/footer/model/types.ts - REFACTORED IN THIS CHAT
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
 /**
- * Button variants for footer buttons
+ * Props for the simplified Footer component
+ *
+ * @template TFieldValues - Type of the form values
  */
-export type ButtonVariant =
-  | 'default'
-  | 'primary'
-  | 'secondary'
-  | 'destructive'
-  | 'outline'
-  | 'link';
-
-/**
- * Button types for HTML form elements
- */
-export type ButtonType = 'button' | 'submit' | 'reset';
-
-/**
- * Configuration for a single footer button
- */
-export type FooterButton = {
+export type Props<TFieldValues extends FieldValues = FieldValues> = {
   /**
-   * Button label text
+   * React Hook Form instance
+   * @optional Will use context if not provided
    */
-  label: string;
+  form?: UseFormReturn<TFieldValues>;
 
   /**
-   * Whether to display this button
+   * Submit handler (form submission is handled automatically)
+   * @optional Called when form is submitted
    */
-  display: boolean;
+  onSubmit?: () => void;
 
   /**
-   * Click handler for the button
+   * Cancel handler
+   * @optional Called when cancel button is clicked
    */
-  onClick?: () => void;
+  onCancel?: () => void;
 
   /**
-   * Visual variant of the button
+   * Reset handler (called after form reset)
+   * @optional Called after form.reset() is executed
    */
-  variant?: ButtonVariant;
+  onReset?: () => void;
 
   /**
-   * Whether the button is disabled
+   * Whether to show reset button
+   * @default false
    */
-  disabled?: boolean;
+  showReset?: boolean;
 
   /**
-   * Whether the button is in loading state
+   * Whether to show cancel button
+   * @default false
    */
-  loading?: boolean;
+  showCancel?: boolean;
 
   /**
-   * Icon element to display in the button
+   * Text for submit button
+   * @default 'Speichern'
    */
-  icon?: ReactNode;
+  submitText?: string;
 
   /**
-   * HTML button type
+   * Text for cancel button
+   * @default 'Abbrechen'
    */
-  type?: ButtonType;
+  cancelText?: string;
 
   /**
-   * Additional CSS classes
+   * Text for reset button
+   * @default 'Zurücksetzen'
    */
-  className?: string;
-};
-
-/**
- * Configuration for standard buttons (presence of object shows button)
- */
-export type StandardButtonConfig = {
-  /**
-   * Button label text
-   * @default Automatic based on button type
-   */
-  label?: string;
+  resetText?: string;
 
   /**
-   * Click handler for the button
-   */
-  onClick?: () => void;
-
-  /**
-   * Visual variant of the button
-   * @default Based on button type
-   */
-  variant?: ButtonVariant;
-
-  /**
-   * Whether the button is disabled
-   */
-  disabled?: boolean;
-
-  /**
-   * Icon element to display in the button
-   * @default Automatic based on button type
-   */
-  icon?: ReactNode;
-
-  /**
-   * Additional CSS classes
+   * Additional CSS classes for the footer container
    */
   className?: string;
 };
@@ -113,28 +75,15 @@ export type StandardButtonConfig = {
 export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
   /**
    * React Hook Form instance
+   * @optional Will use context if not provided
    */
   form?: UseFormReturn<TFieldValues>;
 
   /**
-   * Submit button configuration (presence shows button)
+   * Reset handler
+   * @optional Called after form.reset() is executed
    */
-  submit?: StandardButtonConfig;
-
-  /**
-   * Cancel button configuration (presence shows button)
-   */
-  cancel?: StandardButtonConfig;
-
-  /**
-   * Reset button configuration (presence shows button)
-   */
-  reset?: StandardButtonConfig;
-
-  /**
-   * Additional custom buttons
-   */
-  customActions?: Array<FooterButton>;
+  onReset?: () => void;
 };
 
 /**
@@ -145,58 +94,25 @@ export type ControllerResult = {
    * Current form state
    */
   formState: {
+    /**
+     * Whether the form is currently submitting
+     */
     isSubmitting: boolean;
+
+    /**
+     * Whether any form field has been modified
+     */
     isDirty: boolean;
-    isSubmitted: boolean;
+
+    /**
+     * Whether all form validations pass
+     */
     isValid: boolean;
   };
 
   /**
-   * All buttons to display
+   * Handle reset with callback
+   * Resets form to default values and calls onReset callback
    */
-  allButtons: Array<FooterButton>;
+  handleReset: () => void;
 };
-
-/**
- * Footer component props
- *
- * @template TFieldValues - Type of the form values
- */
-export type Props<TFieldValues extends FieldValues = FieldValues> =
-  ControllerProps<TFieldValues> & {
-    /**
-     * Array of footer links
-     */
-    links?: Array<{
-      label: string;
-      href: string;
-      external?: boolean;
-    }>;
-
-    /**
-     * Array of error messages to display
-     */
-    errors?: Array<string>;
-
-    /**
-     * Success message to display
-     */
-    successMessage?: string;
-
-    /**
-     * Additional CSS classes
-     */
-    className?: string;
-
-    /**
-     * Layout variant
-     * @default 'default'
-     */
-    variant?: 'default' | 'compact' | 'split' | 'centered';
-
-    /**
-     * Whether to stick footer to bottom
-     * @default false
-     */
-    sticky?: boolean;
-  };

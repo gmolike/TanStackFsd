@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
-import { FormDescription, FormLabel } from '~/shared/shadcn/form';
+import { FormDescription, FormLabel } from '~/shared/shadcn';
 
 import { DatePicker } from '../datePicker';
 

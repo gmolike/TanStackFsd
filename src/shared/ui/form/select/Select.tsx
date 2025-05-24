@@ -1,27 +1,25 @@
+// src/shared/ui/form/select/Select.tsx - REFACTORED IN THIS CHAT
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
+import { X } from 'lucide-react';
+
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/shared/shadcn/form';
-import {
+  Button,
   Select as ShadcnSelect,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '~/shared/shadcn/select';
+} from '~/shared/shadcn';
+
+import { FormFieldWrapper } from '../fieldWrapper';
 
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
 /**
- * Select Component - Dropdown selection field with validation
+ * Select Component - Dropdown with clear functionality
  *
  * @template TFieldValues - Type of the form values
  *
@@ -35,22 +33,21 @@ import { useController } from './model/useController';
  * @param className - Additional CSS classes for the form item container
  * @param options - Array of options to display in the dropdown
  * @param emptyOption - Text for an empty/null option (e.g., "None selected")
+ * @param showReset - Whether to show reset to default button
+ * @param showClear - Whether to show clear selection button
  *
  * @example
  * ```tsx
- * const form = useForm<FormData>();
- *
- * <Select
+ * <FormSelect
  *   control={form.control}
  *   name="country"
  *   label="Country"
  *   required
  *   options={[
  *     { value: 'us', label: 'United States' },
- *     { value: 'de', label: 'Germany' },
- *     { value: 'fr', label: 'France' }
+ *     { value: 'de', label: 'Germany' }
  *   ]}
- *   placeholder="Select a country"
+ *   showClear={true}
  * />
  * ```
  */
@@ -65,6 +62,8 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   className,
   options,
   emptyOption,
+  showReset = true,
+  showClear = true,
 }: Props<TFieldValues>) => {
   const { isDisabled, hasEmptyOption, selectOptions, emptyOptionText } = useController({
     control,
@@ -76,25 +75,26 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   });
 
   return (
-    <FormField
+    <FormFieldWrapper
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <FormItem className={className}>
-          {label && <FormLabel required={required}>{label}</FormLabel>}
+      label={label}
+      description={description}
+      required={required}
+      className={className}
+      showReset={showReset}
+      render={(field) => (
+        <div className="flex items-center gap-2">
           <ShadcnSelect
             onValueChange={(value) => {
-              // Convert "__empty__" back to empty string for form
               field.onChange(value === '__empty__' ? '' : value);
             }}
             value={field.value || ''}
             disabled={isDisabled}
           >
-            <FormControl>
-              <SelectTrigger aria-invalid={!!fieldState.error} aria-required={required}>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
             <SelectContent>
               {hasEmptyOption && <SelectItem value="__empty__">{emptyOptionText}</SelectItem>}
               {selectOptions.map((option) => (
@@ -104,9 +104,18 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
               ))}
             </SelectContent>
           </ShadcnSelect>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+          {showClear && field.value && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => field.onChange('')}
+              aria-label="Auswahl löschen"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       )}
     />
   );
