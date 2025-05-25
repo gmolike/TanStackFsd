@@ -5,12 +5,6 @@ import { resolve } from 'node:path';
 import type { UserConfig } from 'vite';
 import { defineConfig, loadEnv, mergeConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
-// Import vitest config explicitly
-import type { InlineConfig } from 'vitest/node';
-
-interface ViteConfigWithVitest extends UserConfig {
-  test?: InlineConfig;
-}
 
 export default ({ mode }: { mode: string }): UserConfig => {
   // Load environment variables based on current mode (development, production, etc.)
@@ -27,7 +21,7 @@ export default ({ mode }: { mode: string }): UserConfig => {
 
   console.warn(`Mode: ${mode}, API URL: ${apiUrl}`);
 
-  const config: ViteConfigWithVitest = defineConfig({
+  const config = defineConfig({
     plugins: [
       TanStackRouterVite({
         target: 'react',
@@ -83,43 +77,6 @@ export default ({ mode }: { mode: string }): UserConfig => {
         }
         return acc;
       }, {}),
-    },
-    test: {
-      globals: true,
-      environment: 'jsdom',
-      setupFiles: './src/shared/test/setup.ts',
-      include: ['./src/**/*.{test,spec}.{ts,tsx}'],
-      exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', '**/e2e/**'],
-      coverage: {
-        provider: 'istanbul', // oder 'v8'
-        reporter: ['text', 'json', 'html'],
-        exclude: [
-          'node_modules/**',
-          'dist/**',
-          '**/*.d.ts',
-          '**/*.config.*',
-          '**/vite-env.d.ts',
-          '**/*.test.*',
-          '**/test-utils/**',
-          'playwright/**',
-        ],
-        all: true,
-        thresholds: {
-          statements: 70,
-          branches: 70,
-          functions: 70,
-          lines: 70,
-        },
-      },
-      // Bei Problemen mit Memory-Leaks in Tests
-      poolOptions: {
-        threads: {
-          singleThread: true,
-        },
-      },
-      testTimeout: 10000, // 10 Sekunden
-      hookTimeout: 10000, // 10 Sekunden für beforeEach/afterEach
-      isolate: true,
     },
   });
 

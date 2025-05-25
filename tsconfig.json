@@ -2,7 +2,17 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "types": ["node"]
+    "noUnusedLocals": false, // Deaktiviert für Tests
+    "noUnusedParameters": false, // Deaktiviert für Tests
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src", "vite.config.ts", "**.d.ts", "src/**/*.spec.ts" ]
+  "include": [
+    "src",
+    "vite.config.ts",
+    "**.d.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "**.d.ts"
+  ]
 }

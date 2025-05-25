@@ -135,7 +135,7 @@ const importRules = {
     'import/no-duplicates': 'error',
     'import/no-unresolved': 'off',
     'import/newline-after-import': 'error',
-    
+
     // FSD import groups configuration
     'simple-import-sort/imports': [
       'error',
@@ -275,20 +275,41 @@ const playwrightConfig = compat.config({
   ],
 });
 
+// Test-spezifische Regeln
+const testFileRules = {
+  files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+  rules: {
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_',
+        // Ignoriere container wenn es nur für Assertions verwendet wird
+        args: 'after-used',
+        ignoreRestSiblings: true,
+      },
+    ],
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-explicit-any': 'off', // Erlaubt in Tests
+    'no-console': 'off',
+  },
+};
+
 // Filter tanstack config to avoid plugin conflicts
-const filteredTanstackConfig = tanstackConfig.map(config => {
-  // If this config entry contains plugins, filter out any plugins 
+const filteredTanstackConfig = tanstackConfig.map((config) => {
+  // If this config entry contains plugins, filter out any plugins
   // we're already defining to avoid conflicts
   if (config.plugins) {
     const filteredPlugins = { ...config.plugins };
     // Remove any plugins we're defining ourselves
-    Object.keys(pluginsConfig.plugins).forEach(plugin => {
+    Object.keys(pluginsConfig.plugins).forEach((plugin) => {
       delete filteredPlugins[plugin];
     });
-    
+
     return {
       ...config,
-      plugins: filteredPlugins
+      plugins: filteredPlugins,
     };
   }
   return config;
@@ -323,6 +344,7 @@ export default [
   // TypeScript specific rules
   typescriptRules,
   jsonRules,
+  testFileRules,
 
   // Playwright configuration
   ...playwrightConfig,
