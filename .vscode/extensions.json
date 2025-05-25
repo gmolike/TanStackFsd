@@ -46,6 +46,10 @@
     "janisdd.vscode-edit-csv",
     "apollographql.vscode-apollo",
     "adpyke.codesnap",
-    "iceworks-team.iceworks-time-master"
+    "iceworks-team.iceworks-time-master",
+    "ms-playwright.playwright",
+    "ryanluker.vscode-coverage-gutters",
+    "42crunch.vscode-openapi",
+    "arjun.swagger-viewer"
   ]
 }
