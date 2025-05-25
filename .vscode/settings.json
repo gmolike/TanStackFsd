@@ -72,7 +72,6 @@
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "eslint.format.enable": false,
   "eslint.useFlatConfig": true,
-  "eslint.experimental.useFlatConfig": true,
   // Prettier
   "prettier.enable": true,
   "prettier.requireConfig": true,
@@ -115,7 +114,9 @@
   // Vitest
   "vitest.enable": true,
   "vitest.commandLine": "pnpm test",
-  "vitest.nodeExecutable": "node",
+  "vitest.nodeExecutable": "",
+  "vitest.workspaceConfig": "./vitest.config.ts",
+  "vitest.exclude": ["**/node_modules/**", "**/dist/**", "**/.{idea,git,cache,output,temp}/**"],
   // Testing
   "testing.automaticallyOpenPeekView": "failureInVisibleDocument",
   "testing.defaultGutterClickAction": "run",

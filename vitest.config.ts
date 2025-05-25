@@ -1,7 +1,7 @@
-import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { resolve } from 'node:path';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
@@ -48,16 +48,33 @@ export default defineConfig({
       },
     },
 
+    // Reporter für bessere Ausgabe
+    reporters: ['default', 'html'],
+
     // Pool-Optionen für bessere Performance
     pool: 'threads',
     poolOptions: {
       threads: {
-        singleThread: true,
+        singleThread: false,
+        minThreads: 1,
+        maxThreads: 4,
+      },
+    },
+
+    // CSS Module Support
+    css: {
+      modules: {
+        classNameStrategy: 'stable',
       },
     },
 
     testTimeout: 10000, // 10 Sekunden
     hookTimeout: 10000, // 10 Sekunden für beforeEach/afterEach
     isolate: true,
+
+    // Mock-Konfiguration
+    mockReset: true,
+    clearMocks: true,
+    restoreMocks: true,
   },
 });

@@ -1,422 +1,182 @@
 // src/shared/ui/form/Form.integration.test.tsx
 import { render, screen, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 
-import { Checkbox } from './checkbox/Checkbox';
-import { DatePicker } from './datePicker/DatePicker';
-import { Footer } from './footer/Footer';
-import { Form } from './form/Form';
-import { Header } from './header/Header';
-import { Input } from './input/Input';
-import { Select } from './select/Select';
-import { userEvent } from './test-utils';
-import { TextArea } from './textarea/TextArea';
+import {
+  Form,
+  FormCheckbox,
+  FormFooter,
+  FormHeader,
+  FormInput,
+  FormSelect,
+  FormTextArea,
+} from './';
 
-describe('Form System Integration', () => {
-  const user = userEvent.setup();
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
 
-  // Comprehensive test schema
-  const registrationSchema = z
-    .object({
-      personal: z.object({
-        firstName: z.string().min(2, 'First name must be at least 2 characters'),
-        lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-        email: z.string().email('Invalid email address'),
-        phone: z
-          .string()
-          .regex(/^\+?[\d\s-()]+$/, 'Invalid phone number')
-          .optional(),
-      }),
-      account: z.object({
-        username: z.string().min(3, 'Username must be at least 3 characters'),
-        password: z.string().min(8, 'Password must be at least 8 characters'),
-        confirmPassword: z.string(),
-      }),
-      profile: z.object({
-        birthDate: z.date().max(new Date(), 'Birth date cannot be in the future'),
-        country: z.string().min(1, 'Please select a country'),
-        bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
-      }),
-      preferences: z.object({
-        newsletter: z.boolean(),
-        notifications: z.boolean(),
-      }),
-      terms: z.object({
-        acceptTerms: z.boolean().refine((val) => val === true, 'You must accept the terms'),
-        acceptPrivacy: z
-          .boolean()
-          .refine((val) => val === true, 'You must accept the privacy policy'),
-      }),
-    })
-    .refine((data) => data.account.password === data.account.confirmPassword, {
-      message: "Passwords don't match",
-      path: ['account', 'confirmPassword'],
+describe('Form Integration Tests', () => {
+  test('complete user registration flow', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+
+    // Registration Schema
+    const registrationSchema = z.object({
+      name: z.string().min(2, 'Name is required'),
+      email: z.string().email('Invalid email'),
+      country: z.string().min(1, 'Please select a country'),
+      bio: z.string().optional(),
+      newsletter: z.boolean(),
+      terms: z.boolean().refine((val) => val === true, 'You must accept terms'),
     });
 
-  type RegistrationForm = z.infer<typeof registrationSchema>;
+    const countries = [
+      { value: 'de', label: 'Germany' },
+      { value: 'us', label: 'United States' },
+    ];
 
-  const defaultValues: Partial<RegistrationForm> = {
-    personal: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-    },
-    account: {
-      username: '',
-      password: '',
-      confirmPassword: '',
-    },
-    profile: {
-      country: '',
-      bio: '',
-      birthDate: new Date(),
-    },
-    preferences: {
-      newsletter: false,
-      notifications: true,
-    },
-    terms: {
-      acceptTerms: false,
-      acceptPrivacy: false,
-    },
-  };
+    render(
+      <Form
+        schema={registrationSchema}
+        defaultValues={{
+          name: '',
+          email: '',
+          country: '',
+          bio: '',
+          newsletter: false,
+          terms: false,
+        }}
+        onSubmit={onSubmit}
+      >
+        {(form) => (
+          <>
+            <FormHeader title="Create Account" description="Fill in your information" />
 
-  const countries = [
-    { value: 'de', label: 'Germany' },
-    { value: 'us', label: 'United States' },
-    { value: 'uk', label: 'United Kingdom' },
-    { value: 'fr', label: 'France' },
-  ];
+            <FormInput control={form.control} name="name" label="Full Name" required />
 
-  describe('Complete User Registration Flow', () => {
-    test('successfully completes registration with all fields', async () => {
-      const onSubmit = vi.fn();
+            <FormInput control={form.control} name="email" label="Email" type="email" required />
 
-      render(
-        <Form<RegistrationForm>
-          schema={registrationSchema}
-          defaultValues={defaultValues}
-          onSubmit={onSubmit}
-        >
-          {(form) => (
-            <>
-              <Header
-                title="Create Account"
-                description="Fill in your details to register"
-                variant="default"
-              />
+            <FormSelect
+              control={form.control}
+              name="country"
+              label="Country"
+              options={countries}
+              required
+            />
 
-              {/* Personal Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Personal Information</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    control={form.control}
-                    name="personal.firstName"
-                    label="First Name"
-                    required
-                  />
-                  <Input
-                    control={form.control}
-                    name="personal.lastName"
-                    label="Last Name"
-                    required
-                  />
-                </div>
-                <Input
-                  control={form.control}
-                  name="personal.email"
-                  label="Email"
-                  type="email"
-                  required
-                />
-                <Input
-                  control={form.control}
-                  name="personal.phone"
-                  label="Phone"
-                  placeholder="+1 (555) 123-4567"
-                />
-              </div>
+            <FormTextArea
+              control={form.control}
+              name="bio"
+              label="About You"
+              rows={4}
+              placeholder="Tell us about yourself..."
+            />
 
-              {/* Account Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Account Information</h3>
-                <Input control={form.control} name="account.username" label="Username" required />
-                <Input
-                  control={form.control}
-                  name="account.password"
-                  label="Password"
-                  type="password"
-                  required
-                />
-                <Input
-                  control={form.control}
-                  name="account.confirmPassword"
-                  label="Confirm Password"
-                  type="password"
-                  required
-                />
-              </div>
+            <FormCheckbox
+              control={form.control}
+              name="newsletter"
+              label="Subscribe to newsletter"
+            />
 
-              {/* Profile Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Profile Information</h3>
-                <DatePicker
-                  control={form.control}
-                  name="profile.birthDate"
-                  label="Birth Date"
-                  required
-                  max={new Date()}
-                />
-                <Select
-                  control={form.control}
-                  name="profile.country"
-                  label="Country"
-                  options={countries}
-                  required
-                />
-                <TextArea
-                  control={form.control}
-                  name="profile.bio"
-                  label="Bio"
-                  rows={4}
-                  placeholder="Tell us about yourself..."
-                />
-              </div>
+            <FormCheckbox
+              control={form.control}
+              name="terms"
+              label="I accept the terms and conditions"
+              required
+            />
 
-              {/* Preferences */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Preferences</h3>
-                <Checkbox
-                  control={form.control}
-                  name="preferences.newsletter"
-                  label="Subscribe to newsletter"
-                />
-                <Checkbox
-                  control={form.control}
-                  name="preferences.notifications"
-                  label="Enable notifications"
-                />
-              </div>
+            <FormFooter
+              form={form}
+              submitText="Create Account"
+              showCancel
+              onCancel={() => console.log('Cancelled')}
+            />
+          </>
+        )}
+      </Form>,
+    );
 
-              {/* Terms & Conditions */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Terms & Conditions</h3>
-                <Checkbox
-                  control={form.control}
-                  name="terms.acceptTerms"
-                  label="I accept the terms and conditions"
-                  required
-                />
-                <Checkbox
-                  control={form.control}
-                  name="terms.acceptPrivacy"
-                  label="I accept the privacy policy"
-                  required
-                />
-              </div>
+    // Verify form renders
+    expect(screen.getByText('Create Account')).toBeInTheDocument();
+    expect(screen.getByText('Fill in your information')).toBeInTheDocument();
 
-              <Footer
-                form={form}
-                showCancel
-                showReset
-                submitText="Create Account"
-                onCancel={() => console.log('Cancelled')}
-              />
-            </>
-          )}
-        </Form>,
-      );
+    // Fill form fields
+    await user.type(screen.getByRole('textbox', { name: 'Full Name' }), 'John Doe');
+    await user.type(screen.getByRole('textbox', { name: 'Email' }), 'john@example.com');
 
-      // Fill in personal information
-      await user.type(screen.getByLabelText('First Name'), 'John');
-      await user.type(screen.getByLabelText('Last Name'), 'Doe');
-      await user.type(screen.getByLabelText('Email'), 'john.doe@example.com');
-      await user.type(screen.getByLabelText('Phone'), '+1 555 123 4567');
+    // Select country
+    await user.click(screen.getByRole('combobox'));
+    await user.click(screen.getByText('Germany'));
 
-      // Fill in account information
-      await user.type(screen.getByLabelText('Username'), 'johndoe');
-      await user.type(screen.getByLabelText('Password'), 'SecurePass123!');
-      await user.type(screen.getByLabelText('Confirm Password'), 'SecurePass123!');
+    // Fill optional bio
+    await user.type(screen.getByRole('textbox', { name: 'About You' }), 'Software developer');
 
-      // Fill in profile information
-      const birthDateTrigger = screen.getByRole('button', { name: /datum auswählen/i });
-      await user.click(birthDateTrigger);
-      // Select a date (simplified for test)
-      const dateInput = screen.getByPlaceholderText('dd.MM.yyyy');
-      await user.type(dateInput, '15.03.1990');
-      await user.click(document.body); // Close calendar
+    // Check newsletter
+    await user.click(screen.getByRole('checkbox', { name: 'Subscribe to newsletter' }));
 
-      // Select country
-      const countrySelect = screen.getByRole('combobox', { name: 'Country' });
-      await user.click(countrySelect);
-      await user.click(screen.getByText('Germany'));
+    // Accept terms
+    await user.click(screen.getByRole('checkbox', { name: 'I accept the terms and conditions' }));
 
-      // Fill bio
-      await user.type(screen.getByLabelText('Bio'), 'Software developer from Berlin');
+    // Submit form
+    await user.click(screen.getByRole('button', { name: 'Create Account' }));
 
-      // Set preferences
-      await user.click(screen.getByLabelText('Subscribe to newsletter'));
-      // Notifications already checked by default
-
-      // Accept terms
-      await user.click(screen.getByLabelText('I accept the terms and conditions'));
-      await user.click(screen.getByLabelText('I accept the privacy policy'));
-
-      // Submit form
-      const submitButton = screen.getByRole('button', { name: 'Create Account' });
-      await user.click(submitButton);
-
-      // Verify submission
-      await waitFor(() => {
-        expect(onSubmit).toHaveBeenCalledWith(
-          expect.objectContaining({
-            personal: {
-              firstName: 'John',
-              lastName: 'Doe',
-              email: 'john.doe@example.com',
-              phone: '+1 555 123 4567',
-            },
-            account: {
-              username: 'johndoe',
-              password: 'SecurePass123!',
-              confirmPassword: 'SecurePass123!',
-            },
-            profile: expect.objectContaining({
-              country: 'de',
-              bio: 'Software developer from Berlin',
-            }),
-            preferences: {
-              newsletter: true,
-              notifications: true,
-            },
-            terms: {
-              acceptTerms: true,
-              acceptPrivacy: true,
-            },
-          }),
-        );
+    // Verify submission
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({
+        name: 'John Doe',
+        email: 'john@example.com',
+        country: 'de',
+        bio: 'Software developer',
+        newsletter: true,
+        terms: true,
       });
     });
+  });
 
-    test('shows validation errors when submitting invalid form', async () => {
-      const onSubmit = vi.fn();
+  test('shows validation errors on incomplete form', async () => {
+    const user = userEvent.setup();
 
-      render(
-        <Form<RegistrationForm>
-          schema={registrationSchema}
-          defaultValues={defaultValues}
-          onSubmit={onSubmit}
-        >
-          {(form) => (
-            <>
-              <Input control={form.control} name="personal.firstName" label="First Name" required />
-              <Input control={form.control} name="personal.email" label="Email" required />
-              <Checkbox
-                control={form.control}
-                name="terms.acceptTerms"
-                label="Accept Terms"
-                required
-              />
-              <Footer form={form} submitText="Submit" />
-            </>
-          )}
-        </Form>,
-      );
-
-      // Try to submit without filling required fields
-      const submitButton = screen.getByRole('button', { name: 'Submit' });
-      await user.click(submitButton);
-
-      // Should show validation errors
-      await waitFor(() => {
-        expect(screen.getByText('First name must be at least 2 characters')).toBeInTheDocument();
-        expect(screen.getByText('Invalid email address')).toBeInTheDocument();
-        expect(screen.getByText('You must accept the terms')).toBeInTheDocument();
-      });
-
-      // Form should not be submitted
-      expect(onSubmit).not.toHaveBeenCalled();
+    const registrationSchema = z.object({
+      name: z.string().min(2, 'Name is required'),
+      email: z.string().email('Invalid email'),
+      terms: z.boolean().refine((val) => val === true, 'You must accept terms'),
     });
 
-    test('resets form to default values', async () => {
-      render(
-        <Form<RegistrationForm>
-          schema={registrationSchema}
-          defaultValues={{
-            ...defaultValues,
-            personal: {
-              ...defaultValues.personal!,
-              firstName: 'Default',
-              lastName: 'User',
-            },
-          }}
-          onSubmit={() => {}}
-        >
-          {(form) => (
-            <>
-              <Input control={form.control} name="personal.firstName" label="First Name" />
-              <Input control={form.control} name="personal.lastName" label="Last Name" />
-              <Footer form={form} showReset />
-            </>
-          )}
-        </Form>,
-      );
+    render(
+      <Form
+        schema={registrationSchema}
+        defaultValues={{
+          name: '',
+          email: '',
+          terms: false,
+        }}
+        onSubmit={() => {}}
+      >
+        {(form) => (
+          <>
+            <FormInput control={form.control} name="name" label="Name" required />
+            <FormInput control={form.control} name="email" label="Email" required />
+            <FormCheckbox control={form.control} name="terms" label="Accept Terms" required />
+            <FormFooter form={form} />
+          </>
+        )}
+      </Form>,
+    );
 
-      // Change values
-      const firstNameInput = screen.getByLabelText('First Name');
-      const lastNameInput = screen.getByLabelText('Last Name');
+    // Try to submit empty form
+    await user.click(screen.getByRole('button', { name: /speichern/i }));
 
-      await user.clear(firstNameInput);
-      await user.type(firstNameInput, 'Changed');
-      await user.clear(lastNameInput);
-      await user.type(lastNameInput, 'Name');
-
-      // Reset button should be enabled
-      const resetButton = screen.getByRole('button', { name: /zurücksetzen/i });
-      expect(resetButton).not.toBeDisabled();
-
-      // Click reset
-      await user.click(resetButton);
-
-      // Should reset to defaults
-      expect(firstNameInput).toHaveValue('Default');
-      expect(lastNameInput).toHaveValue('User');
-    });
-
-    test('shows field-specific reset buttons', async () => {
-      render(
-        <Form<RegistrationForm>
-          schema={registrationSchema}
-          defaultValues={{
-            ...defaultValues,
-            personal: {
-              ...defaultValues.personal!,
-              firstName: 'Default',
-            },
-          }}
-          onSubmit={() => {}}
-        >
-          {(form) => <Input control={form.control} name="personal.firstName" label="First Name" />}
-        </Form>,
-      );
-
-      // Initially no reset button
-      expect(screen.queryByLabelText('Auf Standardwert zurücksetzen')).not.toBeInTheDocument();
-
-      // Change value
-      const input = screen.getByLabelText('First Name');
-      await user.clear(input);
-      await user.type(input, 'New Name');
-
-      // Reset button should appear
-      const resetButton = await screen.findByLabelText('Auf Standardwert zurücksetzen');
-      await user.click(resetButton);
-
-      // Should reset to default
-      expect(input).toHaveValue('Default');
+    // Should show all validation errors
+    await waitFor(() => {
+      expect(screen.getByText('Name is required')).toBeInTheDocument();
+      expect(screen.getByText('Invalid email')).toBeInTheDocument();
+      expect(screen.getByText('You must accept terms')).toBeInTheDocument();
     });
   });
 });

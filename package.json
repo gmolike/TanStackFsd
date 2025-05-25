@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:debug": "vitest --inspect-brk --inspect --threads=false",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -104,7 +105,6 @@
     "react-hook-form": "^7.54.2",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
-    "vitest": "^3.0.9",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -160,16 +160,10 @@
     "vitest": "^2.1.0"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
-    ],
+    "onlyBuiltDependencies": ["esbuild", "sharp"],
     "overrides": {
       "@types/react": "^19.0.10",
       "@types/react-dom": "^19.0.4"

@@ -50,6 +50,10 @@
     "ms-playwright.playwright",
     "ryanluker.vscode-coverage-gutters",
     "42crunch.vscode-openapi",
-    "arjun.swagger-viewer"
+    "arjun.swagger-viewer",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+    "ZixuanChen.vitest-explorer"
   ]
 }
