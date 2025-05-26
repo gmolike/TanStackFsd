@@ -1,11 +1,13 @@
 // src/shared/ui/form/select/Select.test.tsx
 import { useForm } from 'react-hook-form';
 
-import { render, screen } from '@testing-library/react';
+import { waitFor } from '@testing-library/dom';
+import type { RenderResult } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, test, vi } from 'vitest';
 
 import { Form as ShadcnForm } from '~/shared/shadcn';
+import { cleanup, render } from '~/shared/test/test-utils';
 
 import { Select } from './Select';
 
@@ -16,65 +18,70 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }));
 
-const TestWrapper = ({
-  children,
-}: {
-  children: React.ReactNode | ((form: any) => React.ReactNode);
-}) => {
-  const form = useForm({
-    defaultValues: { country: '' },
-  });
-
-  return (
-    <ShadcnForm {...form}>
-      <form>{typeof children === 'function' ? children(form) : children}</form>
-    </ShadcnForm>
-  );
-};
-
-describe('Select Component', () => {
+const setupSelect = async (): Promise<RenderResult> => {
   const options = [
     { value: 'de', label: 'Germany' },
     { value: 'us', label: 'United States' },
   ];
 
+  const TestWrapper = ({ children }: { children: (form: any) => React.ReactNode }) => {
+    const form = useForm({
+      defaultValues: { country: '' },
+    });
+
+    return (
+      <ShadcnForm {...form}>
+        <form>{children(form)}</form>
+      </ShadcnForm>
+    );
+  };
+
+  const renderResult = render(
+    <TestWrapper>
+      {(form) => <Select control={form.control} name="country" label="Country" options={options} />}
+    </TestWrapper>,
+  );
+
+  // Wait for select to be rendered
+  await waitFor(() => renderResult.getByRole('combobox'));
+
+  return renderResult;
+};
+
+describe('Select Component', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   test('renders select with options', async () => {
+    const { getByRole, getByText } = await setupSelect();
     const user = userEvent.setup();
 
-    render(
-      <TestWrapper>
-        {(form) => (
-          <Select control={form.control} name="country" label="Country" options={options} />
-        )}
-      </TestWrapper>,
-    );
-
     // Open select
-    const trigger = screen.getByRole('combobox');
+    const trigger = getByRole('combobox');
     await user.click(trigger);
 
     // Check options
-    expect(screen.getByText('Germany')).toBeInTheDocument();
-    expect(screen.getByText('United States')).toBeInTheDocument();
+    await waitFor(() => {
+      getByText('Germany');
+      getByText('United States');
+    });
   });
 
   test('selects option', async () => {
+    const { getByRole, getByText } = await setupSelect();
     const user = userEvent.setup();
 
-    render(
-      <TestWrapper>
-        {(form) => (
-          <Select control={form.control} name="country" label="Country" options={options} />
-        )}
-      </TestWrapper>,
-    );
-
     // Open and select
-    const trigger = screen.getByRole('combobox');
+    const trigger = getByRole('combobox');
     await user.click(trigger);
-    await user.click(screen.getByText('Germany'));
+
+    await waitFor(() => getByText('Germany'));
+    await user.click(getByText('Germany'));
 
     // Should show selected value
-    expect(screen.getByText('Germany')).toBeInTheDocument();
+    await waitFor(() => {
+      getByText('Germany');
+    });
   });
 });

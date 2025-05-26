@@ -53,7 +53,6 @@
     "arjun.swagger-viewer",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "ms-vscode.vscode-typescript-next",
-    "ZixuanChen.vitest-explorer"
+    "ms-vscode.vscode-typescript-next"
   ]
 }

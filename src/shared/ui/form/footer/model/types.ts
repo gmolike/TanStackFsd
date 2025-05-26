@@ -96,6 +96,10 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
    * @optional Called after form.reset() is executed
    */
   onReset?: () => void;
+  /**
+   * Cancel handler
+   */
+  onCancel?: () => void;
 };
 
 /**
@@ -127,4 +131,9 @@ export type ControllerResult = {
    * Resets form to default values and calls onReset callback
    */
   handleReset: () => void;
+  /**
+   * Handle Cancel with callback
+   * Resets form to default values and calls onCancel callback
+   */
+  handleCancel: () => void;
 };

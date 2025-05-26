@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 // src/shared/ui/form/form/Form.test.tsx
-import { render, screen, waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/dom';
+import type { RenderResult } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
+
+import { cleanup, render } from '~/shared/test/test-utils';
 
 import { Input } from '../input/Input';
 
@@ -15,80 +19,83 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }));
 
-describe('Form Component', () => {
-  // Simple test schema
+const setupForm = async (onSubmit: vi.Mock = vi.fn()): Promise<RenderResult> => {
   const schema = z.object({
-    name: z.string().min(2),
-    email: z.string().email(),
+    name: z.string().min(2, { message: 'String must contain at least 2 character(s)' }),
+    email: z.string().email({ message: 'Invalid email' }),
   });
 
-  test('renders form with inputs', () => {
-    render(
-      <Form schema={schema} defaultValues={{ name: '', email: '' }} onSubmit={() => {}}>
-        {(form) => (
-          <>
-            <Input control={form.control} name="name" label="Name" />
-            <Input control={form.control} name="email" label="Email" />
-          </>
-        )}
-      </Form>,
-    );
+  const renderResult = render(
+    <Form schema={schema} defaultValues={{ name: '', email: '' }} onSubmit={onSubmit}>
+      {(form) => (
+        <>
+          <Input control={form.control} name="name" label="Name" />
+          <Input control={form.control} name="email" label="Email" />
+          <button type="submit">Submit</button>
+        </>
+      )}
+    </Form>,
+  );
 
-    expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Email')).toBeInTheDocument();
+  // Wait for form to be rendered
+  await waitFor(() => renderResult.getByText('Name'));
+
+  return renderResult;
+};
+
+describe('Form Component', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  test('renders form with inputs', async () => {
+    const { getByText } = await setupForm();
+
+    getByText('Name');
+    getByText('Email');
   });
 
   test('shows validation errors', async () => {
+    const { getByText } = await setupForm();
     const user = userEvent.setup();
 
-    render(
-      <Form schema={schema} defaultValues={{ name: '', email: '' }} onSubmit={() => {}}>
-        {(form) => (
-          <>
-            <Input control={form.control} name="name" label="Name" />
-            <Input control={form.control} name="email" label="Email" />
-            <button type="submit">Submit</button>
-          </>
-        )}
-      </Form>,
-    );
-
     // Submit without filling fields
-    await user.click(screen.getByText('Submit'));
+    const submitButton = getByText('Submit');
+    await user.click(submitButton);
 
-    // Should show errors
+    // Should show errors - use exact text
     await waitFor(() => {
-      expect(screen.getByText(/at least 2 characters/i)).toBeInTheDocument();
-      expect(screen.getByText(/invalid email/i)).toBeInTheDocument();
+      getByText('String must contain at least 2 character(s)');
+      getByText('Invalid email');
     });
   });
 
   test('submits valid form', async () => {
-    const user = userEvent.setup();
     const onSubmit = vi.fn();
+    const { getByText, container } = await setupForm(onSubmit);
+    const user = userEvent.setup();
 
-    render(
-      <Form schema={schema} defaultValues={{ name: '', email: '' }} onSubmit={onSubmit}>
-        {(form) => (
-          <>
-            <Input control={form.control} name="name" label="Name" />
-            <Input control={form.control} name="email" label="Email" />
-            <button type="submit">Submit</button>
-          </>
-        )}
-      </Form>,
-    );
+    // Fill form - use container.querySelector instead
+    const nameInput = container.querySelector('input[name="name"]') as HTMLInputElement;
+    if (nameInput) {
+      await user.clear(nameInput);
+      await user.type(nameInput, 'John Doe');
+    }
 
-    // Fill form
-    await user.type(screen.getByRole('textbox', { name: 'Name' }), 'John Doe');
-    await user.type(screen.getByRole('textbox', { name: 'Email' }), 'john@example.com');
+    const emailInput = container.querySelector('input[name="email"]') as HTMLInputElement;
+    if (emailInput) {
+      await user.clear(emailInput);
+      await user.type(emailInput, 'john@example.com');
+    }
 
     // Submit
-    await user.click(screen.getByText('Submit'));
+    await user.click(getByText('Submit'));
 
-    // Should call onSubmit
+    // Should call onSubmit - check only the first argument (form data)
     await waitFor(() => {
-      expect(onSubmit).toHaveBeenCalledWith({
+      expect(onSubmit).toHaveBeenCalled();
+      const firstCall = onSubmit.mock.calls[0];
+      expect(firstCall[0]).toEqual({
         name: 'John Doe',
         email: 'john@example.com',
       });

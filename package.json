@@ -93,6 +93,7 @@
     "@tanstack/react-query": "^5.66.9",
     "@tanstack/react-query-devtools": "^5.66.9",
     "@tanstack/react-router": "^1.111.11",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
     "axios": "^1.8.1",
     "class-variance-authority": "^0.7.1",
@@ -160,10 +161,16 @@
     "vitest": "^2.1.0"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "sharp"],
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ],
     "overrides": {
       "@types/react": "^19.0.10",
       "@types/react-dom": "^19.0.4"
