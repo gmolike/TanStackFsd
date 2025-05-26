@@ -85,8 +85,30 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
     });
   };
 
-  const isDifferentFromDefault = currentValue !== defaultValueRef.current;
+  const isValueDifferent = (current: unknown, defaultVal: unknown): boolean => {
+    if (current == null && defaultVal == null) return false;
 
+    if (current == null || defaultVal == null) return true;
+
+    if (current instanceof Date && defaultVal instanceof Date) {
+      return current.getTime() !== defaultVal.getTime();
+    }
+
+    if (typeof current === 'string' && typeof defaultVal === 'string') {
+      try {
+        const currentDate = new Date(current);
+        const defaultDate = new Date(defaultVal);
+        if (!isNaN(currentDate.getTime()) && !isNaN(defaultDate.getTime())) {
+          return currentDate.getTime() !== defaultDate.getTime();
+        }
+      } catch (error) {
+        console.warn('Failed to parse date strings for comparison:', error);
+        return current !== defaultVal;
+      }
+    }
+    return current !== defaultVal;
+  };
+  const isDifferentFromDefault = isValueDifferent(currentValue, defaultValueRef.current);
   return (
     <FormField
       control={control}

@@ -168,7 +168,7 @@ export const UserForm = () => {
         age: 25,
         phone: '+49 123 456789',
         website: 'https://example.com',
-        birthDate: undefined,
+        birthDate: new Date('2028-01-01'),
         joinDate: undefined,
         acceptTerms: false,
         newsletter: true,
