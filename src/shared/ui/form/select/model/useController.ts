@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
-import { useFormState } from 'react-hook-form';
+import { useFormState, useWatch } from 'react-hook-form';
 
 import type { ControllerProps, ControllerResult } from './types';
 
@@ -19,17 +20,29 @@ import type { ControllerProps, ControllerResult } from './types';
  */
 export const useController = <TFieldValues extends FieldValues = FieldValues>({
   control,
+  name,
   disabled,
   options,
   emptyOption,
 }: ControllerProps<TFieldValues>): ControllerResult => {
   const { isSubmitting } = useFormState({ control });
+  const fieldValue = useWatch({ control, name });
+  const [open, setOpen] = useState(false);
+
   const isDisabled = disabled || isSubmitting;
+  const normalizedValue = fieldValue ?? '';
+
+  useEffect(() => {
+    setOpen(false);
+  }, [normalizedValue]);
 
   return {
     isDisabled,
     hasEmptyOption: !!emptyOption,
     selectOptions: options,
     emptyOptionText: emptyOption || '',
+    normalizedValue,
+    open,
+    setOpen,
   };
 };

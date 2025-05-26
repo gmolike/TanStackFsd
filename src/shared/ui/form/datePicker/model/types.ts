@@ -1,4 +1,3 @@
-// src/shared/ui/form/datePicker/model/types.ts
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 import type { Locale } from 'date-fns';
@@ -142,4 +141,26 @@ export type ControllerResult = {
    * @returns True if date should be disabled
    */
   isDateDisabled: (date: Date) => boolean;
+
+  /**
+   * Current input value for manual date entry
+   */
+  inputValue: string;
+
+  /**
+   * Function to update the input value
+   * @param value - New input value
+   */
+  setInputValue: (value: string) => void;
+
+  /**
+   * Whether the calendar popover is open
+   */
+  open: boolean;
+
+  /**
+   * Function to set the open state
+   * @param open - New open state
+   */
+  setOpen: (open: boolean) => void;
 };

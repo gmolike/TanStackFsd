@@ -72,10 +72,11 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                 onCheckedChange={field.onChange}
                 disabled={isDisabled}
                 aria-required={required}
+                className="cursor-pointer"
               />
             </FormControl>
             {label && (
-              <FormLabel required={required} className="cursor-pointer font-normal">
+              <FormLabel required={required} className="font-normal">
                 {label}
               </FormLabel>
             )}

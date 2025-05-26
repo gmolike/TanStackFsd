@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
 import { isValid, parse } from 'date-fns';
@@ -73,20 +73,23 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   showClear = true,
   allowInput = true,
 }: Props<TFieldValues>) => {
-  const { isDisabled, formattedValue, isDateDisabled } = useController({
-    control,
-    name,
-    disabled,
-    required,
-    dateFormat,
-    min,
-    max,
-    locale,
-  });
+  const { isDisabled, formattedValue, isDateDisabled, inputValue, setInputValue, open, setOpen } =
+    useController({
+      control,
+      name,
+      disabled,
+      required,
+      dateFormat,
+      min,
+      max,
+      locale,
+    });
 
-  const [inputValue, setInputValue] = useState('');
-  const [open, setOpen] = useState(false);
-
+  /**
+   * Handle manual date input
+   * @param value - Input value string
+   * @param onChange - Form field onChange handler
+   */
   const handleInputChange = (value: string, onChange: (date: Date | null) => void) => {
     setInputValue(value);
 
@@ -101,22 +104,24 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
     }
   };
 
+  /**
+   * Handle calendar date selection
+   * @param date - Selected date or undefined
+   * @param onChange - Form field onChange handler
+   */
   const handleCalendarSelect = (date: Date | undefined, onChange: (date: Date | null) => void) => {
     onChange(date || null);
     setOpen(false);
     setInputValue('');
   };
 
+  /**
+   * Handle clear button click
+   * @param onChange - Form field onChange handler
+   */
   const handleClear = (onChange: (date: Date | null) => void) => {
     onChange(null);
     setInputValue('');
-  };
-
-  const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
-    if (!newOpen) {
-      setInputValue('');
-    }
   };
 
   return (
@@ -133,7 +138,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
 
         return (
           <div className="flex items-center gap-2">
-            <Popover open={open} onOpenChange={handleOpenChange}>
+            <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"

@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
 import { X } from 'lucide-react';
@@ -64,7 +64,15 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   showReset = true,
   showClear = true,
 }: Props<TFieldValues>) => {
-  const { isDisabled, hasEmptyOption, selectOptions, emptyOptionText } = useController({
+  const {
+    isDisabled,
+    hasEmptyOption,
+    selectOptions,
+    emptyOptionText,
+    normalizedValue,
+    open,
+    setOpen,
+  } = useController({
     control,
     name,
     disabled,
@@ -72,16 +80,6 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
     options,
     emptyOption,
   });
-
-  const [open, setOpen] = useState(false);
-
-  const [fieldValue, setFieldValue] = useState<string>('');
-
-  useEffect(() => {
-    if (!fieldValue) {
-      setOpen(false);
-    }
-  }, [fieldValue]);
 
   return (
     <FormFieldWrapper
@@ -92,49 +90,43 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       required={required}
       className={className}
       showReset={showReset}
-      render={(field) => {
-        if (field.value !== fieldValue) {
-          setFieldValue(field.value);
-        }
-
-        return (
-          <div className="flex items-center gap-2">
-            <ShadcnSelect
-              onValueChange={(value) => {
-                field.onChange(value === '__empty__' ? '' : value);
-              }}
-              value={field.value || ''}
-              disabled={isDisabled}
-              open={open}
-              onOpenChange={setOpen}
+      render={(field) => (
+        <div className="flex items-center gap-2">
+          <ShadcnSelect
+            onValueChange={(value) => {
+              field.onChange(value === '__empty__' ? '' : value);
+            }}
+            value={normalizedValue}
+            disabled={isDisabled}
+            open={open}
+            onOpenChange={setOpen}
+          >
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+              {hasEmptyOption && <SelectItem value="__empty__">{emptyOptionText}</SelectItem>}
+              {selectOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </ShadcnSelect>
+          {showClear && normalizedValue && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => field.onChange('')}
+              aria-label="Auswahl löschen"
+              className="shrink-0"
             >
-              <SelectTrigger className="flex-1">
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-              <SelectContent>
-                {hasEmptyOption && <SelectItem value="__empty__">{emptyOptionText}</SelectItem>}
-                {selectOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </ShadcnSelect>
-            {showClear && field.value && (
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => field.onChange('')}
-                aria-label="Auswahl löschen"
-                className="shrink-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        );
-      }}
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      )}
     />
   );
 };

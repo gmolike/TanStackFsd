@@ -1,4 +1,3 @@
-// src/shared/ui/form/select/model/types.ts - REFACTORED IN THIS CHAT
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 import type { BaseFieldProps } from '../../input/model/types';
@@ -122,4 +121,21 @@ export type ControllerResult = {
    * Value of emptyOption prop or empty string
    */
   emptyOptionText: string;
+
+  /**
+   * Normalized field value (never undefined)
+   * Empty string if field value is null or undefined
+   */
+  normalizedValue: string;
+
+  /**
+   * Whether the select dropdown is open
+   */
+  open: boolean;
+
+  /**
+   * Function to set the open state
+   * @param open - New open state
+   */
+  setOpen: (open: boolean) => void;
 };

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useFormState, useWatch } from 'react-hook-form';
 
@@ -34,8 +34,16 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
 }: ControllerProps<TFieldValues>): ControllerResult => {
   const { isSubmitting } = useFormState({ control });
   const value = useWatch({ control, name });
+  const [inputValue, setInputValue] = useState('');
+  const [open, setOpen] = useState(false);
 
   const isDisabled = disabled || isSubmitting;
+
+  useEffect(() => {
+    if (!value) {
+      setInputValue('');
+    }
+  }, [value]);
 
   const formatDate = useCallback(
     (date: Date | string | null | undefined): string => {
@@ -69,10 +77,21 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
     [min, max, disabled],
   );
 
+  const handleOpenChange = useCallback((newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setInputValue('');
+    }
+  }, []);
+
   return {
     isDisabled,
     formattedValue,
     formatDate,
     isDateDisabled,
+    inputValue,
+    setInputValue,
+    open,
+    setOpen: handleOpenChange,
   };
 };
