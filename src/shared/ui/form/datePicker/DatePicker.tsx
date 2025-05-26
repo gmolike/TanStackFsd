@@ -1,4 +1,3 @@
-// src/shared/ui/form/datePicker/DatePicker.tsx - MERGED VERSION
 import { memo, useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
@@ -91,7 +90,6 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   const handleInputChange = (value: string, onChange: (date: Date | null) => void) => {
     setInputValue(value);
 
-    // Try to parse the input immediately as user types
     if (value === '') {
       onChange(null);
       return;
@@ -114,6 +112,13 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
     setInputValue('');
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setInputValue('');
+    }
+  };
+
   return (
     <FormFieldWrapper
       control={control}
@@ -123,61 +128,70 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       required={required}
       className={className}
       showReset={showReset}
-      render={(field) => (
-        <div className="flex items-center gap-2">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+      render={(field) => {
+        const dateValue = field.value ? new Date(field.value) : undefined;
+
+        return (
+          <div className="flex items-center gap-2">
+            <Popover open={open} onOpenChange={handleOpenChange}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    'flex-1 justify-start text-left font-normal',
+                    !field.value && 'text-muted-foreground',
+                  )}
+                  disabled={isDisabled}
+                  type="button"
+                >
+                  {formattedValue || placeholder}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3" align="start">
+                <div className="space-y-3">
+                  {allowInput && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Datum eingeben ({dateFormat})</label>
+                      <InputShadcn
+                        type="text"
+                        placeholder={dateFormat}
+                        value={inputValue || formattedValue}
+                        onChange={(e) => handleInputChange(e.target.value, field.onChange)}
+                        onBlur={() => {
+                          if (inputValue && !field.value) {
+                            setInputValue('');
+                          }
+                        }}
+                        autoFocus
+                      />
+                    </div>
+                  )}
+                  <Calendar
+                    mode="single"
+                    selected={dateValue}
+                    onSelect={(date) => handleCalendarSelect(date, field.onChange)}
+                    disabled={isDateDisabled}
+                    initialFocus={!allowInput}
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
+            {showClear && field.value && (
               <Button
-                variant="outline"
-                className={cn(
-                  'flex-1 justify-start text-left font-normal',
-                  !field.value && 'text-muted-foreground',
-                )}
-                disabled={isDisabled}
                 type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => handleClear(field.onChange)}
+                aria-label="Auswahl löschen"
+                className="shrink-0"
               >
-                {formattedValue || placeholder}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                <X className="h-4 w-4" />
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-3" align="start">
-              <div className="space-y-3">
-                {allowInput && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Datum eingeben ({dateFormat})</label>
-                    <InputShadcn
-                      type="text"
-                      placeholder={dateFormat}
-                      value={inputValue || formattedValue}
-                      onChange={(e) => handleInputChange(e.target.value, field.onChange)}
-                      autoFocus
-                    />
-                  </div>
-                )}
-                <Calendar
-                  mode="single"
-                  selected={field.value ? new Date(field.value) : undefined}
-                  onSelect={(date) => handleCalendarSelect(date, field.onChange)}
-                  disabled={isDateDisabled}
-                  initialFocus={!allowInput}
-                />
-              </div>
-            </PopoverContent>
-          </Popover>
-          {showClear && field.value && (
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={() => handleClear(field.onChange)}
-              aria-label="Auswahl löschen"
-              className="shrink-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        );
+      }}
     />
   );
 };

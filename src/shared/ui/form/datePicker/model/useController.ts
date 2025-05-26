@@ -38,12 +38,22 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
   const isDisabled = disabled || isSubmitting;
 
   const formatDate = useCallback(
-    (date: Date | string | null): string => {
+    (date: Date | string | null | undefined): string => {
       if (!date) return '';
 
       try {
-        const dateObj = typeof date === 'string' ? parseISO(date) : date;
+        let dateObj: Date;
+
+        if (typeof date === 'string') {
+          dateObj = parseISO(date);
+        } else if (date instanceof Date) {
+          dateObj = date;
+        } else {
+          return '';
+        }
+
         if (!isValid(dateObj)) return '';
+
         return format(dateObj, dateFormat, { locale });
       } catch {
         return '';

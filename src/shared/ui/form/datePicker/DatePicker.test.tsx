@@ -5,19 +5,12 @@ import { useForm } from 'react-hook-form';
 import { waitFor } from '@testing-library/dom';
 import type { RenderResult } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test } from 'vitest';
 
 import { Form as ShadcnForm } from '~/shared/shadcn';
 import { cleanup, render } from '~/shared/test/test-utils';
 
 import { DatePicker } from './DatePicker';
-
-// Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
 
 const setupDatePicker = async (): Promise<RenderResult> => {
   const TestWrapper = ({ children }: { children: (form: any) => React.ReactNode }) => {

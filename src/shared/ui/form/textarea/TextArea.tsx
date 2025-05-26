@@ -1,4 +1,3 @@
-// src/shared/ui/form/textarea/TextArea.tsx - REFACTORED IN THIS CHAT
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
@@ -75,6 +74,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       render={(field) => (
         <ShadcnTextarea
           {...field}
+          value={field.value ?? ''}
           placeholder={placeholder}
           disabled={isDisabled}
           rows={controllerRows}

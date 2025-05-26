@@ -68,7 +68,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
           <div className={groupClasses}>
             <FormControl>
               <ShadcnCheckbox
-                checked={field.value}
+                checked={field.value ?? false}
                 onCheckedChange={field.onChange}
                 disabled={isDisabled}
                 aria-required={required}

@@ -1,4 +1,3 @@
-// src/shared/ui/form/fieldWrapper/FieldWrapper.tsx
 import { memo, useEffect, useRef } from 'react';
 import type { FieldValues, PathValue } from 'react-hook-form';
 import { useFormContext, useWatch } from 'react-hook-form';
@@ -57,14 +56,11 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   const form = useFormContext<TFieldValues>();
   const currentValue = useWatch({ control, name });
 
-  // Store the initial default value with proper typing
   const defaultValueRef = useRef<PathValue<TFieldValues, typeof name> | undefined>(undefined);
 
   useEffect(() => {
-    // Capture the default value on mount
     const defaultValues = form.formState.defaultValues;
     if (defaultValues && defaultValueRef.current === undefined) {
-      // Navigate through nested paths
       const pathParts = (name as string).split('.');
       let value: unknown = defaultValues;
 
@@ -99,7 +95,6 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
         <FormItem className={className}>
           <div className="flex items-center justify-between">
             {label && <FormLabel required={required}>{label}</FormLabel>}
-            {/* Always reserve space for reset button to prevent layout shift */}
             <div className="h-6 w-6">
               {showReset && isDifferentFromDefault && (
                 <Button

@@ -163,7 +163,6 @@ export const UserForm = () => {
       schema={userSchema}
       defaultValues={{
         firstName: 'Max',
-        lastName: 'Mustermann',
         email: 'max.mustermann@example.com',
         password: '',
         age: 25,
@@ -171,8 +170,6 @@ export const UserForm = () => {
         website: 'https://example.com',
         birthDate: undefined,
         joinDate: undefined,
-        country: 'de',
-        language: 'de',
         acceptTerms: false,
         newsletter: true,
         bio: 'Dies ist eine Beispiel-Biografie.',
@@ -203,7 +200,6 @@ export const UserForm = () => {
                   label="Vorname"
                   placeholder="Max"
                   required
-                  showReset={true}
                 />
 
                 <FormInput
@@ -212,7 +208,6 @@ export const UserForm = () => {
                   label="Nachname"
                   placeholder="Mustermann"
                   required
-                  showReset={true}
                 />
               </div>
 
@@ -223,7 +218,6 @@ export const UserForm = () => {
                 label="E-Mail-Adresse"
                 placeholder="max.mustermann@example.com"
                 required
-                showReset={true}
               />
 
               {/* Password Input */}
@@ -234,7 +228,6 @@ export const UserForm = () => {
                 type="password"
                 placeholder="Mindestens 8 Zeichen"
                 required
-                showReset={true}
               />
 
               {/* Number Input */}
@@ -244,7 +237,6 @@ export const UserForm = () => {
                 label="Alter"
                 type="number"
                 placeholder="18"
-                showReset={true}
               />
 
               {/* Phone Input */}
@@ -254,7 +246,6 @@ export const UserForm = () => {
                 label="Telefonnummer"
                 type="tel"
                 placeholder="+49 123 456789"
-                showReset={true}
               />
 
               {/* URL Input */}
@@ -264,7 +255,6 @@ export const UserForm = () => {
                 label="Website"
                 type="url"
                 placeholder="https://example.com"
-                showReset={true}
               />
             </div>
 
@@ -279,7 +269,6 @@ export const UserForm = () => {
                 label="Geburtsdatum"
                 description="Mit Texteingabe - Datum wird beim Tippen validiert"
                 placeholder="Datum wählen oder eingeben"
-                showClear={true}
                 max={new Date()}
                 dateFormat="dd.MM.yyyy"
                 allowInput={true}
@@ -292,7 +281,6 @@ export const UserForm = () => {
                 label="Eintrittsdatum"
                 description="Nur Kalenderauswahl - keine Texteingabe"
                 placeholder="Datum auswählen"
-                showClear={true}
                 dateFormat="dd.MM.yyyy"
                 allowInput={false}
               />
@@ -320,7 +308,6 @@ export const UserForm = () => {
                 placeholder="Land auswählen"
                 options={countryOptions}
                 required
-                showClear={true}
                 emptyOption="Kein Land ausgewählt"
               />
 
@@ -331,7 +318,6 @@ export const UserForm = () => {
                 label="Hauptsprache"
                 placeholder="Sprache auswählen"
                 options={languageOptions}
-                showClear={true}
               />
             </div>
 
@@ -380,8 +366,6 @@ export const UserForm = () => {
                 name="notes"
                 label="Zusätzliche Notizen"
                 placeholder="Weitere Informationen..."
-                rows={3}
-                showReset={true}
               />
             </div>
           </div>

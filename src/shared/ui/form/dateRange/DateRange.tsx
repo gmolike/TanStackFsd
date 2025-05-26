@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 
 import { FormDescription, FormLabel } from '~/shared/shadcn';
 
@@ -53,29 +54,34 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   className,
   dateFormat,
   locale,
-}: Props<TFieldValues>) => (
-  <div className={className}>
-    {label && <FormLabel required={required}>{label}</FormLabel>}
-    <div className="grid grid-cols-2 gap-4">
-      <DatePicker
-        control={control}
-        name={startName}
-        label={startLabel}
-        disabled={disabled}
-        dateFormat={dateFormat}
-        locale={locale}
-      />
-      <DatePicker
-        control={control}
-        name={endName}
-        label={endLabel}
-        disabled={disabled}
-        dateFormat={dateFormat}
-        locale={locale}
-      />
+}: Props<TFieldValues>) => {
+  const startDate = useWatch({ control, name: startName });
+
+  return (
+    <div className={className}>
+      {label && <FormLabel required={required}>{label}</FormLabel>}
+      <div className="grid grid-cols-2 gap-4">
+        <DatePicker
+          control={control}
+          name={startName}
+          label={startLabel}
+          disabled={disabled}
+          dateFormat={dateFormat}
+          locale={locale}
+        />
+        <DatePicker
+          control={control}
+          name={endName}
+          label={endLabel}
+          disabled={disabled}
+          dateFormat={dateFormat}
+          locale={locale}
+          min={startDate ? new Date(startDate) : undefined}
+        />
+      </div>
+      {description && <FormDescription>{description}</FormDescription>}
     </div>
-    {description && <FormDescription>{description}</FormDescription>}
-  </div>
-);
+  );
+};
 
 export const DateRange = memo(Component) as typeof Component;

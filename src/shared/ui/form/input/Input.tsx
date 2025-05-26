@@ -1,4 +1,3 @@
-// src/shared/ui/form/input/Input.tsx - REFACTORED IN THIS CHAT
 import { forwardRef, memo } from 'react';
 import type { ComponentRef } from 'react';
 import type { FieldValues } from 'react-hook-form';
@@ -11,15 +10,6 @@ import { FormFieldWrapper } from '../fieldWrapper';
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
-/**
- * InputWithIcons - Input component with optional start and end icons
- *
- * @param startIcon - Icon to display at the start of the input
- * @param endIcon - Icon to display at the end of the input
- * @param className - Additional CSS classes for the input
- * @param wrapperClassName - Additional CSS classes for the wrapper div
- * @param ...props - All other props passed to the input element
- */
 const InputWithIcons = forwardRef<
   ComponentRef<typeof InputShadcn>,
   React.ComponentPropsWithoutRef<typeof InputShadcn> & {
@@ -121,6 +111,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
         <InputWithIcons
           {...field}
           {...inputProps}
+          value={field.value ?? ''}
           type={inputType}
           placeholder={placeholder}
           disabled={isDisabled}
