@@ -1,8 +1,6 @@
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
-import { isValid, parse } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { CalendarIcon, X } from 'lucide-react';
 
 import { cn } from '~/shared/lib/utils';
@@ -68,61 +66,32 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   dateFormat = 'dd.MM.yyyy',
   min,
   max,
-  locale = de,
+  locale,
   showReset = true,
   showClear = true,
   allowInput = true,
 }: Props<TFieldValues>) => {
-  const { isDisabled, formattedValue, isDateDisabled, inputValue, setInputValue, open, setOpen } =
-    useController({
-      control,
-      name,
-      disabled,
-      required,
-      dateFormat,
-      min,
-      max,
-      locale,
-    });
-
-  /**
-   * Handle manual date input
-   * @param value - Input value string
-   * @param onChange - Form field onChange handler
-   */
-  const handleInputChange = (value: string, onChange: (date: Date | null) => void) => {
-    setInputValue(value);
-
-    if (value === '') {
-      onChange(null);
-      return;
-    }
-
-    const parsedDate = parse(value, dateFormat, new Date(), { locale });
-    if (isValid(parsedDate) && !isDateDisabled(parsedDate)) {
-      onChange(parsedDate);
-    }
-  };
-
-  /**
-   * Handle calendar date selection
-   * @param date - Selected date or undefined
-   * @param onChange - Form field onChange handler
-   */
-  const handleCalendarSelect = (date: Date | undefined, onChange: (date: Date | null) => void) => {
-    onChange(date || null);
-    setOpen(false);
-    setInputValue('');
-  };
-
-  /**
-   * Handle clear button click
-   * @param onChange - Form field onChange handler
-   */
-  const handleClear = (onChange: (date: Date | null) => void) => {
-    onChange(null);
-    setInputValue('');
-  };
+  const {
+    isDisabled,
+    formattedValue,
+    isDateDisabled,
+    inputValue,
+    setInputValue,
+    open,
+    setOpen,
+    handleInputChange,
+    handleCalendarSelect,
+    handleClear,
+  } = useController({
+    control,
+    name,
+    disabled,
+    required,
+    dateFormat,
+    min,
+    max,
+    locale,
+  });
 
   return (
     <FormFieldWrapper
@@ -134,7 +103,8 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       className={className}
       showReset={showReset}
       render={(field) => {
-        const dateValue = field.value ? new Date(field.value) : undefined;
+        // Ensure we handle Date, string, or null properly
+        const dateValue = field.value ? new Date(field.value as string | Date) : undefined;
 
         return (
           <div className="flex items-center gap-2">

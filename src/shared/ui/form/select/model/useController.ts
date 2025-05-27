@@ -9,14 +9,15 @@ import type { ControllerProps, ControllerResult } from './types';
  *
  * @template TFieldValues - Type of the form values
  *
- * @param control - React Hook Form control object
- * @param name - Field name in the form
- * @param disabled - Whether the select is disabled
- * @param required - Whether the field is required
- * @param options - Array of options
- * @param emptyOption - Text for empty option
+ * @param props - Controller props
+ * @param props.control - React Hook Form control object
+ * @param props.name - Field name in the form
+ * @param props.disabled - Whether the select is disabled
+ * @param props.required - Whether the field is required
+ * @param props.options - Array of options
+ * @param props.emptyOption - Text for empty option
  *
- * @returns Controller result with processed state
+ * @returns Controller result with processed state and helper functions
  */
 export const useController = <TFieldValues extends FieldValues = FieldValues>({
   control,

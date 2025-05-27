@@ -1,4 +1,3 @@
-// src/shared/ui/form/footer/Footer.tsx
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
@@ -67,7 +66,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
     <div className={cn('space-y-4 border-t pt-6', className)}>
       {/* Error Message */}
       {error && (
-        <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="bg-destructive/10 text-destructive flex items-center gap-2 rounded-md p-3 text-sm">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>

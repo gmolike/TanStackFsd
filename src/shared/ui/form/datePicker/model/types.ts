@@ -163,4 +163,27 @@ export type ControllerResult = {
    * @param open - New open state
    */
   setOpen: (open: boolean) => void;
+
+  /**
+   * Handle manual date input
+   * @param value - Input value string
+   * @param onChange - Form field onChange handler
+   */
+  handleInputChange: (value: string, onChange: (date: Date | null) => void) => void;
+
+  /**
+   * Handle calendar date selection
+   * @param date - Selected date or undefined
+   * @param onChange - Form field onChange handler
+   */
+  handleCalendarSelect: (
+    date: Date | undefined,
+    onChange: (dateToChange: Date | null) => void,
+  ) => void;
+
+  /**
+   * Handle clear button click
+   * @param onChange - Form field onChange handler
+   */
+  handleClear: (onChange: (date: Date | null) => void) => void;
 };

@@ -1,4 +1,3 @@
-// src/shared/ui/form/footer/model/useController.tsx
 import type { FieldValues } from 'react-hook-form';
 import { useFormContext } from 'react-hook-form';
 
@@ -11,11 +10,12 @@ import type { ControllerProps, ControllerResult } from './types';
  *
  * @template TFieldValues - Type of the form values
  *
- * @param form - React Hook Form instance (optional, will use context if not provided)
- * @param onReset - Reset handler called after form reset
- * @param onCancel - Cancel handler called after form cancel
+ * @param props - Controller props
+ * @param props.form - React Hook Form instance (optional, will use context if not provided)
+ * @param props.onReset - Reset handler called after form reset
+ * @param props.onCancel - Cancel handler called after form cancel
  *
- * @returns Controller result with form state and reset handler
+ * @returns Controller result with form state and event handlers
  */
 export const useController = <TFieldValues extends FieldValues = FieldValues>({
   form: providedForm,

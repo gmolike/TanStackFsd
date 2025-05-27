@@ -1,6 +1,19 @@
-// src/shared/ui/form/fieldWrapper/model/types.ts - CREATED IN THIS CHAT
 import type { ReactElement } from 'react';
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
+import type { Control, FieldPath, FieldValues, PathValue } from 'react-hook-form';
+
+/**
+ * Field render props from React Hook Form
+ */
+export type FieldRenderProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = {
+  onChange: (value: PathValue<TFieldValues, TName>) => void;
+  onBlur: () => void;
+  value: PathValue<TFieldValues, TName>;
+  name: string;
+  ref: React.Ref<HTMLElement>;
+};
 
 /**
  * Props for the FormFieldWrapper component
@@ -57,11 +70,47 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = {
    * @param field - Field object with value, onChange, onBlur, etc.
    * @returns React element to render as the input
    */
-  render: (field: {
-    onChange: (value: any) => void;
-    onBlur: () => void;
-    value: any;
-    name: string;
-    ref: React.Ref<any>;
-  }) => ReactElement;
+  render: (field: FieldRenderProps<TFieldValues, FieldPath<TFieldValues>>) => ReactElement;
+};
+
+/**
+ * Props for the FieldWrapper controller hook
+ *
+ * @template TFieldValues - Type of the form values
+ */
+export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
+  /**
+   * React Hook Form control object
+   */
+  control: Control<TFieldValues>;
+
+  /**
+   * Field name in the form
+   */
+  name: FieldPath<TFieldValues>;
+
+  /**
+   * Whether to show reset button
+   */
+  showReset?: boolean;
+};
+
+/**
+ * Return value of the FieldWrapper controller hook
+ */
+export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
+  /**
+   * Whether the current value differs from default
+   */
+  isDifferentFromDefault: boolean;
+
+  /**
+   * Handle reset to default value
+   */
+  handleReset: () => void;
+
+  /**
+   * Current field value
+   */
+  currentValue: PathValue<TFieldValues, FieldPath<TFieldValues>>;
 };

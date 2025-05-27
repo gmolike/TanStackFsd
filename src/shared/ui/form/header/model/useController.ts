@@ -35,11 +35,17 @@ const VARIANTS = {
 /**
  * Hook for Header controller logic
  *
- * @param icon - Lucide icon component
- * @param avatar - Custom avatar element
- * @param variant - Layout variant
+ * @param props - Controller props
+ * @param props.title - Main title text
+ * @param props.description - Description text or ReactNode
+ * @param props.subtitle - Additional subtitle text
+ * @param props.icon - Lucide icon component
+ * @param props.avatar - Custom avatar element
+ * @param props.badge - Badge element
+ * @param props.actions - Action buttons
+ * @param props.variant - Layout variant
  *
- * @returns Controller result with layout helpers
+ * @returns Controller result with layout helpers and computed values
  */
 export const useController = ({
   icon,

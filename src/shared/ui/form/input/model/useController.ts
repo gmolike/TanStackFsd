@@ -9,12 +9,13 @@ import type { ControllerProps, ControllerResult, InputHTMLType } from './types';
  * Extract schema metadata from the form's resolver
  */
 const getFieldSchema = <TFieldValues extends FieldValues>(
-  control: TFieldValues,
+  control: ControllerProps<TFieldValues>['control'],
   fieldName: string,
 ): z.ZodTypeAny | undefined => {
   try {
     // Access the schema through the resolver
-    const resolver = control._options?.resolver;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const resolver = (control as any)._options?.resolver;
     if (!resolver) return undefined;
 
     // Try to get the schema from the resolver context
@@ -95,11 +96,12 @@ const inferInputType = (schema: z.ZodTypeAny): InputHTMLType => {
  *
  * @template TFieldValues - Type of the form values
  *
- * @param control - React Hook Form control object
- * @param name - Field name in the form
- * @param disabled - Whether the field is disabled
- * @param required - Whether the field is required (overrides schema detection)
- * @param type - HTML input type (overrides schema detection)
+ * @param props - Controller props
+ * @param props.control - React Hook Form control object
+ * @param props.name - Field name in the form
+ * @param props.disabled - Whether the field is disabled
+ * @param props.required - Whether the field is required (overrides schema detection)
+ * @param props.type - HTML input type (overrides schema detection)
  *
  * @returns Controller result with disabled state, required state, input type, and ARIA props
  */

@@ -8,13 +8,14 @@ import type { ControllerProps, ControllerResult } from './types';
  *
  * @template TFieldValues - Type of the form values
  *
- * @param control - React Hook Form control object
- * @param name - Field name in the form
- * @param disabled - Whether the textarea is disabled
- * @param required - Whether the field is required
- * @param rows - Number of visible text rows
+ * @param props - Controller props
+ * @param props.control - React Hook Form control object
+ * @param props.name - Field name in the form
+ * @param props.disabled - Whether the textarea is disabled
+ * @param props.required - Whether the field is required
+ * @param props.rows - Number of visible text rows
  *
- * @returns Controller result with disabled state and ARIA props
+ * @returns Controller result with disabled state, rows, and ARIA props
  */
 export const useController = <TFieldValues extends FieldValues = FieldValues>({
   control,
