@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { FieldValues } from 'react-hook-form';
+import type { FieldPath, FieldValues, PathValue } from 'react-hook-form';
 
 import { X } from 'lucide-react';
 
@@ -94,7 +94,8 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
         <div className="flex items-center gap-2">
           <ShadcnSelect
             onValueChange={(value) => {
-              field.onChange(value === '__empty__' ? '' : value);
+              const newValue = value === '__empty__' ? '' : value;
+              field.onChange(newValue as PathValue<TFieldValues, FieldPath<TFieldValues>>);
             }}
             value={normalizedValue}
             disabled={isDisabled}
@@ -118,7 +119,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => field.onChange('')}
+              onClick={() => field.onChange('' as PathValue<TFieldValues, FieldPath<TFieldValues>>)}
               aria-label="Auswahl löschen"
               className="shrink-0"
             >
