@@ -38,23 +38,6 @@ const getFieldSchema = <TFieldValues extends FieldValues>(
 };
 
 /**
- * Check if a Zod schema is required
- */
-const isSchemaRequired = (schema: z.ZodTypeAny): boolean => {
-  // Check if it's optional
-  if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
-    return false;
-  }
-
-  // Check if it's a default
-  if (schema instanceof z.ZodDefault) {
-    return false;
-  }
-
-  return true;
-};
-
-/**
  * Infer input type from Zod schema
  */
 const inferInputType = (schema: z.ZodTypeAny): InputHTMLType => {
@@ -100,27 +83,23 @@ const inferInputType = (schema: z.ZodTypeAny): InputHTMLType => {
  * @param props.control - React Hook Form control object
  * @param props.name - Field name in the form
  * @param props.disabled - Whether the field is disabled
- * @param props.required - Whether the field is required (overrides schema detection)
+ * @param props.required - Whether the field is required
  * @param props.type - HTML input type (overrides schema detection)
  *
- * @returns Controller result with disabled state, required state, input type, and ARIA props
+ * @returns Controller result with disabled state, input type, and ARIA props
  */
 export const useController = <TFieldValues extends FieldValues = FieldValues>({
   control,
   name,
   disabled,
-  required: explicitRequired,
+  required,
   type: explicitType,
 }: ControllerProps<TFieldValues>): ControllerResult => {
   const { isSubmitting, errors } = useFormState({ control });
   const fieldError = errors[name];
 
-  // Get field schema
+  // Get field schema for type inference only
   const fieldSchema = getFieldSchema(control, name as string);
-
-  // Determine if required (explicit takes precedence)
-  const isRequired =
-    explicitRequired !== undefined ? explicitRequired : isSchemaRequired(fieldSchema ?? z.string());
 
   // Determine input type (explicit takes precedence)
   const inputType = explicitType || inferInputType(fieldSchema ?? z.string());
@@ -129,13 +108,12 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
 
   const ariaProps = {
     'aria-invalid': !!fieldError,
-    'aria-required': isRequired,
+    'aria-required': !!required,
     'aria-disabled': isDisabled,
   };
 
   return {
     isDisabled,
-    isRequired,
     inputType,
     ariaProps,
   };

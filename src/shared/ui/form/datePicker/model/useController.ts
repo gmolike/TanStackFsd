@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { FieldValues } from 'react-hook-form';
+import type { FieldPath, FieldValues, PathValue } from 'react-hook-form';
 import { useFormState, useWatch } from 'react-hook-form';
 
 import { format, isValid, parse, parseISO } from 'date-fns';
@@ -32,7 +32,7 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
   min,
   max,
   locale = de,
-}: ControllerProps<TFieldValues>): ControllerResult => {
+}: ControllerProps<TFieldValues>): ControllerResult<TFieldValues> => {
   const { isSubmitting } = useFormState({ control });
   const value = useWatch({ control, name });
   const [inputValue, setInputValue] = useState('');
@@ -90,17 +90,17 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
    * Parses the input value and updates the form field if valid
    */
   const handleInputChange = useCallback(
-    (value: string, onChange: (date: Date | null) => void) => {
-      setInputValue(value);
+    (input: string, onChange: (date: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void) => {
+      setInputValue(input);
 
-      if (value === '') {
-        onChange(null);
+      if (input === '') {
+        onChange(null as PathValue<TFieldValues, FieldPath<TFieldValues>>);
         return;
       }
 
-      const parsedDate = parse(value, dateFormat, new Date(), { locale });
+      const parsedDate = parse(input, dateFormat, new Date(), { locale });
       if (isValid(parsedDate) && !isDateDisabled(parsedDate)) {
-        onChange(parsedDate);
+        onChange(parsedDate as PathValue<TFieldValues, FieldPath<TFieldValues>>);
       }
     },
     [dateFormat, locale, isDateDisabled],
@@ -111,8 +111,11 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
    * Updates the form field and closes the popover
    */
   const handleCalendarSelect = useCallback(
-    (date: Date | undefined, onChange: (date: Date | null) => void) => {
-      onChange(date || null);
+    (
+      date: Date | undefined,
+      onChange: (selectedDate: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void,
+    ) => {
+      onChange((date || null) as PathValue<TFieldValues, FieldPath<TFieldValues>>);
       setOpen(false);
       setInputValue('');
     },
@@ -123,10 +126,13 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
    * Handle clear button click
    * Clears the form field and input value
    */
-  const handleClear = useCallback((onChange: (date: Date | null) => void) => {
-    onChange(null);
-    setInputValue('');
-  }, []);
+  const handleClear = useCallback(
+    (onChange: (date: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void) => {
+      onChange(null as PathValue<TFieldValues, FieldPath<TFieldValues>>);
+      setInputValue('');
+    },
+    [],
+  );
 
   return {
     isDisabled,

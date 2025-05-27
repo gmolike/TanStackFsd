@@ -1,4 +1,4 @@
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
+import type { Control, FieldPath, FieldValues, PathValue } from 'react-hook-form';
 
 import type { Locale } from 'date-fns';
 
@@ -115,7 +115,7 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
 /**
  * Return value of the DatePicker controller hook
  */
-export type ControllerResult = {
+export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
   /**
    * Whether the date picker is disabled (considering form state)
    * True if explicitly disabled or form is submitting
@@ -169,7 +169,10 @@ export type ControllerResult = {
    * @param value - Input value string
    * @param onChange - Form field onChange handler
    */
-  handleInputChange: (value: string, onChange: (date: Date | null) => void) => void;
+  handleInputChange: (
+    value: string,
+    onChange: (date: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void,
+  ) => void;
 
   /**
    * Handle calendar date selection
@@ -178,12 +181,12 @@ export type ControllerResult = {
    */
   handleCalendarSelect: (
     date: Date | undefined,
-    onChange: (dateToChange: Date | null) => void,
+    onChange: (LocalDate: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void,
   ) => void;
 
   /**
    * Handle clear button click
    * @param onChange - Form field onChange handler
    */
-  handleClear: (onChange: (date: Date | null) => void) => void;
+  handleClear: (onChange: (date: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void) => void;
 };

@@ -1,7 +1,5 @@
-// src/shared/ui/form/input/model/types.ts - REFACTORED IN THIS CHAT
+import type { ComponentProps } from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
-
-import type { InputShadcn } from '~/shared/shadcn';
 
 /**
  * Supported HTML input types
@@ -51,8 +49,8 @@ export type BaseFieldProps<TFieldValues extends FieldValues = FieldValues> = {
   description?: string;
 
   /**
-   * Whether the field is required (overrides schema detection)
-   * @optional If not provided, requirement is auto-detected from Zod schema
+   * Whether the field is required
+   * @optional Used for validation and visual indicators
    */
   required?: boolean;
 
@@ -89,6 +87,18 @@ export type BaseFieldProps<TFieldValues extends FieldValues = FieldValues> = {
  */
 export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldProps<TFieldValues> & {
   /**
+   * Additional CSS classes for the input element
+   * @optional Applied directly to the input element
+   */
+  inputClassName?: string;
+
+  /**
+   * Additional CSS classes for the input wrapper div
+   * @optional Applied when icons are present
+   */
+  wrapperClassName?: string;
+
+  /**
    * Icon component to display at the start of the input
    * @optional Renders inside the input field on the left
    */
@@ -106,7 +116,7 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldPro
    * @optional If not provided, type is auto-detected from Zod schema
    */
   type?: InputHTMLType;
-} & Omit<React.ComponentPropsWithoutRef<typeof InputShadcn>, 'name' | 'type' | 'required'>;
+} & Omit<ComponentProps<'input'>, 'name' | 'type' | 'required' | 'ref'>;
 
 /**
  * Props for the Input controller hook
@@ -133,8 +143,8 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
   disabled?: boolean;
 
   /**
-   * Whether the field is required (overrides schema detection)
-   * @optional If not provided, extracted from Zod schema
+   * Whether the field is required
+   * @optional Used for aria-required attribute
    */
   required?: boolean;
 
@@ -154,12 +164,6 @@ export type ControllerResult = {
    * True if explicitly disabled or form is submitting
    */
   isDisabled: boolean;
-
-  /**
-   * Whether the field is required (from schema or explicit)
-   * Extracted from Zod schema or explicit prop
-   */
-  isRequired: boolean;
 
   /**
    * HTML input type (from schema or explicit)

@@ -103,7 +103,6 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       className={className}
       showReset={showReset}
       render={(field) => {
-        // Ensure we handle Date, string, or null properly
         const dateValue = field.value ? new Date(field.value as string | Date) : undefined;
 
         return (
@@ -132,7 +131,9 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                         type="text"
                         placeholder={dateFormat}
                         value={inputValue || formattedValue}
-                        onChange={(e) => handleInputChange(e.target.value, field.onChange)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleInputChange(e.target.value, field.onChange)
+                        }
                         onBlur={() => {
                           if (inputValue && !field.value) {
                             setInputValue('');
@@ -145,7 +146,9 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                   <Calendar
                     mode="single"
                     selected={dateValue}
-                    onSelect={(date) => handleCalendarSelect(date, field.onChange)}
+                    onSelect={(date: Date | undefined) =>
+                      handleCalendarSelect(date, field.onChange)
+                    }
                     disabled={isDateDisabled}
                     initialFocus={!allowInput}
                   />

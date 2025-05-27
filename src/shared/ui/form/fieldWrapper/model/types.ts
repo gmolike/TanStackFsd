@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, RefCallback } from 'react';
 import type { Control, FieldPath, FieldValues, PathValue } from 'react-hook-form';
 
 /**
@@ -12,7 +12,7 @@ export type FieldRenderProps<
   onBlur: () => void;
   value: PathValue<TFieldValues, TName>;
   name: string;
-  ref: React.Ref<HTMLElement>;
+  ref: RefCallback<HTMLElement>;
 };
 
 /**

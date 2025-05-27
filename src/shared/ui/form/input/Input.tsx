@@ -1,5 +1,4 @@
-import { forwardRef, memo } from 'react';
-import type { ComponentRef } from 'react';
+import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
 import { cn } from '~/shared/lib/utils';
@@ -10,42 +9,8 @@ import { FormFieldWrapper } from '../fieldWrapper';
 import type { Props } from './model/types';
 import { useController } from './model/useController';
 
-const InputWithIcons = forwardRef<
-  ComponentRef<typeof InputShadcn>,
-  React.ComponentPropsWithoutRef<typeof InputShadcn> & {
-    startIcon?: React.ReactNode;
-    endIcon?: React.ReactNode;
-    wrapperClassName?: string;
-  }
->(({ startIcon, endIcon, className, wrapperClassName, ...props }, ref) => {
-  if (!startIcon && !endIcon) {
-    return <InputShadcn ref={ref} className={className} {...props} />;
-  }
-
-  return (
-    <div className={cn('relative', wrapperClassName)}>
-      {startIcon && (
-        <div className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground">
-          {startIcon}
-        </div>
-      )}
-      <InputShadcn
-        ref={ref}
-        className={cn(startIcon && 'pl-10', endIcon && 'pr-10', className)}
-        {...props}
-      />
-      {endIcon && (
-        <div className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground">
-          {endIcon}
-        </div>
-      )}
-    </div>
-  );
-});
-InputWithIcons.displayName = 'InputWithIcons';
-
 /**
- * Input Component - Form input field with reset functionality
+ * Input Component - Form input field with icons and reset functionality
  *
  * @template TFieldValues - Type of the form values
  *
@@ -56,6 +21,8 @@ InputWithIcons.displayName = 'InputWithIcons';
  * @param required - Whether the field is required
  * @param placeholder - Placeholder text for the input
  * @param className - Additional CSS classes for the form item container
+ * @param inputClassName - Additional CSS classes for the input element
+ * @param wrapperClassName - Additional CSS classes for the input wrapper
  * @param startIcon - Icon component to display at the start of the input
  * @param endIcon - Icon component to display at the end of the input
  * @param disabled - Whether the input is disabled
@@ -83,6 +50,8 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   required,
   placeholder,
   className,
+  inputClassName,
+  wrapperClassName,
   startIcon,
   endIcon,
   disabled,
@@ -90,7 +59,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   showReset = true,
   ...inputProps
 }: Props<TFieldValues>) => {
-  const { isDisabled, ariaProps, isRequired, inputType } = useController({
+  const { isDisabled, ariaProps, inputType } = useController({
     control,
     name,
     disabled,
@@ -104,22 +73,40 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       name={name}
       label={label}
       description={description}
-      required={isRequired}
+      required={required}
       className={className}
       showReset={showReset}
       render={(field) => (
-        <InputWithIcons
-          {...field}
-          {...inputProps}
-          value={field.value ?? ''}
-          type={inputType}
-          placeholder={placeholder}
-          disabled={isDisabled}
-          startIcon={startIcon}
-          endIcon={endIcon}
-          {...ariaProps}
-          className={cn(showReset && 'pr-10')}
-        />
+        <div className={cn('relative', wrapperClassName)}>
+          {startIcon && (
+            <div className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2">
+              {startIcon}
+            </div>
+          )}
+          <InputShadcn
+            {...inputProps}
+            {...ariaProps}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            name={field.name}
+            value={field.value ?? ''}
+            ref={field.ref}
+            type={inputType}
+            placeholder={placeholder}
+            disabled={isDisabled}
+            className={cn(
+              startIcon && 'pl-10',
+              endIcon && 'pr-10',
+              showReset && !endIcon && 'pr-10',
+              inputClassName,
+            )}
+          />
+          {endIcon && (
+            <div className="text-muted-foreground pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2">
+              {endIcon}
+            </div>
+          )}
+        </div>
       )}
     />
   );
