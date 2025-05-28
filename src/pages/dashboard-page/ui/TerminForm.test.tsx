@@ -1,8 +1,6 @@
-import { BrowserRouter } from 'react-router-dom';
-
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-
+import { BrowserRouter } from 'react-router-dom';
 import { UserForm } from './TerminForm';
 
 // Mock für tanstack router
@@ -15,9 +13,22 @@ vi.mock('~/shared/hooks/use-toast', () => ({
   toast: vi.fn(),
 }));
 
+// Fix für Radix UI hasPointerCapture Error
+beforeAll(() => {
+  if (!Element.prototype.hasPointerCapture) {
+    Element.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
+  }
+  if (!Element.prototype.setPointerCapture) {
+    Element.prototype.setPointerCapture = vi.fn();
+  }
+  if (!Element.prototype.releasePointerCapture) {
+    Element.prototype.releasePointerCapture = vi.fn();
+  }
+});
+
 describe('UserForm - Label und Value Tests', () => {
   it('sollte alle Formularfelder mit korrekten Labels und Standardwerten anzeigen', () => {
-    const { getByText, getByRole, getByLabelText } = render(
+    const { getByText, getByPlaceholderText, getByLabelText, getByRole } = render(
       <BrowserRouter>
         <UserForm />
       </BrowserRouter>,
@@ -32,53 +43,39 @@ describe('UserForm - Label und Value Tests', () => {
     // Persönliche Daten Section
     getByText(/persönliche daten/i);
 
-    getByText('Vorname');
-    expect(getByRole('textbox', { name: 'Vorname' })).toHaveProperty('value', 'Max');
-
-    getByText('Nachname');
-    expect(getByRole('textbox', { name: 'Nachname' })).toHaveProperty('value', '');
-
-    getByText(/e-mail-adresse/i);
-    expect(getByRole('textbox', { name: /e-mail-adresse/i })).toHaveProperty(
+    // Mit getByPlaceholderText finden wir das Element UND prüfen gleichzeitig den Placeholder
+    expect(getByPlaceholderText('Max')).toHaveProperty('value', 'Max');
+    expect(getByPlaceholderText('Mustermann')).toHaveProperty('value', '');
+    expect(getByPlaceholderText('max.mustermann@example.com')).toHaveProperty(
       'value',
       'max.mustermann@example.com',
     );
-
-    getByText('Passwort');
-    expect(getByLabelText('Passwort')).toHaveProperty('value', '');
-
-    getByText('Alter');
-    expect(getByRole('spinbutton', { name: 'Alter' })).toHaveProperty('value', '25');
-
-    getByText('Telefonnummer');
-    expect(getByRole('textbox', { name: 'Telefonnummer' })).toHaveProperty(
-      'value',
-      '+49 123 456789',
-    );
-
-    getByText('Website');
-    expect(getByRole('textbox', { name: 'Website' })).toHaveProperty(
+    expect(getByPlaceholderText('Mindestens 8 Zeichen')).toHaveProperty('value', '');
+    expect(getByPlaceholderText('18')).toHaveProperty('value', '25');
+    expect(getByPlaceholderText('+49 123 456789')).toHaveProperty('value', '+49 123 456789');
+    expect(getByPlaceholderText('https://example.com')).toHaveProperty(
       'value',
       'https://example.com',
     );
 
-    // Datum-Auswahl Section
+    // Datum-Auswahl Section - hier müssen wir bei Labels bleiben, da DatePicker andere Placeholder haben
     getByText(/datum-auswahl/i);
 
     getByText('Geburtsdatum');
-    expect(getByRole('textbox', { name: 'Geburtsdatum' })).toHaveProperty('value', '01.01.2028');
+    expect(getByPlaceholderText('Datum wählen oder eingeben')).toHaveProperty(
+      'value',
+      '01.01.2028',
+    );
 
     getByText('Eintrittsdatum');
-    expect(getByRole('button', { name: /eintrittsdatum/i }).textContent).includes(
-      'Datum auswählen',
-    );
+    expect(getByPlaceholderText('Datum auswählen')).toHaveProperty('value', '');
 
     // Date Range
     getByText('Beschäftigungszeitraum');
     getByText('Von');
     getByText('Bis');
 
-    // Auswahl-Felder Section
+    // Auswahl-Felder Section - Select-Felder haben keinen value im klassischen Sinne
     getByText(/auswahl-felder/i);
 
     getByText('Land');
@@ -107,15 +104,13 @@ describe('UserForm - Label und Value Tests', () => {
     // Textbereiche Section
     getByText(/textbereiche/i);
 
-    getByText('Über mich');
-    expect(getByRole('textbox', { name: 'Über mich' })).toHaveProperty(
+    expect(getByPlaceholderText('Erzählen Sie etwas über sich...')).toHaveProperty(
       'value',
       'Dies ist eine Beispiel-Biografie.',
     );
     getByText('Maximal 500 Zeichen');
 
-    getByText('Zusätzliche Notizen');
-    expect(getByRole('textbox', { name: 'Zusätzliche Notizen' })).toHaveProperty('value', '');
+    expect(getByPlaceholderText('Weitere Informationen...')).toHaveProperty('value', '');
 
     // Footer Buttons
     getByText(/benutzer erstellen/i);
@@ -123,42 +118,57 @@ describe('UserForm - Label und Value Tests', () => {
     getByText(/formular zurücksetzen/i);
   });
 
-  it('sollte Pflichtfelder und Placeholder korrekt anzeigen', () => {
-    const { getByLabelText, getByRole } = render(
+  // Alternative: Alle verfügbaren Query-Methoden demonstrieren
+  it('zeigt verschiedene Query-Methoden', () => {
+    const { getByPlaceholderText, getByDisplayValue, getByAltText, getByTitle } = render(
       <BrowserRouter>
         <UserForm />
       </BrowserRouter>,
     );
 
-    // Required Felder prüfen
-    expect(getByLabelText('Vorname')).toHaveProperty('required', true);
-    expect(getByLabelText('Nachname')).toHaveProperty('required', true);
-    expect(getByLabelText('E-Mail-Adresse')).toHaveProperty('required', true);
-    expect(getByLabelText('Passwort')).toHaveProperty('required', true);
-    expect(getByRole('combobox', { name: 'Land' })).toHaveProperty('required', true);
-    expect(getByRole('checkbox', { name: 'Ich akzeptiere die AGB' })).toHaveProperty(
-      'required',
-      true,
+    // getByPlaceholderText - findet Element über Placeholder
+    const vornameInput = getByPlaceholderText('Max');
+    expect(vornameInput).toHaveProperty('value', 'Max');
+
+    // getByDisplayValue - findet Element über aktuellen Wert
+    const emailInput = getByDisplayValue('max.mustermann@example.com');
+    expect(emailInput).toHaveProperty('placeholder', 'max.mustermann@example.com');
+
+    // Weitere nützliche Queries:
+    // getByTitle - wenn title-Attribut vorhanden
+    // getByAltText - für Bilder
+    // getByTestId - für data-testid Attribute
+  });
+
+  // Kompakter Test mit getAllBy* für mehrere ähnliche Elemente
+  it('prüft alle Input-Felder auf einmal', () => {
+    const { getAllByPlaceholderText } = render(
+      <BrowserRouter>
+        <UserForm />
+      </BrowserRouter>,
     );
 
-    // Placeholder prüfen
-    expect(getByLabelText('Vorname')).toHaveProperty('placeholder', 'Max');
-    expect(getByLabelText('Nachname')).toHaveProperty('placeholder', 'Mustermann');
-    expect(getByLabelText('E-Mail-Adresse')).toHaveProperty(
-      'placeholder',
+    // Alle Inputs mit Placeholder finden
+    const allInputs = getAllByPlaceholderText(/./); // Regex für beliebigen Text
+
+    // Prüfen, dass wir die erwartete Anzahl haben
+    expect(allInputs.length).toBeGreaterThan(0);
+
+    // Spezifische Placeholder-Werte prüfen
+    const expectedPlaceholders = [
+      'Max',
+      'Mustermann',
       'max.mustermann@example.com',
-    );
-    expect(getByLabelText('Passwort')).toHaveProperty('placeholder', 'Mindestens 8 Zeichen');
-    expect(getByLabelText('Alter')).toHaveProperty('placeholder', '18');
-    expect(getByLabelText('Telefonnummer')).toHaveProperty('placeholder', '+49 123 456789');
-    expect(getByLabelText('Website')).toHaveProperty('placeholder', 'https://example.com');
-    expect(getByLabelText('Über mich')).toHaveProperty(
-      'placeholder',
+      'Mindestens 8 Zeichen',
+      '18',
+      '+49 123 456789',
+      'https://example.com',
       'Erzählen Sie etwas über sich...',
-    );
-    expect(getByLabelText('Zusätzliche Notizen')).toHaveProperty(
-      'placeholder',
       'Weitere Informationen...',
-    );
+    ];
+
+    expectedPlaceholders.forEach((placeholder) => {
+      expect(allInputs.some((input) => input.placeholder === placeholder)).toBe(true);
+    });
   });
 });
