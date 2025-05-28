@@ -1,4 +1,3 @@
-// src/shared/ui/form/textarea/TextArea.test.tsx
 import { useForm } from 'react-hook-form';
 
 import { waitFor } from '@testing-library/dom';

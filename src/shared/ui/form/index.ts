@@ -25,6 +25,7 @@ export { FormProvider, useFormContext } from 'react-hook-form';
 
 // Field components with Form prefix
 export { Checkbox as FormCheckbox } from './checkbox';
+export { Combobox as FormCombobox } from './combobox';
 export { DatePicker as FormDatePicker } from './datePicker';
 export { DateRange as FormDateRange } from './dateRange';
 export { Input as FormInput } from './input';
@@ -37,6 +38,7 @@ export { Header as FormHeader } from './header';
 
 // Re-export controllers for advanced usage
 export { useCheckboxController } from './checkbox';
+export { useComboboxController } from './combobox';
 export { useDatePickerController } from './datePicker';
 export { useFooterController } from './footer';
 export { useHeaderController } from './header';
@@ -77,6 +79,12 @@ export type {
 } from './textarea/model/types';
 
 // Layout types
+export type {
+  ControllerProps as ComboboxControllerProps,
+  ControllerResult as ComboboxControllerResult,
+  Option as ComboboxOption,
+  Props as ComboboxProps,
+} from './combobox/model/types';
 export type {
   ControllerProps as FooterControllerProps,
   ControllerResult as FooterControllerResult,
