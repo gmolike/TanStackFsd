@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
-import { Article } from '~/entities/article';
+import type { Article } from '~/entities/article';
+
 import {
   InputShadcn as Input,
   Table,
@@ -12,7 +13,7 @@ import {
 } from '~/shared/shadcn';
 
 interface ArticleListProps {
-  articles: Article[];
+  articles: Array<Article>;
 }
 
 export function ArticleList({ articles }: ArticleListProps) {

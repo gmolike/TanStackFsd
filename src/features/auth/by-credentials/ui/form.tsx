@@ -14,7 +14,8 @@ import {
   Label,
 } from '~/shared/shadcn';
 
-import { LoginFormData, loginSchema } from '../model/schema';
+import type { LoginFormData } from '../model/schema';
+import { loginSchema } from '../model/schema';
 
 export function LoginForm() {
   const navigate = useNavigate();

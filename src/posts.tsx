@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
 import axios from 'axios';
 
 async function loaderDelayFn<T>(fn: (...args: Array<unknown>) => Promise<T> | T) {

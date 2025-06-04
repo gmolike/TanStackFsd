@@ -1,1 +1,2 @@
-export { ArticlesPage } from './ui/page';
+export { ArticlesDetailPage } from './detail/ui/page';
+export { ArticlesListPage } from './list/ui/page';

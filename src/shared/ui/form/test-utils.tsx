@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
 import type { ReactNode } from 'react';
 import type { DefaultValues, UseFormReturn } from 'react-hook-form';

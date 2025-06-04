@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { TeamMember } from '~/entities/team-member';
-import { Badge } from '~/shared/ui/badge';
+import type { TeamMember } from '~/entities/team-member';
+
 import {
   InputShadcn as Input,
   Table,
@@ -11,9 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from '~/shared/shadcn';
+import { Badge } from '~/shared/ui/badge';
 
 interface TeamListProps {
-  teamMembers: TeamMember[];
+  teamMembers: Array<TeamMember>;
 }
 
 export function TeamList({ teamMembers }: TeamListProps) {
@@ -21,7 +22,7 @@ export function TeamList({ teamMembers }: TeamListProps) {
 
   const filteredMembers = teamMembers.filter(
     (member) =>
-      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.role.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -54,6 +55,7 @@ export function TeamList({ teamMembers }: TeamListProps) {
           <TableHeader>
             <TableRow>
               <TableHead>ID</TableHead>
+              <TableHead>Vorname</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>E-Mail</TableHead>
               <TableHead>Rolle</TableHead>
@@ -65,7 +67,8 @@ export function TeamList({ teamMembers }: TeamListProps) {
             {filteredMembers.map((member) => (
               <TableRow key={member.id}>
                 <TableCell className="font-medium">{member.id}</TableCell>
-                <TableCell>{member.name}</TableCell>
+                <TableCell>{member.firstName}</TableCell>
+                <TableCell>{member.lastName}</TableCell>
                 <TableCell>{member.email}</TableCell>
                 <TableCell>{member.role}</TableCell>
                 <TableCell>{member.department}</TableCell>
