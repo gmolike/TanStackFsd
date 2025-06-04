@@ -1,14 +1,9 @@
 import type { ReactNode } from 'react';
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
+import type { Control, FieldValues } from 'react-hook-form';
 
 import type { LucideIcon } from 'lucide-react';
 
 import type { BaseFieldProps } from '../../input/model/types';
-
-/**
- * Display mode for the button content
- */
-export type DisplayMode = 'value' | 'children' | 'formatted';
 
 /**
  * Props for the DialogButton component
@@ -17,30 +12,19 @@ export type DisplayMode = 'value' | 'children' | 'formatted';
  */
 export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldProps<TFieldValues> & {
   /**
-   * Children to render in the button (when displayMode is 'children')
+   * Children to render in the button
+   * Can be a ReactNode or a function that receives the current field value
+   */
+  children: ReactNode | ((value: unknown) => ReactNode);
+
+  /**
+   * Additional content to display below the button
    * @optional Can be a ReactNode or a function that receives the current field value
    */
-  children?: ReactNode | ((value: TFieldValues[keyof TFieldValues]) => ReactNode);
+  additionalContent?: ReactNode | ((value: unknown) => ReactNode);
 
   /**
-   * Display mode for the button content
-   * @default 'value'
-   * - 'value': Shows the raw field value
-   * - 'children': Renders the children prop
-   * - 'formatted': Uses the formatter function to display the value
-   */
-  displayMode?: DisplayMode;
-
-  /**
-   * Formatter function for the field value (when displayMode is 'formatted')
-   * @optional Transforms the field value into a display string
-   * @param value - The current field value
-   * @returns Formatted string to display
-   */
-  formatter?: (value: TFieldValues[keyof TFieldValues]) => string;
-
-  /**
-   * Text to show when the field value is empty
+   * Text to show when the field value is empty (only used if children function returns empty)
    * @default 'Auswählen...'
    */
   emptyText?: string;
@@ -72,7 +56,7 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldPro
   /**
    * Dialog render function
    * @required Function that renders the dialog
-   * Receives props for controlling dialog state and field value
+   * The onChange function accepts any type to be compatible with React Hook Form
    */
   dialog: (props: {
     /**
@@ -84,17 +68,19 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldPro
      */
     onOpenChange: (open: boolean) => void;
     /**
-     * Current field value (type-safe based on field name)
+     * Current field value
      */
-    value: TFieldValues[keyof TFieldValues];
+    value: unknown;
     /**
      * Function to update the field value
+     * Uses 'any' for compatibility with React Hook Form's onChange
      */
-    onChange: (value: TFieldValues[keyof TFieldValues]) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onChange: (value: any) => void;
     /**
      * Field name
      */
-    name: FieldPath<TFieldValues>;
+    name: string;
   }) => ReactNode;
 
   /**
@@ -121,29 +107,9 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
   control: Control<TFieldValues>;
 
   /**
-   * Field name in the form
-   */
-  name: FieldPath<TFieldValues>;
-
-  /**
    * Whether the button is disabled
    */
   disabled?: boolean;
-
-  /**
-   * Whether the field is required
-   */
-  required?: boolean;
-
-  /**
-   * Display mode
-   */
-  displayMode?: DisplayMode;
-
-  /**
-   * Formatter function
-   */
-  formatter?: (value: TFieldValues[keyof TFieldValues]) => string;
 
   /**
    * Empty text
@@ -153,7 +119,7 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
   /**
    * Children prop
    */
-  children?: ReactNode | ((value: TFieldValues[keyof TFieldValues]) => ReactNode);
+  children: ReactNode | ((value: unknown) => ReactNode);
 };
 
 /**
@@ -161,7 +127,7 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
  *
  * @template TFieldValues - Type of the form values
  */
-export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
+export type ControllerResult = {
   /**
    * Whether the button is disabled (considering form state)
    */
@@ -187,11 +153,11 @@ export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
    * @param value - Current field value
    * @returns Content to display in the button
    */
-  getDisplayContent: (value: TFieldValues[keyof TFieldValues]) => ReactNode;
+  getDisplayContent: (value: unknown) => ReactNode;
 
   /**
    * Whether the field has a value
    * @param value - Current field value
    */
-  hasValue: (value: TFieldValues[keyof TFieldValues]) => boolean;
+  hasValue: (value: unknown) => boolean;
 };

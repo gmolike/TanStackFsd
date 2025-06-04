@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import type { FieldPath, FieldValues } from 'react-hook-form';
+import { memo } from 'react';
+import type { FieldValues } from 'react-hook-form';
 
 import { cn } from '~/shared/lib/utils';
 import { Button } from '~/shared/shadcn';
@@ -22,10 +22,9 @@ import { useController } from './model/useController';
  * @param placeholder - Placeholder text (deprecated, use emptyText)
  * @param disabled - Whether the button is disabled
  * @param className - Additional CSS classes for the form item container
- * @param children - Content to render in the button (when displayMode is 'children')
- * @param displayMode - How to display the button content ('value' | 'children' | 'formatted')
- * @param formatter - Function to format the field value for display
- * @param emptyText - Text to show when the field value is empty
+ * @param children - Content to render in the button (required)
+ * @param additionalContent - Additional content to display below the button
+ * @param emptyText - Text to show when the field value is empty and children returns empty
  * @param variant - Button variant from ShadCN
  * @param size - Button size
  * @param icon - Icon to display on the left side of the button
@@ -42,9 +41,6 @@ import { useController } from './model/useController';
  *   control={form.control}
  *   name="selectedUser"
  *   label="Select User"
- *   emptyText="No user selected"
- *   formatter={(user) => user?.name || 'Unknown'}
- *   displayMode="formatted"
  *   icon={UserIcon}
  *   endIcon={ChevronDown}
  *   dialog={({ open, onOpenChange, value, onChange }) => (
@@ -55,39 +51,25 @@ import { useController } from './model/useController';
  *       onSelect={onChange}
  *     />
  *   )}
- * />
+ * >
+ *   {(value) => value?.name || 'No user selected'}
+ * </DialogButton>
  *
- * // With date range dialog
+ * // With additional content
  * <DialogButton
  *   control={form.control}
  *   name="dateRange"
  *   label="Date Range"
- *   displayMode="children"
  *   icon={CalendarIcon}
+ *   additionalContent={(value) => value && (
+ *     <span className="text-xs text-muted-foreground">
+ *       Duration: {calculateDays(value.start, value.end)} days
+ *     </span>
+ *   )}
  *   dialog={<DateRangeDialog />}
  * >
  *   {(value) => value ? `${formatDate(value.start)} - ${formatDate(value.end)}` : 'Select dates'}
  * </DialogButton>
- *
- * // With category picker
- * <DialogButton
- *   control={form.control}
- *   name="category"
- *   label="Category"
- *   displayMode="formatted"
- *   formatter={(category) => category?.path || 'No category'}
- *   dialog={({ open, onOpenChange, value, onChange }) => (
- *     <CategoryTreeDialog
- *       open={open}
- *       onOpenChange={onOpenChange}
- *       selectedCategory={value}
- *       onSelectCategory={(cat) => {
- *         onChange(cat);
- *         onOpenChange(false);
- *       }}
- *     />
- *   )}
- * />
  * ```
  */
 const Component = <TFieldValues extends FieldValues = FieldValues>({
@@ -100,8 +82,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   disabled,
   className,
   children,
-  displayMode = 'value',
-  formatter,
+  additionalContent,
   emptyText = placeholder || 'Auswählen...',
   variant = 'outline',
   size = 'default',
@@ -115,11 +96,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   const { isDisabled, dialogOpen, setDialogOpen, handleClick, getDisplayContent, hasValue } =
     useController({
       control,
-      name,
       disabled,
-      required,
-      displayMode,
-      formatter,
       emptyText,
       children,
     });
@@ -137,32 +114,44 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
         const displayContent = getDisplayContent(field.value);
         const isEmpty = !hasValue(field.value);
 
+        // Get additional content if provided
+        const additionalContentNode = additionalContent
+          ? typeof additionalContent === 'function'
+            ? additionalContent(field.value)
+            : additionalContent
+          : null;
+
         return (
           <>
-            <Button
-              type="button"
-              variant={variant}
-              size={size}
-              onClick={handleClick}
-              disabled={isDisabled}
-              className={cn(
-                fullWidth && 'w-full',
-                'justify-start',
-                isEmpty && 'text-muted-foreground',
-                buttonClassName,
-              )}
-            >
-              {/* Left Icon */}
-              {Icon && <Icon className="h-4 w-4 shrink-0" />}
+            <div className="space-y-1">
+              <Button
+                type="button"
+                variant={variant}
+                size={size}
+                onClick={handleClick}
+                disabled={isDisabled}
+                className={cn(
+                  fullWidth && 'w-full',
+                  'justify-start',
+                  isEmpty && 'text-muted-foreground',
+                  buttonClassName,
+                )}
+              >
+                {/* Left Icon */}
+                {Icon && <Icon className="h-4 w-4 shrink-0" />}
 
-              {/* Content */}
-              <span className={cn('flex-1', isEmpty ? 'font-normal' : 'font-medium')}>
-                {displayContent}
-              </span>
+                {/* Content */}
+                <span className={cn('flex-1', isEmpty ? 'font-normal' : 'font-medium')}>
+                  {displayContent}
+                </span>
 
-              {/* Right Icon */}
-              {EndIcon && <EndIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />}
-            </Button>
+                {/* Right Icon */}
+                {EndIcon && <EndIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />}
+              </Button>
+
+              {/* Additional Content */}
+              {additionalContentNode && <div className="px-1">{additionalContentNode}</div>}
+            </div>
 
             {/* Dialog - always rendered as function */}
             {dialog({
@@ -170,7 +159,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
               onOpenChange: setDialogOpen,
               value: field.value,
               onChange: field.onChange,
-              name,
+              name: name as string,
             })}
           </>
         );

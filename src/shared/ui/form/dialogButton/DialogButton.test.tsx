@@ -1,5 +1,5 @@
-import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import { waitFor } from '@testing-library/dom';
 import type { RenderResult } from '@testing-library/react';
@@ -32,8 +32,16 @@ interface DateRange {
 const setupDialogButton = async (
   props: Partial<Parameters<typeof DialogButton>[0]> = {},
 ): Promise<RenderResult> => {
-  const defaultDialog = ({ open }: { open: boolean }) => (
-    <div role="dialog" aria-hidden={!open}>
+  const defaultDialog = ({
+    open: dialogOpen,
+  }: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    value: unknown;
+    onChange: (value: any) => void;
+    name: string;
+  }) => (
+    <div role="dialog" aria-hidden={!dialogOpen}>
       Default Test Dialog
     </div>
   );
@@ -54,6 +62,11 @@ const setupDialogButton = async (
     );
   };
 
+  const defaultChildren = (value: unknown): React.ReactNode => {
+    const item = value as TestItem | null;
+    return item ? item.name : 'No item selected';
+  };
+
   const renderResult = render(
     <TestWrapper>
       {(form) => (
@@ -63,7 +76,9 @@ const setupDialogButton = async (
           label="Select Item"
           dialog={defaultDialog}
           {...props}
-        />
+        >
+          {props.children || defaultChildren}
+        </DialogButton>
       )}
     </TestWrapper>,
   );
@@ -79,7 +94,7 @@ describe('DialogButton Component', () => {
     cleanup();
   });
 
-  test('renders button with empty text', async () => {
+  test('renders button with empty text when no value', async () => {
     const { getByRole } = await setupDialogButton({
       emptyText: 'No item selected',
     });
@@ -88,7 +103,7 @@ describe('DialogButton Component', () => {
     expect(button.textContent).toContain('No item selected');
   });
 
-  test('displays formatted value', async () => {
+  test('displays value using children function', async () => {
     const TestWrapper = ({
       children,
     }: {
@@ -112,9 +127,13 @@ describe('DialogButton Component', () => {
             control={form.control}
             name="selectedItem"
             label="Select Item"
-            displayMode="formatted"
-            formatter={(item) => item?.name || 'Unknown'}
-          />
+            dialog={() => <div role="dialog">Test Dialog</div>}
+          >
+            {(value: unknown) => {
+              const item = value as TestItem | null;
+              return item?.name || 'Unknown';
+            }}
+          </DialogButton>
         )}
       </TestWrapper>,
     );
@@ -137,7 +156,18 @@ describe('DialogButton Component', () => {
     expect(svg).toBeTruthy();
   });
 
-  test('renders children as function', async () => {
+  test('renders children as static content', async () => {
+    const { getByRole } = await setupDialogButton({
+      children: 'Static Content',
+    });
+
+    await waitFor(() => {
+      const button = getByRole('button');
+      expect(button.textContent).toContain('Static Content');
+    });
+  });
+
+  test('renders date range with children function', async () => {
     const TestWrapper = ({
       children,
     }: {
@@ -161,10 +191,13 @@ describe('DialogButton Component', () => {
             control={form.control}
             name="selectedItem"
             label="Date Range"
-            displayMode="children"
             dialog={() => <div role="dialog">Date Range Dialog</div>}
           >
-            {(value) => (value ? `${value.start} - ${value.end}` : 'Select date range')}
+            {(value: unknown) => {
+              const dateRange = value as DateRange | null;
+              return dateRange ? `${dateRange.start} - ${dateRange.end}` : 'Select date range';
+            }}
+            }
           </DialogButton>
         )}
       </TestWrapper>,
@@ -173,6 +206,44 @@ describe('DialogButton Component', () => {
     await waitFor(() => {
       const button = getByRole('button');
       expect(button.textContent).toContain('2024-01-01 - 2024-12-31');
+    });
+  });
+
+  test('renders additional content', async () => {
+    const TestWrapper = ({
+      children,
+    }: {
+      children: (form: UseFormReturn<{ selectedItem: TestItem | null }>) => React.ReactNode;
+    }) => {
+      const form = useForm<{ selectedItem: TestItem | null }>({
+        defaultValues: { selectedItem: { id: 1, name: 'Test Item' } },
+      });
+
+      return (
+        <ShadcnForm {...form}>
+          <form>{children(form)}</form>
+        </ShadcnForm>
+      );
+    };
+
+    const { getByText } = render(
+      <TestWrapper>
+        {(form) => (
+          <DialogButton
+            control={form.control}
+            name="selectedItem"
+            label="Select Item"
+            dialog={() => <div role="dialog">Test Dialog</div>}
+            additionalContent={(value: TestItem | null) => value && <span>ID: {value.id}</span>}
+          >
+            {(item: TestItem | null) => item?.name || 'Unknown'}
+          </DialogButton>
+        )}
+      </TestWrapper>,
+    );
+
+    await waitFor(() => {
+      getByText('ID: 1');
     });
   });
 
@@ -197,45 +268,25 @@ describe('DialogButton Component', () => {
     });
   });
 
-  test('requires dialog prop', async () => {
-    const TestWrapper = ({
-      children,
-    }: {
-      children: (form: UseFormReturn<{ selectedItem: TestItem | null }>) => React.ReactNode;
-    }) => {
-      const form = useForm<{ selectedItem: TestItem | null }>({
-        defaultValues: { selectedItem: null },
-      });
-
-      return (
-        <ShadcnForm {...form}>
-          <form>{children(form)}</form>
-        </ShadcnForm>
-      );
-    };
-
-    const { getByRole } = render(
-      <TestWrapper>
-        {(form) => (
-          <DialogButton
-            control={form.control}
-            name="selectedItem"
-            label="Select Item"
-            dialog={({ open }) => (
-              <div role="dialog" data-testid="test-dialog" aria-hidden={!open}>
-                Test Dialog
-              </div>
-            )}
-          />
-        )}
-      </TestWrapper>,
-    );
+  test('renders with custom empty text', async () => {
+    const { getByRole } = await setupDialogButton({
+      emptyText: 'Please select an option',
+      children: (value: TestItem | null) => value?.name || null,
+    });
 
     await waitFor(() => {
-      getByRole('button');
-      // Dialog should be in the DOM
-      const dialog = document.querySelector('[data-testid="test-dialog"]');
-      expect(dialog).toBeTruthy();
+      const button = getByRole('button');
+      expect(button.textContent).toContain('Please select an option');
+    });
+  });
+
+  test('renders static additional content', async () => {
+    const { getByText } = await setupDialogButton({
+      additionalContent: <div>This is additional info</div>,
+    });
+
+    await waitFor(() => {
+      getByText('This is additional info');
     });
   });
 });
