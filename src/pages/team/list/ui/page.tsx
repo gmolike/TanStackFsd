@@ -1,6 +1,7 @@
 // src/pages/team/list/ui/page.tsx
 import { useState } from 'react';
 
+import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
 
 import type { TeamMember } from '~/entities/team-member';
@@ -14,6 +15,7 @@ import { TeamTableView } from './table-view';
 
 export function TeamListPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const navigate = useNavigate();
 
   // Mock data - später durch API-Call ersetzen
   const teamMembers: Array<TeamMember> = [
@@ -93,7 +95,7 @@ export function TeamListPage() {
 
         <div className="flex items-center gap-4">
           <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
-          <Button>
+          <Button onClick={() => navigate({ to: '/team/new' })}>
             <Plus className="mr-2 h-4 w-4" />
             Neues Mitglied
           </Button>
