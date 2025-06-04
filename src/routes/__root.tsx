@@ -1,14 +1,27 @@
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
+// src/routes/__root.tsx
+import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
-import type { RouterContext } from '~/shared/router/context';
+import { RootLayout } from '../shared/ui/root-layout';
 
-// Create root route with typed context
-export const Route = createRootRouteWithContext<RouterContext>()({
-  component: () => (
+// ================= TYPES =================
+// Keine spezifischen Typen für Root Route benötigt
+
+// ================= LOGIC =================
+const rootRoute = createRootRoute({
+  component: RootComponent,
+});
+
+// ================= RETURN =================
+function RootComponent() {
+  return (
     <>
-      <Outlet />
+      <RootLayout>
+        <Outlet />
+      </RootLayout>
       <TanStackRouterDevtools />
     </>
-  ),
-});
+  );
+}
+
+export const Route = rootRoute;

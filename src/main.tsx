@@ -1,22 +1,24 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+// src/main.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
 import { App } from '~/app/app';
 
-import './app/styles/main.css';
+import '../index.css';
 
-// Sicherstellen, dass das root Element existiert
+// ================= TYPES =================
+// Keine spezifischen Typen für main.tsx benötigt
+
+// ================= LOGIC =================
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
   throw new Error('Root element not found');
 }
 
-// React 18+ API verwenden
-const root = createRoot(rootElement);
-
-root.render(
-  <StrictMode>
+// ================= RETURN =================
+ReactDOM.createRoot(rootElement).render(
+  <React.StrictMode>
     <App />
-  </StrictMode>,
+  </React.StrictMode>,
 );

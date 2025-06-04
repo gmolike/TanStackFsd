@@ -1,1 +1,0 @@
-export { ProductTableWidget } from './ui';
