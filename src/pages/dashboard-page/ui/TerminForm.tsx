@@ -1,390 +1,586 @@
+// src/features/test-form/ui/TestForm.tsx
 import { useState } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
 
-import { useNavigate } from '@tanstack/react-router';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Calendar, Mail, Phone, Plus, Settings, Trash2, UserPlus } from 'lucide-react';
 import { z } from 'zod';
 
-import { toast } from '~/shared/hooks/use-toast';
 import {
-  Form,
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/shared/shadcn';
+import {
   FormCheckbox,
+  FormCombobox,
   FormDatePicker,
   FormDateRange,
+  FormDialogButton,
   FormFooter,
   FormHeader,
   FormInput,
+  FormProvider,
   FormSelect,
   FormTextArea,
 } from '~/shared/ui/form';
 
-// Schema Definition mit allen Feldtypen
-const userSchema = z.object({
-  // Text Inputs
-  firstName: z.string().min(2, 'Mindestens 2 Zeichen'),
-  lastName: z.string().min(2, 'Mindestens 2 Zeichen'),
+// ===== SCHEMAS =====
+const addressSchema = z.object({
+  street: z.string().min(1, 'Street is required'),
+  city: z.string().min(1, 'City is required'),
+  country: z.string().min(1, 'Country is required'),
+  postalCode: z.string().optional(),
+});
 
-  // Email (automatisch erkannter Typ)
-  email: z.string().email('Ungültige E-Mail-Adresse'),
+const teamMemberSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  role: z.string().optional(), // This is the optional field
+});
 
-  // Passwort
-  password: z.string().min(8, 'Mindestens 8 Zeichen'),
-
-  // Nummer
-  age: z.number().min(18, 'Mindestens 18 Jahre').max(120, 'Maximal 120 Jahre').optional(),
-
-  // Telefon
+const formSchema = z.object({
+  // Basic fields
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
   phone: z
     .string()
-    .regex(/^[\d\s\-+\\()]+$/, 'Ungültige Telefonnummer')
+    .regex(/^\+?[0-9\s-]+$/, 'Invalid phone number')
     .optional(),
 
-  // URL
-  website: z.string().url('Ungültige URL').optional(),
+  // TextArea
+  bio: z
+    .string()
+    .min(10, 'Bio must be at least 10 characters')
+    .max(500, 'Bio must be less than 500 characters'),
 
-  // DatePicker
-  birthDate: z.date().optional(),
-  joinDate: z.date().optional(),
-
-  // Date Range
-  employmentStartDate: z.date().optional(),
-  employmentEndDate: z.date().optional(),
-
-  // Select
-  country: z.string().min(1, 'Bitte wählen Sie ein Land'),
-  language: z.string().min(1, 'Bitte wählen Sie eine Sprache'),
+  // Select & Combobox
+  country: z.string().min(1, 'Please select a country'),
+  framework: z.string().min(1, 'Please select a framework'),
 
   // Checkbox
   acceptTerms: z.boolean().refine((val) => val === true, {
-    message: 'Sie müssen die AGB akzeptieren',
+    message: 'You must accept the terms and conditions',
   }),
-
-  // Optional Checkbox
   newsletter: z.boolean().optional(),
 
-  // TextArea
-  bio: z.string().max(500, 'Maximal 500 Zeichen').optional(),
+  // Date fields
+  birthDate: z.date({
+    required_error: 'Birth date is required',
+    invalid_type_error: 'Invalid date',
+  }),
 
-  // Additional Fields for testing
-  notes: z.string().optional(),
+  // Date range
+  projectStartDate: z.date().optional(),
+  projectEndDate: z.date().optional(),
+
+  // Complex object from dialog
+  address: addressSchema,
+
+  // Field array with 3 fields (2 required, 1 optional)
+  teamMembers: z.array(teamMemberSchema).min(1, 'At least one team member is required'),
 });
 
-type UserFormData = z.infer<typeof userSchema>;
+type FormData = z.infer<typeof formSchema>;
 
-// Simulierte API-Funktion
-const saveUser = async (): Promise<{ id: string }> => {
-  // Simuliere API-Aufruf
-  await new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Simuliere zufälligen Fehler (20% Chance)
-      if (Math.random() < 0.2) {
-        reject(new Error('Netzwerkfehler: Der Server ist momentan nicht erreichbar.'));
-      } else {
-        resolve({ id: '12345' });
-      }
-    }, 2000);
-  });
+// ===== MAIN FORM COMPONENT =====
+export const TestForm = () => {
+  const [submitResult, setSubmitResult] = useState<string>('');
+  const [submitError, setSubmitError] = useState<string>('');
+  const [submitSuccess, setSubmitSuccess] = useState<string>('');
 
-  return { id: '12345' };
-};
-
-// Beispiel-Komponente mit allen Form-Komponenten
-export const UserForm = () => {
-  const navigate = useNavigate();
-  const [submitError, setSubmitError] = useState<string | undefined>();
-  const [submitSuccess, setSubmitSuccess] = useState<string | undefined>();
-
-  const handleSubmit = async (data: UserFormData) => {
-    // Reset messages
-    setSubmitError(undefined);
-    setSubmitSuccess(undefined);
+  const handleSubmit = (data: FormData) => {
+    setSubmitError('');
+    setSubmitSuccess('');
 
     try {
       console.log('Form submitted:', data);
-
-      // API-Aufruf
-      const result = await saveUser();
-
-      // Success handling
-      setSubmitSuccess('Benutzer wurde erfolgreich erstellt!');
-
-      // Show toast
-      toast({
-        title: 'Benutzer erstellt',
-        description: `Benutzer ${data.firstName} ${data.lastName} wurde erfolgreich angelegt!`,
-      });
-
-      // Navigate after short delay
-      setTimeout(() => {
-        navigate({ to: `/users/${result.id}` });
-      }, 1500);
+      setSubmitResult(JSON.stringify(data, null, 2));
+      setSubmitSuccess('Form submitted successfully!');
     } catch (error) {
-      // Error handling
-      const errorMessage =
-        error instanceof Error ? error.message : 'Ein unbekannter Fehler ist aufgetreten.';
-      setSubmitError(errorMessage);
-
-      // Also show error toast
-      toast({
-        title: 'Fehler beim Erstellen',
-        description: `Fehler beim Speichern. Bitte versuchen Sie es erneut.`,
-      });
+      setSubmitError('Failed to submit form');
+      console.error(error);
     }
   };
 
-  const handleCancel = () => {
-    console.log('Form cancelled');
-    // Navigation zurück
-    navigate({ to: '/admin' });
+  const handleError = (errors: any) => {
+    console.error('Form validation errors:', errors);
+    setSubmitError('Please fix the validation errors');
   };
 
+  const defaultValues: Partial<FormData> = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    bio: '',
+    country: '',
+    framework: '',
+    acceptTerms: false,
+    newsletter: true,
+    birthDate: undefined,
+    projectStartDate: undefined,
+    projectEndDate: undefined,
+    address: {
+      street: '',
+      city: '',
+      country: '',
+      postalCode: '',
+    },
+    teamMembers: [
+      { name: '', email: '', role: '' }, // First member with all fields empty
+    ],
+  };
+
+  // Options for select/combobox
   const countryOptions = [
-    { value: 'de', label: 'Deutschland' },
-    { value: 'at', label: 'Österreich' },
-    { value: 'ch', label: 'Schweiz' },
-    { value: 'us', label: 'USA' },
-    { value: 'fr', label: 'Frankreich' },
-    { value: 'uk', label: 'Vereinigtes Königreich' },
-    { value: 'it', label: 'Italien' },
-    { value: 'es', label: 'Spanien' },
+    { value: 'us', label: 'United States' },
+    { value: 'de', label: 'Germany' },
+    { value: 'fr', label: 'France' },
+    { value: 'uk', label: 'United Kingdom' },
+    { value: 'jp', label: 'Japan' },
   ];
 
-  const languageOptions = [
-    { value: 'de', label: 'Deutsch' },
-    { value: 'en', label: 'Englisch' },
-    { value: 'fr', label: 'Französisch' },
-    { value: 'es', label: 'Spanisch' },
-    { value: 'it', label: 'Italienisch' },
-    { value: 'pt', label: 'Portugiesisch' },
-    { value: 'ru', label: 'Russisch' },
-    { value: 'zh', label: 'Chinesisch' },
+  const frameworkOptions = [
+    { value: 'react', label: 'React' },
+    { value: 'vue', label: 'Vue.js' },
+    { value: 'angular', label: 'Angular' },
+    { value: 'svelte', label: 'Svelte' },
+    { value: 'next', label: 'Next.js' },
+    { value: 'nuxt', label: 'Nuxt.js' },
+    { value: 'remix', label: 'Remix' },
   ];
+
+  // Initialize form
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
+    mode: 'onBlur',
+  });
+
+  // Initialize field array OUTSIDE of render
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'teamMembers',
+  });
+
+  const onSubmit = form.handleSubmit(handleSubmit, handleError);
 
   return (
-    <Form
-      schema={userSchema}
-      defaultValues={{
-        firstName: 'Max',
-        email: 'max.mustermann@example.com',
-        password: '',
-        age: 25,
-        phone: '+49 123 456789',
-        website: 'https://example.com',
-        birthDate: new Date('2028-01-01'),
-        language: 'de',
-        joinDate: undefined,
-        acceptTerms: false,
-        newsletter: true,
-        bio: 'Dies ist eine Beispiel-Biografie.',
-        notes: '',
-      }}
-      onSubmit={handleSubmit}
-    >
-      {(form) => (
-        <>
-          {/* Form Header */}
+    <div className="container mx-auto max-w-4xl py-8">
+      <FormProvider {...form}>
+        <form onSubmit={onSubmit} className="space-y-8">
+          {/* Header */}
           <FormHeader
-            title="Alle Form-Komponenten Demo"
-            description="Dieses Formular zeigt alle verfügbaren Form-Komponenten mit verschiedenen Konfigurationen."
+            title="Comprehensive Test Form"
+            description="This form demonstrates all available form components with validation"
+            subtitle="All fields marked with * are required"
+            icon={Settings}
             variant="default"
+            badge={
+              <span className="rounded-md bg-blue-100 px-2 py-1 text-xs text-blue-700">Demo</span>
+            }
           />
 
-          {/* Form Fields */}
-          <div className="space-y-6">
-            {/* Section: Persönliche Daten */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Persönliche Daten</h3>
-
-              {/* Text Inputs in Grid */}
+          {/* Basic Input Fields */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <FormInput
                   control={form.control}
                   name="firstName"
-                  label="Vorname"
-                  placeholder="Max"
+                  label="First Name"
+                  placeholder="John"
                   required
+                  startIcon={<UserPlus className="h-4 w-4" />}
                 />
-
                 <FormInput
                   control={form.control}
                   name="lastName"
-                  label="Nachname"
-                  placeholder="Mustermann"
+                  label="Last Name"
+                  placeholder="Doe"
                   required
                 />
               </div>
 
-              {/* Email - Typ wird automatisch erkannt */}
               <FormInput
                 control={form.control}
                 name="email"
-                label="E-Mail-Adresse"
-                placeholder="max.mustermann@example.com"
+                label="Email"
+                type="email"
+                placeholder="john.doe@example.com"
                 required
+                startIcon={<Mail className="h-4 w-4" />}
               />
 
-              {/* Password Input */}
-              <FormInput
-                control={form.control}
-                name="password"
-                label="Passwort"
-                type="password"
-                placeholder="Mindestens 8 Zeichen"
-                required
-              />
-
-              {/* Number Input */}
-              <FormInput
-                control={form.control}
-                name="age"
-                label="Alter"
-                type="number"
-                placeholder="18"
-              />
-
-              {/* Phone Input */}
               <FormInput
                 control={form.control}
                 name="phone"
-                label="Telefonnummer"
+                label="Phone Number"
                 type="tel"
-                placeholder="+49 123 456789"
+                placeholder="+1 234 567 8900"
+                startIcon={<Phone className="h-4 w-4" />}
+                description="Optional field - include country code"
               />
+            </CardContent>
+          </Card>
 
-              {/* URL Input */}
-              <FormInput
-                control={form.control}
-                name="website"
-                label="Website"
-                type="url"
-                placeholder="https://example.com"
-              />
-            </div>
-
-            {/* Section: Datum-Auswahl */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Datum-Auswahl</h3>
-
-              {/* DatePicker with Text Input (onChange updates immediately) */}
-              <FormDatePicker
-                control={form.control}
-                name="birthDate"
-                label="Geburtsdatum"
-                description="Mit Texteingabe - Datum wird beim Tippen validiert"
-                placeholder="Datum wählen oder eingeben"
-                max={new Date()}
-                dateFormat="dd.MM.yyyy"
-                allowInput={true}
-              />
-
-              {/* Simple DatePicker (Calendar only - like your original) */}
-              <FormDatePicker
-                control={form.control}
-                name="joinDate"
-                label="Eintrittsdatum"
-                description="Nur Kalenderauswahl - keine Texteingabe"
-                placeholder="Datum auswählen"
-                dateFormat="dd.MM.yyyy"
-                allowInput={false}
-              />
-
-              {/* Date Range */}
-              <FormDateRange
-                control={form.control}
-                startName="employmentStartDate"
-                endName="employmentEndDate"
-                label="Beschäftigungszeitraum"
-                startLabel="Von"
-                endLabel="Bis"
-              />
-            </div>
-
-            {/* Section: Auswahl-Felder */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Auswahl-Felder</h3>
-
-              {/* Select with Clear */}
-              <FormSelect
-                control={form.control}
-                name="country"
-                label="Land"
-                placeholder="Land auswählen"
-                options={countryOptions}
-                required
-                emptyOption="Kein Land ausgewählt"
-              />
-
-              {/* Second Select for Languages */}
-              <FormSelect
-                control={form.control}
-                name="language"
-                label="Hauptsprache"
-                placeholder="Sprache auswählen"
-                options={languageOptions}
-              />
-            </div>
-
-            {/* Section: Checkboxen */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Checkboxen</h3>
-
-              {/* Required Checkbox */}
-              <FormCheckbox
-                control={form.control}
-                name="acceptTerms"
-                label="Ich akzeptiere die AGB"
-                required
-                side="right"
-                description="Sie müssen die AGB akzeptieren, um fortzufahren."
-              />
-
-              {/* Optional Checkbox */}
-              <FormCheckbox
-                control={form.control}
-                name="newsletter"
-                label="Newsletter abonnieren"
-                side="right"
-                description="Erhalten Sie Updates und Neuigkeiten per E-Mail."
-              />
-            </div>
-
-            {/* Section: Textbereiche */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Textbereiche</h3>
-
-              {/* TextArea mit Character Count */}
+          {/* TextArea */}
+          <Card>
+            <CardHeader>
+              <CardTitle>About You</CardTitle>
+            </CardHeader>
+            <CardContent>
               <FormTextArea
                 control={form.control}
                 name="bio"
-                label="Über mich"
-                placeholder="Erzählen Sie etwas über sich..."
+                label="Bio"
+                placeholder="Tell us about yourself... (min 10, max 500 characters)"
                 rows={4}
-                showReset={true}
-                description="Maximal 500 Zeichen"
+                required
+                description="Write a brief description about yourself"
               />
+            </CardContent>
+          </Card>
 
-              {/* Additional Notes */}
-              <FormTextArea
+          {/* Select & Combobox */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Preferences</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormSelect
                 control={form.control}
-                name="notes"
-                label="Zusätzliche Notizen"
-                placeholder="Weitere Informationen..."
+                name="country"
+                label="Country"
+                options={countryOptions}
+                placeholder="Select a country..."
+                required
+                emptyOption="-- None --"
               />
-            </div>
-          </div>
 
-          {/* Form Footer mit Error/Success Handling */}
+              <FormCombobox
+                control={form.control}
+                name="framework"
+                label="Favorite Framework"
+                options={frameworkOptions}
+                placeholder="Select framework..."
+                searchPlaceholder="Search frameworks..."
+                required
+                emptyText="No framework found."
+                description="Choose your preferred JavaScript framework"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Date Fields */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Important Dates</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormDatePicker
+                control={form.control}
+                name="birthDate"
+                label="Birth Date"
+                placeholder="Select your birth date"
+                max={new Date()}
+                required
+                dateFormat="dd/MM/yyyy"
+                allowInput={true}
+              />
+
+              <FormDateRange
+                control={form.control}
+                startName="projectStartDate"
+                endName="projectEndDate"
+                label="Project Duration (Optional)"
+                startLabel="Start Date"
+                endLabel="End Date"
+                description="Select the project timeline"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Complex Dialog Field */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Address Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormDialogButton
+                control={form.control}
+                name="address"
+                label="Address"
+                icon={UserPlus}
+                endIcon={Calendar}
+                dialog={({ open, onOpenChange, value, onChange }) => (
+                  <AddressDialog
+                    open={open}
+                    onOpenChange={onOpenChange}
+                    value={value as FormData['address'] | undefined}
+                    onChange={onChange}
+                  />
+                )}
+                required
+                emptyText="Click to add address"
+                description="Click the button to enter your address details"
+              >
+                {(value) => {
+                  const address = value as FormData['address'] | undefined;
+                  if (!address || !address.street) return null;
+                  return (
+                    <div className="text-left">
+                      <div className="font-medium">{address.street}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {address.city}, {address.country} {address.postalCode}
+                      </div>
+                    </div>
+                  );
+                }}
+              </FormDialogButton>
+            </CardContent>
+          </Card>
+
+          {/* Field Array */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Team Members</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Add team members with name (required), email (required), and role (optional)
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {fields.map((field, index) => (
+                <Card key={field.id} className="p-4">
+                  <div className="space-y-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <h4 className="text-sm font-medium">Member {index + 1}</h4>
+                      {fields.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => remove(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+
+                    <FormInput
+                      control={form.control}
+                      name={`teamMembers.${index}.name`}
+                      label="Name"
+                      placeholder="Team member name"
+                      required
+                    />
+
+                    <FormInput
+                      control={form.control}
+                      name={`teamMembers.${index}.email`}
+                      label="Email"
+                      type="email"
+                      placeholder="member@example.com"
+                      required
+                    />
+
+                    <FormInput
+                      control={form.control}
+                      name={`teamMembers.${index}.role`}
+                      label="Role"
+                      placeholder="Developer, Designer, etc."
+                      description="Optional - specify the team member's role"
+                    />
+                  </div>
+                </Card>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => append({ name: '', email: '', role: '' })}
+                className="w-full"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Team Member
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Checkboxes */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Agreements & Preferences</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormCheckbox
+                control={form.control}
+                name="acceptTerms"
+                label="I accept the terms and conditions"
+                required
+                description="You must accept the terms to proceed"
+              />
+
+              <FormCheckbox
+                control={form.control}
+                name="newsletter"
+                label="Subscribe to newsletter"
+                description="Get updates about new features and improvements (optional)"
+                side="right"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
           <FormFooter
-            form={form}
-            showReset={true}
+            submitText="Submit Form"
             showCancel={true}
-            onCancel={handleCancel}
-            submitText="Benutzer erstellen"
-            cancelText="Abbrechen"
-            resetText="Formular zurücksetzen"
+            showReset={true}
+            onCancel={() => {
+              console.log('Form cancelled');
+              setSubmitResult('');
+              setSubmitError('');
+              setSubmitSuccess('');
+            }}
             error={submitError}
             success={submitSuccess}
           />
-        </>
-      )}
-    </Form>
+
+          {/* Result Display */}
+          {submitResult && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Form Submission Result</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Alert>
+                  <AlertDescription>
+                    <pre className="overflow-auto rounded-md bg-muted p-4">
+                      <code>{submitResult}</code>
+                    </pre>
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          )}
+        </form>
+      </FormProvider>
+    </div>
+  );
+};
+
+// ===== ADDRESS DIALOG COMPONENT =====
+interface AddressDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  value: FormData['address'] | undefined;
+  onChange: (value: FormData['address']) => void;
+}
+
+const AddressDialog = ({ open, onOpenChange, value, onChange }: AddressDialogProps) => {
+  const [localAddress, setLocalAddress] = useState<FormData['address']>(
+    value || { street: '', city: '', country: '', postalCode: '' },
+  );
+
+  const handleSave = () => {
+    // Simple validation
+    if (localAddress.street && localAddress.city && localAddress.country) {
+      onChange(localAddress);
+      onOpenChange(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Edit Address</DialogTitle>
+          <DialogDescription>
+            Enter your address details. All fields except postal code are required.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          <div>
+            <label className="text-sm font-medium">
+              Street <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="text"
+              value={localAddress.street}
+              onChange={(e) => setLocalAddress({ ...localAddress, street: e.target.value })}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              placeholder="123 Main St"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">
+              City <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="text"
+              value={localAddress.city}
+              onChange={(e) => setLocalAddress({ ...localAddress, city: e.target.value })}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              placeholder="New York"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">
+              Country <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="text"
+              value={localAddress.country}
+              onChange={(e) => setLocalAddress({ ...localAddress, country: e.target.value })}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              placeholder="USA"
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Postal Code</label>
+            <input
+              type="text"
+              value={localAddress.postalCode || ''}
+              onChange={(e) => setLocalAddress({ ...localAddress, postalCode: e.target.value })}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+              placeholder="10001"
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={!localAddress.street || !localAddress.city || !localAddress.country}
+          >
+            Save Address
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -28,6 +28,7 @@ export { Checkbox as FormCheckbox } from './checkbox';
 export { Combobox as FormCombobox } from './combobox';
 export { DatePicker as FormDatePicker } from './datePicker';
 export { DateRange as FormDateRange } from './dateRange';
+export { DialogButton as FormDialogButton } from './dialogButton';
 export { Input as FormInput } from './input';
 export { Select as FormSelect } from './select';
 export { TextArea as FormTextArea } from './textarea';
