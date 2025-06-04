@@ -1,83 +1,82 @@
-import { useState } from 'react';
+import { Link } from '@tanstack/react-router';
+import { ChevronRight, Mail, Phone, User } from 'lucide-react';
 
 import type { TeamMember } from '~/entities/team-member';
 
-import {
-  InputShadcn as Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/shared/shadcn';
-import { Badge } from '~/shared/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
 
 interface TeamListProps {
   teamMembers: Array<TeamMember>;
 }
 
+/**
+ * TeamList Widget
+ * Zeigt eine Liste von Teammitgliedern in Karten-Format an
+ */
 export function TeamList({ teamMembers }: TeamListProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const statusColors = {
+    active: 'bg-green-100 text-green-800',
+    inactive: 'bg-gray-100 text-gray-800',
+    vacation: 'bg-blue-100 text-blue-800',
+  };
 
-  const filteredMembers = teamMembers.filter(
-    (member) =>
-      member.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  const getStatusBadge = (status: TeamMember['status']) => {
-    const variants = {
-      active: { label: 'Aktiv', variant: 'default' as const },
-      inactive: { label: 'Inaktiv', variant: 'secondary' as const },
-      vacation: { label: 'Urlaub', variant: 'outline' as const },
-    };
-
-    const { label, variant } = variants[status];
-    return <Badge variant={variant}>{label}</Badge>;
+  const statusLabels = {
+    active: 'Aktiv',
+    inactive: 'Inaktiv',
+    vacation: 'Urlaub',
   };
 
   return (
-    <>
-      <div className="flex items-center space-x-2">
-        <Input
-          type="search"
-          placeholder="Teammitglied suchen..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
-      </div>
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {teamMembers.map((member) => (
+        <Link
+          key={member.id}
+          to="/team/$memberId"
+          params={{ memberId: member.id }}
+          className="group"
+        >
+          <Card className="h-full transition-all hover:border-primary/20 hover:shadow-lg">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                    <User className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg transition-colors group-hover:text-primary">
+                      {member.firstName} {member.lastName}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">{member.role}</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">{member.email}</span>
+              </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Vorname</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>E-Mail</TableHead>
-              <TableHead>Rolle</TableHead>
-              <TableHead>Abteilung</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredMembers.map((member) => (
-              <TableRow key={member.id}>
-                <TableCell className="font-medium">{member.id}</TableCell>
-                <TableCell>{member.firstName}</TableCell>
-                <TableCell>{member.lastName}</TableCell>
-                <TableCell>{member.email}</TableCell>
-                <TableCell>{member.role}</TableCell>
-                <TableCell>{member.department}</TableCell>
-                <TableCell>{getStatusBadge(member.status)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </>
+              {member.phone && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">{member.phone}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-3">
+                <span className="text-sm text-muted-foreground">{member.department}</span>
+                <span
+                  className={`rounded-full px-2 py-1 text-xs font-medium ${statusColors[member.status]}`}
+                >
+                  {statusLabels[member.status]}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      ))}
+    </div>
   );
 }

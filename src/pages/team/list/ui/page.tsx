@@ -1,9 +1,20 @@
 // src/pages/team/list/ui/page.tsx
-import { TeamList } from '~/widgets/team-list';
+import { useState } from 'react';
+
+import { Plus } from 'lucide-react';
 
 import type { TeamMember } from '~/entities/team-member';
 
+import { Button } from '~/shared/shadcn';
+import type { ViewMode } from '~/shared/ui/view-switcher';
+import { ViewSwitcher } from '~/shared/ui/view-switcher';
+
+import { TeamCardView } from './card-view';
+import { TeamTableView } from './table-view';
+
 export function TeamListPage() {
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
+
   // Mock data - später durch API-Call ersetzen
   const teamMembers: Array<TeamMember> = [
     {
@@ -73,12 +84,28 @@ export function TeamListPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Team</h1>
-        <p className="mt-2 text-gray-600">Übersicht aller Teammitglieder</p>
+      {/* Header mit Titel und Actions */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Team</h1>
+          <p className="mt-2 text-gray-600">Übersicht aller Teammitglieder</p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Neues Mitglied
+          </Button>
+        </div>
       </div>
 
-      <TeamList teamMembers={teamMembers} />
+      {/* Content - Table oder Cards */}
+      {viewMode === 'table' ? (
+        <TeamTableView teamMembers={teamMembers} />
+      ) : (
+        <TeamCardView teamMembers={teamMembers} />
+      )}
     </div>
   );
 }
