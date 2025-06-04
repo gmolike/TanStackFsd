@@ -49,48 +49,84 @@ const teamMemberSchema = z.object({
   role: z.string().optional(), // This is the optional field
 });
 
-const formSchema = z.object({
-  // Basic fields
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  phone: z
-    .string()
-    .regex(/^\+?[0-9\s-]+$/, 'Invalid phone number')
-    .optional(),
+const formSchema = z
+  .object({
+    // Basic fields
+    firstName: z.string().min(2, 'First name must be at least 2 characters'),
+    lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+    email: z.string().email('Invalid email address'),
+    phone: z
+      .string()
+      .regex(/^\+?[0-9\s-]+$/, 'Invalid phone number')
+      .optional(),
 
-  // TextArea
-  bio: z
-    .string()
-    .min(10, 'Bio must be at least 10 characters')
-    .max(500, 'Bio must be less than 500 characters'),
+    // TextArea
+    bio: z
+      .string()
+      .min(10, 'Bio must be at least 10 characters')
+      .max(500, 'Bio must be less than 500 characters'),
 
-  // Select & Combobox
-  country: z.string().min(1, 'Please select a country'),
-  framework: z.string().min(1, 'Please select a framework'),
+    // Select & Combobox
+    country: z.string().min(1, 'Please select a country'),
+    framework: z.string().min(1, 'Please select a framework'),
 
-  // Checkbox
-  acceptTerms: z.boolean().refine((val) => val === true, {
-    message: 'You must accept the terms and conditions',
-  }),
-  newsletter: z.boolean().optional(),
+    // Checkbox
+    acceptTerms: z.boolean().refine((val) => val === true, {
+      message: 'You must accept the terms and conditions',
+    }),
+    newsletter: z.boolean().optional(),
 
-  // Date fields
-  birthDate: z.date({
-    required_error: 'Birth date is required',
-    invalid_type_error: 'Invalid date',
-  }),
+    // Date fields
+    birthDate: z.date({
+      required_error: 'Birth date is required',
+      invalid_type_error: 'Invalid date',
+    }),
 
-  // Date range
-  projectStartDate: z.date().optional(),
-  projectEndDate: z.date().optional(),
+    // Date range
+    projectStartDate: z.date().optional(),
+    projectEndDate: z.date().optional(),
 
-  // Complex object from dialog
-  address: addressSchema,
+    // Complex object from dialog
+    address: addressSchema,
 
-  // Field array with 3 fields (2 required, 1 optional)
-  teamMembers: z.array(teamMemberSchema).min(1, 'At least one team member is required'),
-});
+    // Field array with 3 fields (2 required, 1 optional)
+    teamMembers: z.array(teamMemberSchema).min(1, 'At least one team member is required'),
+  })
+  .refine(
+    (data) => {
+      // Prüfe ob beide Daten vorhanden sind
+      if (data.projectStartDate && data.projectEndDate) {
+        return data.projectEndDate >= data.projectStartDate;
+      }
+      return true; // Wenn eines oder beide Daten fehlen, ist es valide
+    },
+    {
+      message: 'Project end date must be after or equal to start date',
+      path: ['projectEndDate'], // Zeigt den Fehler beim End Date Feld an
+    },
+  )
+  .refine(
+    (data) => {
+      // Zusätzliche Regel: Prüfe ob mindestens ein Team Member eine Rolle hat
+      return data.teamMembers.some((member) => member.role && member.role.trim() !== '');
+    },
+    {
+      message: 'At least one team member must have a role specified',
+      path: ['teamMembers'], // Zeigt den Fehler bei den Team Members an
+    },
+  )
+  .refine(
+    (data) => {
+      // Prüfe ob alle Team Member E-Mails einzigartig sind
+      const emails = data.teamMembers.map((member) => member.email.toLowerCase());
+      const uniqueEmails = new Set(emails);
+      return emails.length === uniqueEmails.size;
+    },
+    {
+      message: 'Team member emails must be unique',
+      path: ['teamMembers'],
+    },
+  );
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -166,12 +202,15 @@ export const TeamEditorPage = () => {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues,
-    mode: 'onBlur',
+    mode: 'onChange', // Validiert sofort beim Tippen
+    reValidateMode: 'onChange', // Nach Fehler: validiert bei jeder Änderung
+    criteriaMode: 'all', // Zeigt alle FehFler gleichzeitig
   });
 
   // Initialize field array OUTSIDE of render
   const { fields, append, remove } = useFieldArray({
     control: form.control,
+
     name: 'teamMembers',
   });
 
