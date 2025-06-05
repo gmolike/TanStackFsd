@@ -7,3 +7,19 @@ export {
   supplierSchema,
   updateArticleSchema,
 } from './model/schema';
+
+// src/entities/article/api/index.ts
+
+// Export all API hooks
+export * from './api/useApi';
+
+// Export mock data generators for testing
+export {
+  mockArticles,
+  generateArticle,
+  generateArticles,
+  generateArticleMix,
+} from './api/mock-data';
+
+// Export mock API for direct usage in tests
+export { articleMockApi } from './api/mock-api';
