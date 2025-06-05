@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { ChevronRight, Mail, Phone, User } from 'lucide-react';
 
-import type { TeamMember } from '~/entities/team-member';
+import type { TeamMember } from '~/entities/team';
 
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
 

@@ -1,7 +1,7 @@
 // src/pages/team/list/ui/table-view.tsx
 import { useNavigate } from '@tanstack/react-router';
 
-import type { TeamMember } from '~/entities/team-member';
+import type { TeamMember } from '~/entities/team';
 
 import { DataTable, teamColumns } from '~/shared/ui/data-table';
 

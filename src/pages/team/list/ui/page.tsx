@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
 
-import type { TeamMember } from '~/entities/team-member';
+import type { TeamMember } from '~/entities/team';
 
 import { Button } from '~/shared/shadcn';
 import type { ViewMode } from '~/shared/ui/view-switcher';

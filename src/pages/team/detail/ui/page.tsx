@@ -2,7 +2,7 @@
 import { useParams } from '@tanstack/react-router';
 import { Calendar, Mail, MapPin, Phone, User } from 'lucide-react';
 
-import type { TeamMember } from '~/entities/team-member';
+import type { TeamMember } from '~/entities/team';
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
 

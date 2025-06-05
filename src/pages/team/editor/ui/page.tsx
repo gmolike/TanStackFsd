@@ -1,10 +1,14 @@
-// src/features/test-form/ui/TestForm.tsx
+// src/pages/team/editor/ui/page.tsx
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar, Mail, Phone, Plus, Settings, Trash2, UserPlus } from 'lucide-react';
-import { z } from 'zod';
+
+import { AddressDialog } from '~/features/team';
+
+import type { Address, TeamFormData } from '~/entities/team';
+import { countryOptions, frameworkOptions, teamFormSchema } from '~/entities/team';
 
 import {
   Alert,
@@ -14,12 +18,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
 } from '~/shared/shadcn';
 import {
   FormCheckbox,
@@ -35,107 +33,12 @@ import {
   FormTextArea,
 } from '~/shared/ui/form';
 
-// ===== SCHEMAS =====
-const addressSchema = z.object({
-  street: z.string().min(1, 'Street is required'),
-  city: z.string().min(1, 'City is required'),
-  country: z.string().min(1, 'Country is required'),
-  postalCode: z.string().optional(),
-});
-
-const teamMemberSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  role: z.string().optional(), // This is the optional field
-});
-
-const formSchema = z
-  .object({
-    // Basic fields
-    firstName: z.string().min(2, 'First name must be at least 2 characters'),
-    lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    phone: z
-      .string()
-      .regex(/^\+?[0-9\s-]+$/, 'Invalid phone number')
-      .optional(),
-
-    // TextArea
-    bio: z
-      .string()
-      .min(10, 'Bio must be at least 10 characters')
-      .max(500, 'Bio must be less than 500 characters'),
-
-    // Select & Combobox
-    country: z.string().min(1, 'Please select a country'),
-    framework: z.string().min(1, 'Please select a framework'),
-
-    // Checkbox
-    acceptTerms: z.boolean().refine((val) => val === true, {
-      message: 'You must accept the terms and conditions',
-    }),
-    newsletter: z.boolean().optional(),
-
-    // Date fields
-    birthDate: z.date({
-      required_error: 'Birth date is required',
-      invalid_type_error: 'Invalid date',
-    }),
-
-    // Date range
-    projectStartDate: z.date().optional(),
-    projectEndDate: z.date().optional(),
-
-    // Complex object from dialog
-    address: addressSchema,
-
-    // Field array with 3 fields (2 required, 1 optional)
-    teamMembers: z.array(teamMemberSchema).min(1, 'At least one team member is required'),
-  })
-  .refine(
-    (data) => {
-      // Prüfe ob beide Daten vorhanden sind
-      if (data.projectStartDate && data.projectEndDate) {
-        return data.projectEndDate >= data.projectStartDate;
-      }
-      return true; // Wenn eines oder beide Daten fehlen, ist es valide
-    },
-    {
-      message: 'Project end date must be after or equal to start date',
-      path: ['projectEndDate'], // Zeigt den Fehler beim End Date Feld an
-    },
-  )
-  .refine(
-    (data) =>
-      // Zusätzliche Regel: Prüfe ob mindestens ein Team Member eine Rolle hat
-      data.teamMembers.some((member) => member.role && member.role.trim() !== ''),
-    {
-      message: 'At least one team member must have a role specified',
-      path: ['teamMembers'], // Zeigt den Fehler bei den Team Members an
-    },
-  )
-  .refine(
-    (data) => {
-      // Prüfe ob alle Team Member E-Mails einzigartig sind
-      const emails = data.teamMembers.map((member) => member.email.toLowerCase());
-      const uniqueEmails = new Set(emails);
-      return emails.length === uniqueEmails.size;
-    },
-    {
-      message: 'Team member emails must be unique',
-      path: ['teamMembers'],
-    },
-  );
-
-type FormData = z.infer<typeof formSchema>;
-
-// ===== MAIN FORM COMPONENT =====
 export const TeamEditorPage = () => {
   const [submitResult, setSubmitResult] = useState<string>('');
   const [submitError, setSubmitError] = useState<string>('');
   const [submitSuccess, setSubmitSuccess] = useState<string>('');
 
-  const handleSubmit = (data: FormData) => {
+  const handleSubmit = (data: TeamFormData) => {
     setSubmitError('');
     setSubmitSuccess('');
 
@@ -154,7 +57,7 @@ export const TeamEditorPage = () => {
     setSubmitError('Please fix the validation errors');
   };
 
-  const defaultValues: Partial<FormData> = {
+  const defaultValues: Partial<TeamFormData> = {
     firstName: '',
     lastName: '',
     email: '',
@@ -178,28 +81,9 @@ export const TeamEditorPage = () => {
     ],
   };
 
-  // Options for select/combobox
-  const countryOptions = [
-    { value: 'us', label: 'United States' },
-    { value: 'de', label: 'Germany' },
-    { value: 'fr', label: 'France' },
-    { value: 'uk', label: 'United Kingdom' },
-    { value: 'jp', label: 'Japan' },
-  ];
-
-  const frameworkOptions = [
-    { value: 'react', label: 'React' },
-    { value: 'vue', label: 'Vue.js' },
-    { value: 'angular', label: 'Angular' },
-    { value: 'svelte', label: 'Svelte' },
-    { value: 'next', label: 'Next.js' },
-    { value: 'nuxt', label: 'Nuxt.js' },
-    { value: 'remix', label: 'Remix' },
-  ];
-
   // Initialize form
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TeamFormData>({
+    resolver: zodResolver(teamFormSchema),
     defaultValues,
     mode: 'onChange', // Validiert sofort beim Tippen
     reValidateMode: 'onChange', // Nach Fehler: validiert bei jeder Änderung
@@ -209,7 +93,6 @@ export const TeamEditorPage = () => {
   // Initialize field array OUTSIDE of render
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-
     name: 'teamMembers',
   });
 
@@ -304,8 +187,8 @@ export const TeamEditorPage = () => {
               <FormSelect
                 control={form.control}
                 name="country"
-                label="Country"
                 options={countryOptions}
+                label="Country"
                 placeholder="Select a country..."
                 required
                 emptyOption="-- None --"
@@ -370,7 +253,7 @@ export const TeamEditorPage = () => {
                   <AddressDialog
                     open={open}
                     onOpenChange={onOpenChange}
-                    value={value as FormData['address'] | undefined}
+                    value={value as Address | undefined}
                     onChange={onChange}
                   />
                 )}
@@ -379,7 +262,7 @@ export const TeamEditorPage = () => {
                 description="Click the button to enter your address details"
               >
                 {(value) => {
-                  const address = value as FormData['address'] | undefined;
+                  const address = value as Address | undefined;
                   if (!address || !address.street) return null;
                   return (
                     <div className="text-left">
@@ -521,104 +404,5 @@ export const TeamEditorPage = () => {
         </form>
       </FormProvider>
     </div>
-  );
-};
-
-// ===== ADDRESS DIALOG COMPONENT =====
-interface AddressDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  value: FormData['address'] | undefined;
-  onChange: (value: FormData['address']) => void;
-}
-
-const AddressDialog = ({ open, onOpenChange, value, onChange }: AddressDialogProps) => {
-  const [localAddress, setLocalAddress] = useState<FormData['address']>(
-    value || { street: '', city: '', country: '', postalCode: '' },
-  );
-
-  const handleSave = () => {
-    // Simple validation
-    if (localAddress.street && localAddress.city && localAddress.country) {
-      onChange(localAddress);
-      onOpenChange(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Edit Address</DialogTitle>
-          <DialogDescription>
-            Enter your address details. All fields except postal code are required.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4 py-4">
-          <div>
-            <label className="text-sm font-medium">
-              Street <span className="text-destructive">*</span>
-            </label>
-            <input
-              type="text"
-              value={localAddress.street}
-              onChange={(e) => setLocalAddress({ ...localAddress, street: e.target.value })}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-              placeholder="123 Main St"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">
-              City <span className="text-destructive">*</span>
-            </label>
-            <input
-              type="text"
-              value={localAddress.city}
-              onChange={(e) => setLocalAddress({ ...localAddress, city: e.target.value })}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-              placeholder="New York"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">
-              Country <span className="text-destructive">*</span>
-            </label>
-            <input
-              type="text"
-              value={localAddress.country}
-              onChange={(e) => setLocalAddress({ ...localAddress, country: e.target.value })}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-              placeholder="USA"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">Postal Code</label>
-            <input
-              type="text"
-              value={localAddress.postalCode || ''}
-              onChange={(e) => setLocalAddress({ ...localAddress, postalCode: e.target.value })}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-              placeholder="10001"
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!localAddress.street || !localAddress.city || !localAddress.country}
-          >
-            Save Address
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 };

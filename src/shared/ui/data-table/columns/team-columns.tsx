@@ -2,7 +2,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 
-import type { TeamMember } from '~/entities/team-member';
+import type { TeamMember } from '~/entities/team';
 
 import {
   Button,
