@@ -106,10 +106,9 @@ const formSchema = z
     },
   )
   .refine(
-    (data) => {
+    (data) =>
       // Zusätzliche Regel: Prüfe ob mindestens ein Team Member eine Rolle hat
-      return data.teamMembers.some((member) => member.role && member.role.trim() !== '');
-    },
+      data.teamMembers.some((member) => member.role && member.role.trim() !== ''),
     {
       message: 'At least one team member must have a role specified',
       path: ['teamMembers'], // Zeigt den Fehler bei den Team Members an
@@ -150,7 +149,7 @@ export const TeamEditorPage = () => {
     }
   };
 
-  const handleError = (errors: any) => {
+  const handleError = (errors: unknown) => {
     console.error('Form validation errors:', errors);
     setSubmitError('Please fix the validation errors');
   };
