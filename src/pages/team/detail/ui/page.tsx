@@ -1,67 +1,102 @@
 // src/pages/team/detail/ui/page.tsx
-import { useParams } from '@tanstack/react-router';
-import { Calendar, Mail, MapPin, Phone, User } from 'lucide-react';
+import { useNavigate, useParams } from '@tanstack/react-router';
+import { AlertCircle, Calendar, Loader2, Mail, MapPin, Phone, User } from 'lucide-react';
 
-import type { TeamMember } from '~/entities/team';
+import { useDeleteTeamMember, useTeamMember, useUpdateTeamMemberStatus } from '~/entities/team';
 
-import { Button, Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
-
-// Mock function - später durch API-Call ersetzen
-function getTeamMemberById(id: string): TeamMember | undefined {
-  const mockMembers: Array<TeamMember> = [
-    {
-      id: '1',
-      firstName: 'Max',
-      lastName: 'Mustermann',
-      email: 'max@example.com',
-      phone: '+49 123 456789',
-      role: 'Senior Entwickler',
-      department: 'IT',
-      status: 'active',
-      bio: 'Erfahrener Full-Stack Entwickler mit Fokus auf React und Node.js. Liebt es, komplexe Probleme zu lösen und neue Technologien zu erkunden.',
-      startDate: new Date('2020-03-15'),
-      birthDate: new Date('1990-05-20'),
-      newsletter: true,
-      remoteWork: true,
-      address: {
-        street: 'Musterstraße 123',
-        city: 'Berlin',
-        country: 'Deutschland',
-        postalCode: '10115',
-      },
-    },
-    {
-      id: '2',
-      firstName: 'Anna',
-      lastName: 'Schmidt',
-      email: 'anna@example.com',
-      phone: '+49 234 567890',
-      role: 'Projektleiterin',
-      department: 'Management',
-      status: 'active',
-      bio: 'Erfahrene Projektleiterin mit über 10 Jahren Erfahrung in der IT-Branche. Spezialisiert auf agile Methoden.',
-      startDate: new Date('2018-06-01'),
-      newsletter: false,
-      remoteWork: false,
-    },
-    // ... weitere Mock-Daten
-  ];
-
-  return mockMembers.find((member) => member.id === id);
-}
+import { toast } from '~/shared/hooks/use-toast';
+import {
+  Alert,
+  AlertDescription,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/shared/shadcn';
 
 export function TeamDetailPage() {
+  const navigate = useNavigate();
   const { memberId } = useParams({ from: '/team/$memberId' });
-  const member = getTeamMemberById(memberId);
 
-  if (!member) {
+  // API Hooks
+  const { data: member, isLoading, error, refetch } = useTeamMember(memberId);
+  const deleteMutation = useDeleteTeamMember({
+    onSuccess: () => {
+      toast({
+        title: 'Teammitglied gelöscht',
+        description: 'Das Teammitglied wurde erfolgreich entfernt.',
+      });
+      navigate({ to: '/team' });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Fehler beim Löschen',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const updateStatusMutation = useUpdateTeamMemberStatus({
+    onSuccess: () => {
+      toast({
+        title: 'Status aktualisiert',
+        description: 'Der Status wurde erfolgreich geändert.',
+      });
+      refetch();
+    },
+    onError: (error) => {
+      toast({
+        title: 'Fehler beim Aktualisieren',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Loading State
+  if (isLoading) {
     return (
       <div className="container mx-auto py-8">
         <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-lg text-muted-foreground">Teammitglied nicht gefunden</p>
-            <Button className="mt-4" onClick={() => window.history.back()}>
-              Zurück zur Übersicht
+          <CardContent className="flex flex-col items-center py-12">
+            <Loader2 className="mb-4 h-12 w-12 animate-spin text-primary" />
+            <p className="text-lg text-muted-foreground">Lade Teammitglied...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error State
+  if (error || !member) {
+    return (
+      <div className="container mx-auto py-8">
+        <Card>
+          <CardHeader>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error?.message || 'Teammitglied nicht gefunden'}</AlertDescription>
+            </Alert>
+          </CardHeader>
+          <CardContent className="flex justify-center gap-4">
+            <Button onClick={() => navigate({ to: '/team' })}>Zurück zur Übersicht</Button>
+            <Button variant="outline" onClick={() => refetch()}>
+              Erneut versuchen
             </Button>
           </CardContent>
         </Card>
@@ -83,10 +118,43 @@ export function TeamDetailPage() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-6">
-        <Button variant="ghost" onClick={() => window.history.back()}>
+      <div className="mb-6 flex items-center justify-between">
+        <Button variant="ghost" onClick={() => navigate({ to: '/team' })}>
           ← Zurück zur Übersicht
         </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate({ to: '/team/$memberId/edit', params: { memberId } })}
+          >
+            Bearbeiten
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm">
+                Löschen
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Teammitglied löschen?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Diese Aktion kann nicht rückgängig gemacht werden. Das Teammitglied{' '}
+                  {member.firstName} {member.lastName} wird dauerhaft gelöscht.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteMutation.mutate(memberId)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Löschen
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -98,11 +166,43 @@ export function TeamDetailPage() {
                 <CardTitle>
                   {member.firstName} {member.lastName}
                 </CardTitle>
-                <span
-                  className={`rounded-full px-3 py-1 text-sm font-medium ${statusColors[member.status]}`}
-                >
-                  {statusLabels[member.status]}
-                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`${statusColors[member.status]}`}
+                    >
+                      {statusLabels[member.status]}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        updateStatusMutation.mutate({ id: memberId, status: 'active' })
+                      }
+                      disabled={member.status === 'active'}
+                    >
+                      Aktiv
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        updateStatusMutation.mutate({ id: memberId, status: 'inactive' })
+                      }
+                      disabled={member.status === 'inactive'}
+                    >
+                      Inaktiv
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        updateStatusMutation.mutate({ id: memberId, status: 'vacation' })
+                      }
+                      disabled={member.status === 'vacation'}
+                    >
+                      Urlaub
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -145,7 +245,7 @@ export function TeamDetailPage() {
                   <div>
                     <p className="text-sm text-muted-foreground">Eintrittsdatum</p>
                     <p className="font-medium">
-                      {member.startDate.toLocaleDateString('de-DE', {
+                      {new Date(member.startDate).toLocaleDateString('de-DE', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',
@@ -227,7 +327,7 @@ export function TeamDetailPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-lg font-medium">
-                  {member.birthDate.toLocaleDateString('de-DE', {
+                  {new Date(member.birthDate).toLocaleDateString('de-DE', {
                     day: '2-digit',
                     month: 'long',
                     year: 'numeric',

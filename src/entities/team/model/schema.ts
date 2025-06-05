@@ -9,8 +9,8 @@ export const addressSchema = z.object({
   postalCode: z.string().optional(),
 });
 
-// Simplified team member for form array
-export const teamMemberFormSchema = z.object({
+// Simplified team member for form array (used in the complex teamFormSchema)
+export const teamMemberFormItemSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   role: z.string().optional(),
@@ -26,7 +26,8 @@ export const teamMemberSchema = z.object({
   phone: z
     .string()
     .regex(/^\+?[0-9\s-]+$/, 'Invalid phone number')
-    .optional(),
+    .optional()
+    .or(z.literal('')),
 
   // Professional info
   role: z.string().min(1, 'Role is required'),
@@ -40,7 +41,8 @@ export const teamMemberSchema = z.object({
     .string()
     .min(10, 'Bio must be at least 10 characters')
     .max(500, 'Bio must be less than 500 characters')
-    .optional(),
+    .optional()
+    .or(z.literal('')),
 
   // Date fields
   birthDate: z
@@ -48,7 +50,8 @@ export const teamMemberSchema = z.object({
       required_error: 'Birth date is required',
       invalid_type_error: 'Invalid date',
     })
-    .optional(),
+    .optional()
+    .nullable(),
 
   startDate: z.date({
     required_error: 'Start date is required',
@@ -56,13 +59,14 @@ export const teamMemberSchema = z.object({
   }),
 
   // Address
-  address: addressSchema.optional(),
+  address: addressSchema.optional().nullable(),
 
   // Preferences
   newsletter: z.boolean().default(false),
   remoteWork: z.boolean().default(false),
 });
 
+// Complex form schema (for the test form page)
 export const teamFormSchema = z
   .object({
     // Basic fields
@@ -104,7 +108,7 @@ export const teamFormSchema = z
     address: addressSchema,
 
     // Field array with simplified schema for form
-    teamMembers: z.array(teamMemberFormSchema).min(1, 'At least one team member is required'),
+    teamMembers: z.array(teamMemberFormItemSchema).min(1, 'At least one team member is required'),
   })
   .refine(
     (data) => {
@@ -146,3 +150,30 @@ export const updateTeamMemberSchema = teamMemberSchema.partial().required({ id: 
 
 export type CreateTeamMember = z.infer<typeof createTeamMemberSchema>;
 export type UpdateTeamMember = z.infer<typeof updateTeamMemberSchema>;
+
+// ===== FORM SCHEMAS FOR TEAM MEMBERS =====
+// Form schemas handle HTML form realities (empty strings instead of undefined)
+export const teamMemberFormSchema = z.object({
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional().default(''),
+  role: z.string().min(1, 'Role is required'),
+  department: z.string().min(1, 'Department is required'),
+  status: z.enum(['active', 'inactive', 'vacation']).default('active'),
+  bio: z.string().optional().default(''),
+  birthDate: z.date().optional().nullable(),
+  startDate: z.date(),
+  address: addressSchema.optional().nullable(),
+  newsletter: z.boolean().default(false),
+  remoteWork: z.boolean().default(false),
+});
+
+export const createTeamMemberFormSchema = teamMemberFormSchema;
+export const updateTeamMemberFormSchema = teamMemberFormSchema.extend({
+  id: z.string(),
+});
+
+export type TeamMemberFormData = z.infer<typeof teamMemberFormSchema>;
+export type CreateTeamMemberFormData = z.infer<typeof createTeamMemberFormSchema>;
+export type UpdateTeamMemberFormData = z.infer<typeof updateTeamMemberFormSchema>;

@@ -1,29 +1,35 @@
 // src/pages/team/editor/ui/page.tsx
-import { useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Calendar, Mail, Phone, Plus, Settings, Trash2, UserPlus } from 'lucide-react';
+import { useNavigate, useParams } from '@tanstack/react-router';
+import { Loader2, UserPlus } from 'lucide-react';
 
 import { AddressDialog } from '~/features/team';
 
-import type { Address, TeamFormData } from '~/entities/team';
-import { countryOptions, frameworkOptions, teamFormSchema } from '~/entities/team';
-
+import type {
+  Address,
+  CreateTeamMember,
+  CreateTeamMemberFormData,
+  UpdateTeamMember,
+  UpdateTeamMemberFormData,
+} from '~/entities/team';
 import {
-  Alert,
-  AlertDescription,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '~/shared/shadcn';
+  createTeamMemberFormSchema,
+  departmentOptionsList,
+  teamStatusOptions,
+  updateTeamMemberFormSchema,
+  useCreateTeamMember,
+  useTeamMember,
+  useUpdateTeamMember,
+} from '~/entities/team';
+
+import { toast } from '~/shared/hooks/use-toast';
+import { Alert, AlertDescription, Button, Card, CardContent, CardHeader } from '~/shared/shadcn';
 import {
   FormCheckbox,
-  FormCombobox,
   FormDatePicker,
-  FormDateRange,
   FormDialogButton,
   FormFooter,
   FormHeader,
@@ -34,106 +40,192 @@ import {
 } from '~/shared/ui/form';
 
 export const TeamEditorPage = () => {
-  const [submitResult, setSubmitResult] = useState<string>('');
-  const [submitError, setSubmitError] = useState<string>('');
-  const [submitSuccess, setSubmitSuccess] = useState<string>('');
+  const navigate = useNavigate();
+  const { memberId } = useParams({ strict: false });
+  const isEditMode = !!memberId && memberId !== 'new';
 
-  const handleSubmit = (data: TeamFormData) => {
-    setSubmitError('');
-    setSubmitSuccess('');
+  // API Hooks
+  const { data: existingMember, isLoading: isLoadingMember } = useTeamMember(memberId || '', {
+    enabled: isEditMode,
+  });
 
-    try {
-      console.log('Form submitted:', data);
-      setSubmitResult(JSON.stringify(data, null, 2));
-      setSubmitSuccess('Form submitted successfully!');
-    } catch (error) {
-      setSubmitError('Failed to submit form');
-      console.error(error);
+  const createMutation = useCreateTeamMember({
+    onSuccess: (data) => {
+      toast({
+        title: 'Teammitglied erstellt',
+        description: `${data.firstName} ${data.lastName} wurde erfolgreich hinzugefügt.`,
+      });
+      navigate({ to: '/team/$memberId', params: { memberId: data.id } });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Fehler beim Erstellen',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const updateMutation = useUpdateTeamMember({
+    onSuccess: (data) => {
+      toast({
+        title: 'Änderungen gespeichert',
+        description: 'Die Daten wurden erfolgreich aktualisiert.',
+      });
+      navigate({ to: '/team/$memberId', params: { memberId: data.id } });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Fehler beim Speichern',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Form Setup
+  const defaultValues: CreateTeamMemberFormData = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    role: '',
+    department: '',
+    status: 'active',
+    bio: '',
+    birthDate: null,
+    startDate: new Date(),
+    address: null,
+    newsletter: false,
+    remoteWork: false,
+  };
+
+  type FormData = CreateTeamMemberFormData | UpdateTeamMemberFormData;
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(isEditMode ? updateTeamMemberFormSchema : createTeamMemberFormSchema),
+    defaultValues: isEditMode
+      ? ({ id: memberId, ...defaultValues } as UpdateTeamMemberFormData)
+      : defaultValues,
+    mode: 'onChange',
+  });
+
+  // Load existing data in edit mode
+  useEffect(() => {
+    if (isEditMode && existingMember) {
+      const formData: UpdateTeamMemberFormData = {
+        id: existingMember.id,
+        firstName: existingMember.firstName,
+        lastName: existingMember.lastName,
+        email: existingMember.email,
+        phone: existingMember.phone || '',
+        role: existingMember.role,
+        department: existingMember.department,
+        status: existingMember.status,
+        bio: existingMember.bio || '',
+        birthDate: existingMember.birthDate ? new Date(existingMember.birthDate) : null,
+        startDate: new Date(existingMember.startDate),
+        address: existingMember.address || null,
+        newsletter: existingMember.newsletter,
+        remoteWork: existingMember.remoteWork,
+      };
+      form.reset(formData);
+    }
+  }, [existingMember, isEditMode, form]);
+
+  const handleSubmit = (data: FormData) => {
+    // Transform form data to API data
+    const apiData: CreateTeamMember | UpdateTeamMember = {
+      ...data,
+      phone: data.phone || undefined,
+      bio: data.bio || undefined,
+      birthDate: data.birthDate || undefined,
+      address: data.address || undefined,
+    };
+
+    if (isEditMode && 'id' in apiData) {
+      updateMutation.mutate(apiData);
+    } else {
+      const { ...createData } = apiData as CreateTeamMember;
+      createMutation.mutate(createData);
     }
   };
 
   const handleError = (errors: unknown) => {
     console.error('Form validation errors:', errors);
-    setSubmitError('Please fix the validation errors');
+    toast({
+      title: 'Validierungsfehler',
+      description: 'Bitte überprüfen Sie Ihre Eingaben.',
+      variant: 'destructive',
+    });
   };
 
-  const defaultValues: Partial<TeamFormData> = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    bio: '',
-    country: '',
-    framework: '',
-    acceptTerms: false,
-    newsletter: true,
-    birthDate: undefined,
-    projectStartDate: undefined,
-    projectEndDate: undefined,
-    address: {
-      street: '',
-      city: '',
-      country: '',
-      postalCode: '',
-    },
-    teamMembers: [
-      { name: '', email: '', role: '' }, // First member with all fields empty
-    ],
-  };
+  // Loading state for edit mode
+  if (isEditMode && isLoadingMember) {
+    return (
+      <div className="container mx-auto max-w-4xl py-8">
+        <Card>
+          <CardContent className="flex flex-col items-center py-12">
+            <Loader2 className="mb-4 h-12 w-12 animate-spin text-primary" />
+            <p className="text-lg text-muted-foreground">Lade Teammitglied...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-  // Initialize form
-  const form = useForm<TeamFormData>({
-    resolver: zodResolver(teamFormSchema),
-    defaultValues,
-    mode: 'onChange', // Validiert sofort beim Tippen
-    reValidateMode: 'onChange', // Nach Fehler: validiert bei jeder Änderung
-    criteriaMode: 'all', // Zeigt alle FehFler gleichzeitig
-  });
-
-  // Initialize field array OUTSIDE of render
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'teamMembers',
-  });
-
-  const onSubmit = form.handleSubmit(handleSubmit, handleError);
+  // Error state for edit mode
+  if (isEditMode && !existingMember && !isLoadingMember) {
+    return (
+      <div className="container mx-auto max-w-4xl py-8">
+        <Card>
+          <CardHeader>
+            <Alert variant="destructive">
+              <AlertDescription>Teammitglied nicht gefunden</AlertDescription>
+            </Alert>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Button onClick={() => navigate({ to: '/team' })}>Zurück zur Übersicht</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-4xl py-8">
       <FormProvider {...form}>
-        <form onSubmit={onSubmit} className="space-y-8">
+        <form onSubmit={form.handleSubmit(handleSubmit, handleError)} className="space-y-8">
           {/* Header */}
           <FormHeader
-            title="Comprehensive Test Form"
-            description="This form demonstrates all available form components with validation"
-            subtitle="All fields marked with * are required"
-            icon={Settings}
-            variant="default"
-            badge={
-              <span className="rounded-md bg-blue-100 px-2 py-1 text-xs text-blue-700">Demo</span>
+            title={isEditMode ? 'Teammitglied bearbeiten' : 'Neues Teammitglied'}
+            description={
+              isEditMode
+                ? 'Bearbeiten Sie die Daten des Teammitglieds'
+                : 'Fügen Sie ein neues Teammitglied hinzu'
             }
+            icon={UserPlus}
           />
 
-          {/* Basic Input Fields */}
+          {/* Persönliche Informationen */}
           <Card>
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+              <h2 className="text-lg font-semibold">Persönliche Informationen</h2>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <FormInput
                   control={form.control}
                   name="firstName"
-                  label="First Name"
-                  placeholder="John"
+                  label="Vorname"
+                  placeholder="Max"
                   required
-                  startIcon={<UserPlus className="h-4 w-4" />}
                 />
                 <FormInput
                   control={form.control}
                   name="lastName"
-                  label="Last Name"
-                  placeholder="Doe"
+                  label="Nachname"
+                  placeholder="Mustermann"
                   required
                 />
               </div>
@@ -141,114 +233,93 @@ export const TeamEditorPage = () => {
               <FormInput
                 control={form.control}
                 name="email"
-                label="Email"
+                label="E-Mail"
                 type="email"
-                placeholder="john.doe@example.com"
+                placeholder="max.mustermann@example.com"
                 required
-                startIcon={<Mail className="h-4 w-4" />}
               />
 
               <FormInput
                 control={form.control}
                 name="phone"
-                label="Phone Number"
+                label="Telefon"
                 type="tel"
-                placeholder="+1 234 567 8900"
-                startIcon={<Phone className="h-4 w-4" />}
-                description="Optional field - include country code"
-              />
-            </CardContent>
-          </Card>
-
-          {/* TextArea */}
-          <Card>
-            <CardHeader>
-              <CardTitle>About You</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FormTextArea
-                control={form.control}
-                name="bio"
-                label="Bio"
-                placeholder="Tell us about yourself... (min 10, max 500 characters)"
-                rows={4}
-                required
-                description="Write a brief description about yourself"
-              />
-            </CardContent>
-          </Card>
-
-          {/* Select & Combobox */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Preferences</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormSelect
-                control={form.control}
-                name="country"
-                options={countryOptions}
-                label="Country"
-                placeholder="Select a country..."
-                required
-                emptyOption="-- None --"
+                placeholder="+49 123 456789"
               />
 
-              <FormCombobox
-                control={form.control}
-                name="framework"
-                label="Favorite Framework"
-                options={frameworkOptions}
-                placeholder="Select framework..."
-                searchPlaceholder="Search frameworks..."
-                required
-                emptyText="No framework found."
-                description="Choose your preferred JavaScript framework"
-              />
-            </CardContent>
-          </Card>
-
-          {/* Date Fields */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Important Dates</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
               <FormDatePicker
                 control={form.control}
                 name="birthDate"
-                label="Birth Date"
-                placeholder="Select your birth date"
+                label="Geburtsdatum"
+                placeholder="Wählen Sie ein Datum"
                 max={new Date()}
-                required
-                dateFormat="dd/MM/yyyy"
-                allowInput={true}
               />
 
-              <FormDateRange
+              <FormTextArea
                 control={form.control}
-                startName="projectStartDate"
-                endName="projectEndDate"
-                label="Project Duration (Optional)"
-                startLabel="Start Date"
-                endLabel="End Date"
-                description="Select the project timeline"
+                name="bio"
+                label="Biografie"
+                placeholder="Erzählen Sie etwas über sich..."
+                rows={4}
+                description="Eine kurze Beschreibung (optional)"
               />
             </CardContent>
           </Card>
 
-          {/* Complex Dialog Field */}
+          {/* Berufliche Informationen */}
           <Card>
             <CardHeader>
-              <CardTitle>Address Information</CardTitle>
+              <h2 className="text-lg font-semibold">Berufliche Informationen</h2>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormInput
+                control={form.control}
+                name="role"
+                label="Rolle"
+                placeholder="z.B. Senior Entwickler"
+                required
+              />
+
+              <FormSelect
+                control={form.control}
+                name="department"
+                options={departmentOptionsList}
+                label="Abteilung"
+                placeholder="Wählen Sie eine Abteilung..."
+                required
+              />
+
+              <FormSelect
+                control={form.control}
+                name="status"
+                options={Object.entries(teamStatusOptions).map(([key, opt]) => ({
+                  value: key,
+                  label: opt.label,
+                }))}
+                label="Status"
+                required
+              />
+
+              <FormDatePicker
+                control={form.control}
+                name="startDate"
+                label="Eintrittsdatum"
+                placeholder="Wählen Sie ein Datum"
+                required
+              />
+            </CardContent>
+          </Card>
+
+          {/* Adresse */}
+          <Card>
+            <CardHeader>
+              <h2 className="text-lg font-semibold">Adresse</h2>
             </CardHeader>
             <CardContent>
               <FormDialogButton
                 control={form.control}
                 name="address"
-                label="Address"
-                icon={UserPlus}
-                endIcon={Calendar}
+                label="Adresse"
                 dialog={({ open, onOpenChange, value, onChange }) => (
                   <AddressDialog
                     open={open}
@@ -257,9 +328,8 @@ export const TeamEditorPage = () => {
                     onChange={onChange}
                   />
                 )}
-                required
-                emptyText="Click to add address"
-                description="Click the button to enter your address details"
+                emptyText="Klicken Sie hier, um eine Adresse hinzuzufügen"
+                description="Heimatadresse des Teammitglieds (optional)"
               >
                 {(value) => {
                   const address = value as Address | undefined;
@@ -268,7 +338,7 @@ export const TeamEditorPage = () => {
                     <div className="text-left">
                       <div className="font-medium">{address.street}</div>
                       <div className="text-sm text-muted-foreground">
-                        {address.city}, {address.country} {address.postalCode}
+                        {address.postalCode} {address.city}, {address.country}
                       </div>
                     </div>
                   );
@@ -277,130 +347,37 @@ export const TeamEditorPage = () => {
             </CardContent>
           </Card>
 
-          {/* Field Array */}
+          {/* Einstellungen */}
           <Card>
             <CardHeader>
-              <CardTitle>Team Members</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Add team members with name (required), email (required), and role (optional)
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {fields.map((field, index) => (
-                <Card key={field.id} className="p-4">
-                  <div className="space-y-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <h4 className="text-sm font-medium">Member {index + 1}</h4>
-                      {fields.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => remove(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Remove
-                        </Button>
-                      )}
-                    </div>
-
-                    <FormInput
-                      control={form.control}
-                      name={`teamMembers.${index}.name`}
-                      label="Name"
-                      placeholder="Team member name"
-                      required
-                    />
-
-                    <FormInput
-                      control={form.control}
-                      name={`teamMembers.${index}.email`}
-                      label="Email"
-                      type="email"
-                      placeholder="member@example.com"
-                      required
-                    />
-
-                    <FormInput
-                      control={form.control}
-                      name={`teamMembers.${index}.role`}
-                      label="Role"
-                      placeholder="Developer, Designer, etc."
-                      description="Optional - specify the team member's role"
-                    />
-                  </div>
-                </Card>
-              ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => append({ name: '', email: '', role: '' })}
-                className="w-full"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Team Member
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Checkboxes */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Agreements & Preferences</CardTitle>
+              <h2 className="text-lg font-semibold">Einstellungen</h2>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormCheckbox
                 control={form.control}
-                name="acceptTerms"
-                label="I accept the terms and conditions"
-                required
-                description="You must accept the terms to proceed"
+                name="newsletter"
+                label="Newsletter abonnieren"
+                description="Erhält Updates und Neuigkeiten per E-Mail"
               />
 
               <FormCheckbox
                 control={form.control}
-                name="newsletter"
-                label="Subscribe to newsletter"
-                description="Get updates about new features and improvements (optional)"
-                side="right"
+                name="remoteWork"
+                label="Remote-Arbeit erlaubt"
+                description="Kann von zu Hause aus arbeiten"
               />
             </CardContent>
           </Card>
 
           {/* Footer */}
           <FormFooter
-            submitText="Submit Form"
+            submitText={isEditMode ? 'Änderungen speichern' : 'Teammitglied erstellen'}
             showCancel={true}
-            showReset={true}
-            onCancel={() => {
-              console.log('Form cancelled');
-              setSubmitResult('');
-              setSubmitError('');
-              setSubmitSuccess('');
-            }}
-            error={submitError}
-            success={submitSuccess}
+            cancelText="Abbrechen"
+            onCancel={() => navigate({ to: '/team' })}
+            showReset={!isEditMode}
+            resetText="Formular zurücksetzen"
           />
-
-          {/* Result Display */}
-          {submitResult && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Form Submission Result</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Alert>
-                  <AlertDescription>
-                    <pre className="overflow-auto rounded-md bg-muted p-4">
-                      <code>{submitResult}</code>
-                    </pre>
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-          )}
         </form>
       </FormProvider>
     </div>
