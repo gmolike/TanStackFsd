@@ -1,23 +1,20 @@
 // src/shared/ui/data-table/columns/team-columns.tsx
 import type { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, Edit, Trash2 } from 'lucide-react';
 
 import type { TeamMember } from '~/entities/team';
 
-import {
-  Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '~/shared/shadcn';
+import { Button } from '~/shared/shadcn';
 
 /**
- * Spalten-Definition für die Team-Tabelle
+ * Erzeugt Team-Spalten mit Action Callbacks
+ * @param onEdit - Callback für Bearbeiten-Button
+ * @param onDelete - Callback für Löschen-Button
  */
-export const teamColumns: Array<ColumnDef<TeamMember>> = [
+export const createTeamColumns = (
+  onEdit?: (member: TeamMember) => void,
+  onDelete?: (member: TeamMember) => void,
+): Array<ColumnDef<TeamMember>> => [
   {
     accessorKey: 'name',
     header: ({ column }) => (
@@ -99,30 +96,45 @@ export const teamColumns: Array<ColumnDef<TeamMember>> = [
   },
   {
     id: 'actions',
+    header: 'Aktionen',
     enableHiding: false,
     cell: ({ row }) => {
       const member = row.original;
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Menü öffnen</span>
-              <MoreHorizontal className="h-4 w-4" />
+        <div className="flex items-center gap-2">
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation(); // Verhindert onRowClick
+                onEdit(member);
+              }}
+              title="Bearbeiten"
+            >
+              <Edit className="h-4 w-4" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Aktionen</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(member.email)}>
-              E-Mail kopieren
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Details anzeigen</DropdownMenuItem>
-            <DropdownMenuItem>Bearbeiten</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Löschen</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          )}
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation(); // Verhindert onRowClick
+                onDelete(member);
+              }}
+              title="Löschen"
+              className="text-destructive hover:bg-destructive/10"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       );
     },
   },
 ];
+
+// Export für Kompatibilität mit existierendem Code
+export const teamColumns = createTeamColumns();

@@ -54,6 +54,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   error,
   success,
   className,
+  children,
 }: Props<TFieldValues>) => {
   const { formState, handleReset } = useController({
     form,
@@ -80,43 +81,49 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
         </div>
       )}
 
-      {/* Buttons */}
-      <div className="flex items-center justify-end gap-2">
-        {/* Reset Button - always first */}
-        {showReset && (
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={handleReset}
-            disabled={!isDirty || isSubmitting}
-          >
-            <RotateCcw className="h-4 w-4" />
-            {resetText}
-          </Button>
-        )}
+      {/* Buttons - MIT ÄNDERUNG HIER */}
+      <div className={cn('flex items-center', children ? 'justify-between' : 'justify-end')}>
+        {/* Children content on the left */}
+        {children && <div className="flex items-center">{children}</div>}
 
-        {/* Cancel Button - always second */}
-        {showCancel && (
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-            <ArrowLeft className="h-4 w-4" />
-            {cancelText}
-          </Button>
-        )}
-
-        {/* Submit Button - always last */}
-        <Button type="submit" disabled={isSubmitting || !isValid} onClick={onSubmit}>
-          {isSubmitting ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Wird gespeichert...
-            </>
-          ) : (
-            <>
-              {submitText}
-              <ArrowRight className="h-4 w-4" />
-            </>
+        {/* Buttons on the right */}
+        <div className="flex items-center gap-2">
+          {/* Reset Button - always first */}
+          {showReset && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleReset}
+              disabled={!isDirty || isSubmitting}
+            >
+              <RotateCcw className="h-4 w-4" />
+              {resetText}
+            </Button>
           )}
-        </Button>
+
+          {/* Cancel Button - always second */}
+          {showCancel && (
+            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+              <ArrowLeft className="h-4 w-4" />
+              {cancelText}
+            </Button>
+          )}
+
+          {/* Submit Button - always last */}
+          <Button type="submit" disabled={isSubmitting || !isValid} onClick={onSubmit}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Wird gespeichert...
+              </>
+            ) : (
+              <>
+                {submitText}
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -77,6 +77,12 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = {
    * Additional CSS classes for the footer container
    */
   className?: string;
+
+  /**
+   * Children content to display on the left side
+   * @optional Shows custom content on the left while buttons stay on the right
+   */
+  children?: React.ReactNode;
 };
 
 /**

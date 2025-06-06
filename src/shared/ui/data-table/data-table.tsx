@@ -21,31 +21,53 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~
 import { DataTablePagination } from './pagination';
 import { DataTableToolbar } from './toolbar';
 
-interface DataTableProps<TData, TValue> {
+export interface DataTableProps<TData, TValue> {
   columns: Array<ColumnDef<TData, TValue>>;
   data: Array<TData>;
   searchKey?: string;
+  searchPlaceholder?: string;
   onRowClick?: (row: TData) => void;
+  // Standard-Konfigurationen
+  defaultSorting?: SortingState;
+  defaultColumnVisibility?: VisibilityState;
+  pageSize?: number;
+  // Column Labels für generische Anzeige
+  columnLabels?: Record<string, string>;
+  // Ob Spaltenauswahl angezeigt werden soll
+  showColumnToggle?: boolean;
 }
 
 /**
  * DataTable Component
- * Wiederverwendbare Tabellen-Komponente mit Sortierung, Filterung und Pagination
+ * Erweiterte generische Tabellen-Komponente mit Sortierung, Filterung, Pagination
  *
  * @param columns - Spaltendefinitionen für die Tabelle
  * @param data - Daten für die Tabelle
  * @param searchKey - Schlüssel für die Suchfunktion
+ * @param searchPlaceholder - Placeholder für das Suchfeld
  * @param onRowClick - Callback beim Klick auf eine Zeile
+ * @param defaultSorting - Standard-Sortierung beim ersten Laden
+ * @param defaultColumnVisibility - Standard-Sichtbarkeit der Spalten
+ * @param pageSize - Anzahl der Einträge pro Seite
+ * @param columnLabels - Labels für die Spalten im Dropdown
+ * @param showColumnToggle - Ob die Spaltenauswahl angezeigt werden soll
  */
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
+  searchPlaceholder,
   onRowClick,
+  defaultSorting = [],
+  defaultColumnVisibility = {},
+  pageSize = 10,
+  columnLabels,
+  showColumnToggle = true,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    useState<VisibilityState>(defaultColumnVisibility);
   const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
@@ -65,11 +87,22 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize,
+      },
+    },
   });
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} searchKey={searchKey} />
+      <DataTableToolbar
+        table={table}
+        searchKey={searchKey}
+        searchPlaceholder={searchPlaceholder}
+        columnLabels={columnLabels}
+        showColumnToggle={showColumnToggle}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
