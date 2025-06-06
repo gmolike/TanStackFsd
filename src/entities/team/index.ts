@@ -1,4 +1,10 @@
 // src/entities/team/index.ts
+export type { MemberCardProps as TeamMemberCardProps } from './ui/member-card';
+export { MemberCard as TeamMemberCard } from './ui/member-card';
+export type { MemberInfoProps as TeamMemberInfoProps } from './ui/member-info';
+export { MemberInfo as TeamMemberInfo } from './ui/member-info';
+export type { StatusBadgeProps as TeamStatusBadgeProps } from './ui/status-badge';
+export { StatusBadge as TeamStatusBadge } from './ui/status-badge';
 
 // Model exports
 export * from './model/labels';

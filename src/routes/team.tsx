@@ -1,4 +1,4 @@
-// src/routes/team.tsx
+// src/routes/team.tsx (Layout Route)
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/team')({

@@ -28,7 +28,6 @@ interface DataTableToolbarProps<TData> {
 
 export function DataTableToolbar<TData>({
   table,
-  searchKey,
   searchPlaceholder = 'Globale Suche...',
   columnLabels = {},
   showColumnToggle = true,

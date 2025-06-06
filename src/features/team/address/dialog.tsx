@@ -1,11 +1,10 @@
-// src/features/team-editor/ui/address-dialog.tsx
 import { useState } from 'react';
 
 import type { Address } from '~/entities/team';
 
 import {
   Button,
-  Dialog,
+  Dialog as ShadCnDialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -13,20 +12,19 @@ import {
   DialogTitle,
 } from '~/shared/shadcn';
 
-interface AddressDialogProps {
+type DialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   value: Address | undefined;
   onChange: (value: Address) => void;
-}
+};
 
-export const AddressDialog = ({ open, onOpenChange, value, onChange }: AddressDialogProps) => {
+export const Dialog = ({ open, onOpenChange, value, onChange }: DialogProps) => {
   const [localAddress, setLocalAddress] = useState<Address>(
     value || { street: '', city: '', country: '', postalCode: '' },
   );
 
   const handleSave = () => {
-    // Simple validation
     if (localAddress.street && localAddress.city && localAddress.country) {
       onChange(localAddress);
       onOpenChange(false);
@@ -34,79 +32,79 @@ export const AddressDialog = ({ open, onOpenChange, value, onChange }: AddressDi
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <ShadCnDialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Address</DialogTitle>
+          <DialogTitle>Adresse bearbeiten</DialogTitle>
           <DialogDescription>
-            Enter your address details. All fields except postal code are required.
+            Geben Sie die Adressdaten ein. Alle Felder außer Postleitzahl sind erforderlich.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div>
             <label className="text-sm font-medium">
-              Street <span className="text-destructive">*</span>
+              Straße <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
               value={localAddress.street}
               onChange={(e) => setLocalAddress({ ...localAddress, street: e.target.value })}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-              placeholder="123 Main St"
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              placeholder="Musterstraße 123"
             />
           </div>
 
           <div>
             <label className="text-sm font-medium">
-              City <span className="text-destructive">*</span>
+              Stadt <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
               value={localAddress.city}
               onChange={(e) => setLocalAddress({ ...localAddress, city: e.target.value })}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-              placeholder="New York"
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              placeholder="Berlin"
             />
           </div>
 
           <div>
             <label className="text-sm font-medium">
-              Country <span className="text-destructive">*</span>
+              Land <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
               value={localAddress.country}
               onChange={(e) => setLocalAddress({ ...localAddress, country: e.target.value })}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-              placeholder="USA"
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              placeholder="Deutschland"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Postal Code</label>
+            <label className="text-sm font-medium">Postleitzahl</label>
             <input
               type="text"
               value={localAddress.postalCode || ''}
               onChange={(e) => setLocalAddress({ ...localAddress, postalCode: e.target.value })}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
-              placeholder="10001"
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              placeholder="10115"
             />
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            Abbrechen
           </Button>
           <Button
             onClick={handleSave}
             disabled={!localAddress.street || !localAddress.city || !localAddress.country}
           >
-            Save Address
+            Adresse speichern
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+    </ShadCnDialog>
   );
 };

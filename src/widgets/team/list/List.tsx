@@ -1,36 +1,46 @@
-// src/pages/team/list/ui/page.tsx
 import { useState } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
 import { AlertCircle, Loader2, Plus } from 'lucide-react';
 
+import { TeamCreateButton, TeamDeleteDialog } from '~/features/team';
+
+import type { TeamMember } from '~/entities/team';
 import { useTeamMembers } from '~/entities/team';
 
 import { Alert, AlertDescription, Button, Card, CardContent, CardHeader } from '~/shared/shadcn';
 import type { ViewMode } from '~/shared/ui/view-switcher';
 import { ViewSwitcher } from '~/shared/ui/view-switcher';
 
-import { TeamCardView } from './card-view';
-import { TeamTableView } from './table-view';
+import { CardView } from './ui/card-view';
+import { TableView } from './ui/table-view';
 
-export function TeamListPage() {
+export const List = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
   const navigate = useNavigate();
 
-  // API Hook - Lade ALLE Daten mit explizitem hohen Limit
   const { data, isLoading, error, refetch } = useTeamMembers({
     page: 1,
-    limit: 1000, // Hohes Limit um alle zu bekommen
+    limit: 1000,
     sort: { field: 'lastName', order: 'asc' },
   });
 
   const teamMembers = data?.data || [];
 
-  // Debug logging
-  console.log('Loaded team members:', teamMembers.length);
-  console.log('Total available:', data?.total);
+  const handleDelete = (member: TeamMember) => {
+    setMemberToDelete(member);
+    setDeleteDialogOpen(true);
+  };
 
-  // ... Rest des Codes bleibt gleich
+  const handleEdit = (member: TeamMember) => {
+    navigate({ to: '/team/$memberId/edit', params: { memberId: member.id } });
+  };
+
+  const handleRowClick = (member: TeamMember) => {
+    navigate({ to: '/team/$memberId', params: { memberId: member.id } });
+  };
 
   // Loading State
   if (isLoading) {
@@ -80,10 +90,7 @@ export function TeamListPage() {
             <p className="mb-6 text-center text-muted-foreground">
               Fügen Sie Ihr erstes Teammitglied hinzu, um loszulegen.
             </p>
-            <Button onClick={() => navigate({ to: '/team/new' })}>
-              <Plus className="mr-2 h-4 w-4" />
-              Erstes Mitglied hinzufügen
-            </Button>
+            <TeamCreateButton />
           </CardContent>
         </Card>
       </div>
@@ -91,27 +98,44 @@ export function TeamListPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header mit Titel und Actions */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Team</h1>
-          <p className="mt-2 text-gray-600">
-            {data?.total || teamMembers.length} Teammitglieder insgesamt
-          </p>
+    <>
+      <div className="space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Team</h1>
+            <p className="mt-2 text-gray-600">
+              {data?.total || teamMembers.length} Teammitglieder insgesamt
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
+          </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
-        </div>
+        {viewMode === 'table' ? (
+          <TableView
+            teamMembers={teamMembers}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onRowClick={handleRowClick}
+          />
+        ) : (
+          <CardView
+            teamMembers={teamMembers}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onClick={handleRowClick}
+          />
+        )}
       </div>
 
-      {/* Content - Table oder Cards */}
-      {viewMode === 'table' ? (
-        <TeamTableView teamMembers={teamMembers} />
-      ) : (
-        <TeamCardView teamMembers={teamMembers} />
-      )}
-    </div>
+      <TeamDeleteDialog
+        member={memberToDelete}
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onSuccess={() => refetch()}
+      />
+    </>
   );
-}
+};

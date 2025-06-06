@@ -1,5 +1,5 @@
 // src/shared/ui/data-table/data-table.tsx
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import type {
   ColumnDef,
@@ -96,19 +96,6 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // Debug logging
-  useEffect(() => {
-    console.log('Table State:', {
-      pageIndex: table.getState().pagination.pageIndex,
-      pageSize: table.getState().pagination.pageSize,
-      pageCount: table.getPageCount(),
-      canNextPage: table.getCanNextPage(),
-      canPreviousPage: table.getCanPreviousPage(),
-      rowsCount: table.getRowModel().rows.length,
-      filteredRowsCount: table.getFilteredRowModel().rows.length,
-    });
-  }, [table.getState().pagination, table.getRowModel().rows.length]);
-
   return (
     <div className="space-y-4">
       <DataTableToolbar
@@ -139,7 +126,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

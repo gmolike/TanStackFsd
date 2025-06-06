@@ -1,4 +1,4 @@
-// src/routes/team.index.tsx
+// src/routes/team.index.tsx (List Route - /team)
 import { createFileRoute } from '@tanstack/react-router';
 
 import { TeamListPage } from '~/pages/team';

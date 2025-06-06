@@ -1,4 +1,4 @@
-// src/routes/team.new.tsx
+// src/routes/team.new.tsx (Create Route - /team/new)
 import { createFileRoute } from '@tanstack/react-router';
 
 import { TeamEditorPage } from '~/pages/team';
