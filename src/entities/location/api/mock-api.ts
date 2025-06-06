@@ -1,13 +1,13 @@
 // src/entities/location/api/mock-api.ts
 
 import type { Article } from '~/entities/article';
-import { articleMockApi } from '~/entities/article/api/mock-api';
 import type { TeamMember } from '~/entities/team';
-import { teamMockApi } from '~/entities/team/api/mock-api';
+import { teamMockApi } from '~/entities/team';
 
 import type { FilterParam, PaginatedResult, QueryParams } from '~/shared/mock';
 import { ApiError, createMockStorage, delay, queryData, randomDelay } from '~/shared/mock';
 
+import { articleMockApi } from '../../article/api/mock-api';
 import type {
   CreateLocation,
   CreateLocationInventory,
@@ -32,45 +32,32 @@ const inventoryStorage = createMockStorage<LocationInventory>('location-inventor
 locationStorage.initialize(() => generateLocationMix(20));
 
 // Initialisiere Inventar für existierende Standorte
-const initializeInventory = async () => {
+const initializeInventory = () => {
   const locations = locationStorage.getAll();
+  const existingInventory = inventoryStorage.getAll();
 
-  // Simuliere sync Version für Init
-  const mockArticles: Array<Article> = Array.from({ length: 50 }, (_, i) => ({
-    id: `article-${i}`,
-    articleNumber: `ART-${i.toString().padStart(3, '0')}`,
-    name: `Artikel ${i}`,
-    description: '',
-    price: Math.random() * 1000,
-    stock: Math.floor(Math.random() * 100),
-    minStock: 10,
-    category: 'Test',
-    status: 'available' as const,
-    taxRate: 19,
-    unit: 'Stück',
-    isDigital: false,
-    createdAt: new Date(),
-    tags: [],
-  }));
+  // Skip if already initialized
+  if (existingInventory.length > 0) return;
 
   locations.forEach((location) => {
     if (location.type === 'warehouse' || location.type === 'store') {
       // Füge 20-50 zufällige Artikel zum Lager hinzu
       const articleCount = Math.floor(Math.random() * 30) + 20;
-      const selectedArticles = mockArticles.sort(() => Math.random() - 0.5).slice(0, articleCount);
 
-      selectedArticles.forEach((article) => {
-        const inventory = generateLocationInventory(location.id, article.id, location.type);
+      for (let i = 0; i < articleCount; i++) {
+        const inventory = generateLocationInventory(
+          location.id,
+          `article-${Math.floor(Math.random() * 100)}`,
+          location.type,
+        );
         inventoryStorage.add(inventory);
-      });
+      }
     }
   });
 };
 
-// Initialisiere Inventar einmalig
-if (inventoryStorage.getAll().length === 0) {
-  initializeInventory();
-}
+// Initialisiere Inventar beim ersten Import
+initializeInventory();
 
 /**
  * Location Mock API
@@ -288,7 +275,12 @@ export const locationMockApi = {
         throw new ApiError(404, `Standort mit ID ${data.locationId} nicht gefunden`);
       }
 
-      const article = await articleMockApi.getArticleById(data.articleId);
+      // Prüfe ob Artikel existiert
+      try {
+        await articleMockApi.getArticleById(data.articleId);
+      } catch {
+        throw new ApiError(404, `Artikel mit ID ${data.articleId} nicht gefunden`);
+      }
 
       // Prüfe ob Artikel bereits am Standort
       const existing = inventoryStorage
@@ -446,10 +438,14 @@ export const locationMockApi = {
         }),
       );
 
-      const validInventory = inventoryWithArticles.filter((item) => item !== null);
+      const validInventory = inventoryWithArticles.filter(
+        (item): item is NonNullable<typeof item> => item !== null,
+      );
 
       const stats = validInventory.reduce(
         (acc, item) => {
+          if (!item.article) return acc;
+
           acc.totalStock += item.inventory.stock;
           acc.totalValue += item.inventory.stock * (item.article.price || 0);
           if (item.inventory.stock <= item.inventory.minStock) {
@@ -516,8 +512,11 @@ export const locationMockApi = {
       }
     });
 
-    // Gesamtzahl Mitarbeiter (Mock)
-    const totalTeamMembers = Math.floor(locations.length * 8.5); // Durchschnitt 8.5 pro Standort
+    // Gesamtzahl Mitarbeiter über alle Standorte
+    const allTeamMembers = await teamMockApi.getTeamMembers();
+    const totalTeamMembers = allTeamMembers.data.filter((member) =>
+      locations.some((location) => location.id === member.locationId),
+    ).length;
 
     return {
       ...stats,
@@ -526,41 +525,14 @@ export const locationMockApi = {
   },
 
   /**
-   * Synchrone Version für Initialisierung
-   */
-  getArticlesSync(): Array<Article> {
-    // Diese Funktion würde normalerweise aus einem Cache kommen
-    // Für Mock-Zwecke generieren wir einfache Artikel
-    return Array.from({ length: 50 }, (_, i) => ({
-      id: `article-${i}`,
-      articleNumber: `ART-${i.toString().padStart(3, '0')}`,
-      name: `Artikel ${i}`,
-      price: Math.random() * 1000,
-      stock: Math.floor(Math.random() * 100),
-      minStock: 10,
-      category: 'Test',
-      status: 'available' as const,
-      taxRate: 19,
-      unit: 'Stück',
-      isDigital: false,
-      createdAt: new Date(),
-      tags: [],
-      description: '',
-    }));
-  },
-
-  /**
-   * Setzt die Mock-Daten zurück
+   * Utility-Funktionen
    */
   async resetData(): Promise<void> {
     locationStorage.reset(() => generateLocationMix(20));
     inventoryStorage.clear();
-    await initializeInventory();
+    initializeInventory();
   },
 
-  /**
-   * Löscht alle Daten
-   */
   async clearData(): Promise<void> {
     locationStorage.clear();
     inventoryStorage.clear();

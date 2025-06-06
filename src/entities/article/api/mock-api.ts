@@ -1,14 +1,7 @@
 // src/entities/article/api/mock-api.ts
 
 import type { FilterParam, PaginatedResult, QueryParams } from '~/shared/mock';
-import {
-  ApiError,
-  createApiResponse,
-  createMockStorage,
-  delay,
-  queryData,
-  randomDelay,
-} from '~/shared/mock';
+import { ApiError, createMockStorage, delay, queryData, randomDelay } from '~/shared/mock';
 
 import type { Article, CreateArticle, UpdateArticle } from '../model/schema';
 

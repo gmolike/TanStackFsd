@@ -12,15 +12,11 @@ export {
   type CreateTeamMember,
   type CreateTeamMemberFormData,
   createTeamMemberFormSchema,
-  // API Schemas
   createTeamMemberSchema,
   type TeamFormData,
-  // Types
   type TeamMember,
   type TeamMemberFormData,
-  // Form Schemas
   teamMemberFormSchema,
-  // Basis Schemas
   teamMemberSchema,
   type UpdateTeamMember,
   type UpdateTeamMemberFormData,
@@ -28,16 +24,14 @@ export {
   updateTeamMemberSchema,
 } from './model/schema';
 
-// API Hooks - einzeln exportiert für klare Verwendung
+// API Hooks
 export {
-  // Mutation Hooks
   useCreateTeamMember,
   useDeleteTeamMember,
   useOrganizationChart,
   useRemoteTeamMembers,
   useResetTeamMembers,
   useTeamMember,
-  // Query Hooks
   useTeamMembers,
   useTeamMembersByDepartment,
   useTeamMembersByStatus,
@@ -46,8 +40,14 @@ export {
   useUpdateTeamMemberStatus,
 } from './api/useApi';
 
-// Mock-Daten Generatoren als Namespace (für Tests)
-export * as teamMockGenerators from './api/mock-data';
+// Mock API direkt exportieren (nicht als namespace)
+export { teamMockApi } from './api/mock-api';
 
-// Mock API als Namespace (für direkte Tests)
-export * as teamMockApiService from './api/mock-api';
+// Mock Data Generators
+export {
+  generateFullTeam,
+  generateTeamByDepartment,
+  generateTeamMember,
+  generateTeamMembers,
+  mockTeamMembers,
+} from './api/mock-data';

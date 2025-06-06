@@ -20,6 +20,3 @@ export {
   generateArticles,
   mockArticles,
 } from './api/mock-data';
-
-// Export mock API for direct usage in tests
-export { articleMockApi } from './api/mock-api';

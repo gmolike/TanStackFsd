@@ -378,7 +378,10 @@ export const useRemoveArticleFromLocation = (options?: RemoteMutationOptions<voi
         // Invalidiere alle Inventar-bezogenen Queries
         await queryClient.invalidateQueries({
           queryKey: ['locations'],
-          predicate: (query) => query.queryKey.includes('inventory'),
+          predicate: (query) => {
+            const key = query.queryKey;
+            return Array.isArray(key) && key.includes('inventory');
+          },
         });
 
         options?.onSuccess?.(data, inventoryId, context);

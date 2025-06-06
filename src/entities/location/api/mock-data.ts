@@ -2,11 +2,7 @@
 
 import { array, random, string } from '~/shared/mock';
 
-import { mockTeamMembers } from '~/entities/team/api/mock-data';
-
 import {
-  capacityUnitOptions,
-  locationStatusOptions,
   locationTypeOptions,
   mockCities,
   operatingHoursTemplates,
@@ -65,11 +61,18 @@ const generateLocationCode = (type: Location['type'], city: string): string => {
 };
 
 /**
+ * Generiert Mock Manager IDs
+ */
+const generateManagerId = (): string | undefined =>
+  // Generiere eine ID für einen Manager (90% Wahrscheinlichkeit)
+  random.boolean(0.9) ? `team-member-${random.number(1, 50)}` : undefined;
+/**
  * Generiert einen einzelnen Standort
  */
 export const generateLocation = (overrides?: Partial<CreateLocation>): Location => {
   const type =
-    overrides?.type || (random.arrayElement(Object.keys(locationTypeOptions)) as Location['type']);
+    overrides?.type ||
+    random.arrayElement(['warehouse', 'office', 'store', 'production'] as Array<Location['type']>);
   const city = overrides?.address?.city
     ? mockCities.find((c) => c.name === overrides.address?.city) || random.arrayElement(mockCities)
     : random.arrayElement(mockCities);
@@ -88,15 +91,10 @@ export const generateLocation = (overrides?: Partial<CreateLocation>): Location 
   const capacityRange = capacityRanges[type];
   const capacity = random.number(capacityRange.min, capacityRange.max);
 
-  // Manager aus Mock-Team-Daten
-  const managers = Object.values(mockTeamMembers).filter(
-    (member) => typeof member !== 'function' && member.role.toLowerCase().includes('manager'),
-  );
-  const managerId =
-    random.boolean(0.9) && managers.length > 0 ? random.arrayElement(managers).id : undefined;
+  // Manager ID generieren
+  const managerId = overrides?.managerId !== undefined ? overrides.managerId : generateManagerId();
 
   // Wähle zufälligen Status
-  const statusOptions: Array<Location['status']> = ['active', 'inactive', 'maintenance'];
   const status =
     overrides?.status ||
     (random.boolean(0.8) ? 'active' : random.boolean(0.75) ? 'inactive' : 'maintenance');
@@ -108,15 +106,20 @@ export const generateLocation = (overrides?: Partial<CreateLocation>): Location 
     type,
     status,
     address,
-    managerId: overrides?.managerId || managerId,
+    managerId,
     description:
       overrides?.description ||
       `${locationTypeOptions[type].label} in ${address.city}. ${string.lorem(20)}.`,
-    capacity: overrides?.capacity || capacity,
+    capacity: overrides?.capacity !== undefined ? overrides.capacity : capacity,
     capacityUnit: overrides?.capacityUnit || capacityRange.unit,
-    operatingHours: overrides?.operatingHours || generateOperatingHours(type),
-    createdAt: random.date(new Date(2020, 0, 1), new Date(2023, 11, 31)),
-    updatedAt: random.boolean(0.3) ? random.date(new Date(2024, 0, 1), new Date()) : undefined,
+    operatingHours:
+      overrides?.operatingHours !== undefined
+        ? overrides.operatingHours
+        : generateOperatingHours(type),
+    createdAt: overrides?.createdAt || random.date(new Date(2020, 0, 1), new Date(2023, 11, 31)),
+    updatedAt:
+      overrides?.updatedAt ||
+      (random.boolean(0.3) ? random.date(new Date(2024, 0, 1), new Date()) : undefined),
   };
 
   return location;
@@ -166,12 +169,16 @@ export const generateLocationInventory = (
     minStock,
     maxStock,
     storageLocation: overrides?.storageLocation || generateStorageLocation(locationType),
-    lastInventoryDate: random.boolean(0.7)
-      ? random.date(new Date(2024, 0, 1), new Date())
-      : undefined,
-    lastInventoryBy: random.boolean(0.7) ? random.uuid() : undefined,
-    createdAt: random.date(new Date(2023, 0, 1), new Date()),
-    updatedAt: random.boolean(0.3) ? random.date(new Date(2024, 0, 1), new Date()) : undefined,
+    lastInventoryDate:
+      overrides?.lastInventoryDate ||
+      (random.boolean(0.7) ? random.date(new Date(2024, 0, 1), new Date()) : undefined),
+    lastInventoryBy:
+      overrides?.lastInventoryBy ||
+      (random.boolean(0.7) ? `team-member-${random.number(1, 50)}` : undefined),
+    createdAt: overrides?.createdAt || random.date(new Date(2023, 0, 1), new Date()),
+    updatedAt:
+      overrides?.updatedAt ||
+      (random.boolean(0.3) ? random.date(new Date(2024, 0, 1), new Date()) : undefined),
   };
 
   return inventory;
@@ -203,7 +210,7 @@ export const generateLocationsByCity = (city: string, count: number): Array<Loca
  * Generiert einen kompletten Satz von Standorten (verschiedene Typen)
  */
 export const generateLocationMix = (totalCount: number = 20): Array<Location> => {
-  const types = Object.keys(locationTypeOptions) as Array<Location['type']>;
+  const types: Array<Location['type']> = ['warehouse', 'office', 'store', 'production'];
   const locations: Array<Location> = [];
 
   // Hauptstandorte (einer pro Typ in großen Städten)

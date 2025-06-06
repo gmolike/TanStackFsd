@@ -67,10 +67,10 @@ export {
   useUpdateLocationInventory,
 } from './api/useApi';
 
-// Mock API (für direkte Verwendung in Tests)
+// Mock API direkt exportieren (nicht als namespace)
 export { locationMockApi } from './api/mock-api';
 
-// Mock Data Generators (für Tests)
+// Mock Data Generators
 export {
   generateLocation,
   generateLocationInventory,
