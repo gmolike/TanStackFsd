@@ -1,5 +1,5 @@
 // src/shared/ui/data-table/data-table.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type {
   ColumnDef,
@@ -35,64 +35,79 @@ export interface DataTableProps<TData, TValue> {
   columnLabels?: Record<string, string>;
   // Ob Spaltenauswahl angezeigt werden soll
   showColumnToggle?: boolean;
+  // Ob der Text beim Spalten-Button angezeigt werden soll
+  showColumnToggleText?: boolean;
+  // Callback für den Plus-Button
+  onAddClick?: () => void;
+  // Optionaler Text für den Plus-Button
+  addButtonText?: string;
 }
 
 /**
  * DataTable Component
- * Erweiterte generische Tabellen-Komponente mit Sortierung, Filterung, Pagination
- *
- * @param columns - Spaltendefinitionen für die Tabelle
- * @param data - Daten für die Tabelle
- * @param searchKey - Schlüssel für die Suchfunktion
- * @param searchPlaceholder - Placeholder für das Suchfeld
- * @param onRowClick - Callback beim Klick auf eine Zeile
- * @param defaultSorting - Standard-Sortierung beim ersten Laden
- * @param defaultColumnVisibility - Standard-Sichtbarkeit der Spalten
- * @param pageSize - Anzahl der Einträge pro Seite
- * @param columnLabels - Labels für die Spalten im Dropdown
- * @param showColumnToggle - Ob die Spaltenauswahl angezeigt werden soll
+ * Erweiterte generische Tabellen-Komponente mit Sortierung, Filterung und lokaler Pagination
  */
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
-  searchPlaceholder,
+  searchPlaceholder = 'Globale Suche...',
   onRowClick,
   defaultSorting = [],
   defaultColumnVisibility = {},
   pageSize = 10,
   columnLabels,
   showColumnToggle = true,
+  showColumnToggleText = false,
+  onAddClick,
+  addButtonText,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>(defaultSorting);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] =
     useState<VisibilityState>(defaultColumnVisibility);
   const [rowSelection, setRowSelection] = useState({});
+  const [globalFilter, setGlobalFilter] = useState('');
 
   const table = useReactTable({
     data,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      globalFilter,
     },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: 'includesString',
     initialState: {
       pagination: {
-        pageSize,
+        pageSize: pageSize,
       },
     },
   });
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Table State:', {
+      pageIndex: table.getState().pagination.pageIndex,
+      pageSize: table.getState().pagination.pageSize,
+      pageCount: table.getPageCount(),
+      canNextPage: table.getCanNextPage(),
+      canPreviousPage: table.getCanPreviousPage(),
+      rowsCount: table.getRowModel().rows.length,
+      filteredRowsCount: table.getFilteredRowModel().rows.length,
+    });
+  }, [table.getState().pagination, table.getRowModel().rows.length]);
 
   return (
     <div className="space-y-4">
@@ -102,6 +117,11 @@ export function DataTable<TData, TValue>({
         searchPlaceholder={searchPlaceholder}
         columnLabels={columnLabels}
         showColumnToggle={showColumnToggle}
+        showColumnToggleText={showColumnToggleText}
+        onAddClick={onAddClick}
+        addButtonText={addButtonText}
+        globalFilter={globalFilter}
+        onGlobalFilterChange={setGlobalFilter}
       />
       <div className="rounded-md border">
         <Table>
@@ -119,7 +139,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length ? (
+            {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

@@ -24,7 +24,6 @@ interface TeamTableViewProps {
   teamMembers: Array<TeamMember>;
 }
 
-// Column Labels für generische Anzeige
 const teamColumnLabels: Record<string, string> = {
   name: 'Name',
   email: 'E-Mail',
@@ -41,7 +40,6 @@ export function TeamTableView({ teamMembers }: TeamTableViewProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
 
-  // Delete mutation
   const deleteMutation = useDeleteTeamMember({
     onSuccess: () => {
       toast({
@@ -79,7 +77,6 @@ export function TeamTableView({ teamMembers }: TeamTableViewProps) {
     }
   };
 
-  // Erstelle Spalten mit Action Callbacks
   const columns = createTeamColumns(handleEdit, handleDelete);
 
   return (
@@ -87,29 +84,25 @@ export function TeamTableView({ teamMembers }: TeamTableViewProps) {
       <DataTable
         columns={columns}
         data={teamMembers}
-        searchKey="name"
-        searchPlaceholder="Nach Namen suchen..."
+        searchPlaceholder="Globale Suche nach Namen, E-Mail oder Rolle..."
         onRowClick={handleRowClick}
-        // Standard-Sortierung nach Name (aufsteigend)
         defaultSorting={[{ id: 'name', desc: false }]}
-        // Standard-Spalten-Sichtbarkeit
         defaultColumnVisibility={{
           name: true,
           email: true,
           role: true,
           department: true,
-          phone: false, // Telefon standardmäßig ausgeblendet
+          phone: false,
           status: true,
           actions: true,
         }}
-        // Column Labels für Dropdown
         columnLabels={teamColumnLabels}
-        // Weitere Optionen
         pageSize={10}
         showColumnToggle={true}
+        showColumnToggleText={false}
+        onAddClick={() => navigate({ to: '/team/new' })}
       />
 
-      {/* Lösch-Bestätigungsdialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

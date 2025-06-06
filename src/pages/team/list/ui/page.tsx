@@ -15,21 +15,22 @@ import { TeamTableView } from './table-view';
 
 export function TeamListPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
-  // API Hook verwenden
+  // API Hook - Lade ALLE Daten mit explizitem hohen Limit
   const { data, isLoading, error, refetch } = useTeamMembers({
-    page,
-    limit: 10,
-    search: searchTerm,
-    searchFields: ['firstName', 'lastName', 'email', 'role', 'department'],
+    page: 1,
+    limit: 1000, // Hohes Limit um alle zu bekommen
     sort: { field: 'lastName', order: 'asc' },
   });
 
   const teamMembers = data?.data || [];
-  const totalPages = data?.totalPages || 1;
+
+  // Debug logging
+  console.log('Loaded team members:', teamMembers.length);
+  console.log('Total available:', data?.total);
+
+  // ... Rest des Codes bleibt gleich
 
   // Loading State
   if (isLoading) {
@@ -67,7 +68,7 @@ export function TeamListPage() {
   }
 
   // Empty State
-  if (!teamMembers.length && !searchTerm) {
+  if (!teamMembers.length) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <Card className="w-full max-w-md">
@@ -95,30 +96,14 @@ export function TeamListPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Team</h1>
-          <p className="mt-2 text-gray-600">{data?.total || 0} Teammitglieder insgesamt</p>
+          <p className="mt-2 text-gray-600">
+            {data?.total || teamMembers.length} Teammitglieder insgesamt
+          </p>
         </div>
 
         <div className="flex items-center gap-4">
           <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
-          <Button onClick={() => navigate({ to: '/team/new' })}>
-            <Plus className="mr-2 h-4 w-4" />
-            Neues Mitglied
-          </Button>
         </div>
-      </div>
-
-      {/* Search Bar */}
-      <div className="flex gap-4">
-        <input
-          type="text"
-          placeholder="Suche nach Name, E-Mail, Rolle oder Abteilung..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(1); // Reset auf erste Seite bei neuer Suche
-          }}
-          className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        />
       </div>
 
       {/* Content - Table oder Cards */}
@@ -126,54 +111,6 @@ export function TeamListPage() {
         <TeamTableView teamMembers={teamMembers} />
       ) : (
         <TeamCardView teamMembers={teamMembers} />
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Seite {page} von {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              Zurück
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
-              Weiter
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* No Results for Search */}
-      {!teamMembers.length && searchTerm && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              Keine Teammitglieder gefunden für "{searchTerm}"
-            </p>
-            <Button
-              variant="link"
-              onClick={() => {
-                setSearchTerm('');
-                setPage(1);
-              }}
-              className="mt-2"
-            >
-              Suche zurücksetzen
-            </Button>
-          </CardContent>
-        </Card>
       )}
     </div>
   );

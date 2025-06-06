@@ -16,7 +16,8 @@ export const createTeamColumns = (
   onDelete?: (member: TeamMember) => void,
 ): Array<ColumnDef<TeamMember>> => [
   {
-    accessorKey: 'name',
+    id: 'name',
+    accessorFn: (row) => `${row.firstName} ${row.lastName}`,
     header: ({ column }) => (
       <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
         Name
@@ -32,10 +33,7 @@ export const createTeamColumns = (
         </div>
       );
     },
-    filterFn: (row, id, value) => {
-      const fullName = `${row.original.firstName} ${row.original.lastName}`.toLowerCase();
-      return fullName.includes(value.toLowerCase());
-    },
+    enableGlobalFilter: true,
   },
   {
     accessorKey: 'email',
@@ -46,11 +44,13 @@ export const createTeamColumns = (
       </Button>
     ),
     cell: ({ row }) => <div className="lowercase">{row.getValue('email')}</div>,
+    enableGlobalFilter: true,
   },
   {
     accessorKey: 'role',
     header: 'Rolle',
     cell: ({ row }) => <div>{row.getValue('role')}</div>,
+    enableGlobalFilter: true,
   },
   {
     accessorKey: 'department',
@@ -61,26 +61,28 @@ export const createTeamColumns = (
       </Button>
     ),
     cell: ({ row }) => <div>{row.getValue('department')}</div>,
+    enableGlobalFilter: true,
   },
   {
     accessorKey: 'phone',
     header: 'Telefon',
     cell: ({ row }) => {
       const phone = row.getValue('phone');
-      return <div>{phone || '-'}</div>;
+      return <div>{typeof phone === 'string' && phone.trim() !== '' ? phone : '-'}</div>;
     },
+    enableGlobalFilter: false,
   },
   {
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status');
-      const statusColors = {
+      const status = row.getValue('status') as string;
+      const statusColors: Record<string, string> = {
         active: 'bg-green-100 text-green-800',
         inactive: 'bg-gray-100 text-gray-800',
         vacation: 'bg-blue-100 text-blue-800',
       };
-      const statusLabels = {
+      const statusLabels: Record<string, string> = {
         active: 'Aktiv',
         inactive: 'Inaktiv',
         vacation: 'Urlaub',
@@ -93,11 +95,13 @@ export const createTeamColumns = (
         </span>
       );
     },
+    enableGlobalFilter: false,
   },
   {
     id: 'actions',
     header: 'Aktionen',
     enableHiding: false,
+    enableGlobalFilter: false,
     cell: ({ row }) => {
       const member = row.original;
 

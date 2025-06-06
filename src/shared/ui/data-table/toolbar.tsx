@@ -1,6 +1,6 @@
 // src/shared/ui/data-table/toolbar.tsx
-import type { Table, VisibilityState } from '@tanstack/react-table';
-import { Settings2, X } from 'lucide-react';
+import type { Table } from '@tanstack/react-table';
+import { Plus, Settings2, X } from 'lucide-react';
 
 import {
   Button,
@@ -13,60 +13,55 @@ import {
   InputShadcn as Input,
 } from '~/shared/shadcn';
 
-interface ColumnLabel {
-  id: string;
-  label: string;
-}
-
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   searchKey?: string;
   searchPlaceholder?: string;
   columnLabels?: Record<string, string>;
-  columnVisibility?: VisibilityState;
-  onColumnVisibilityChange?: (visibility: VisibilityState) => void;
   showColumnToggle?: boolean;
+  showColumnToggleText?: boolean;
+  onAddClick?: () => void;
+  addButtonText?: string;
+  globalFilter?: string;
+  onGlobalFilterChange?: (value: string) => void;
 }
 
-/**
- * DataTableToolbar Component
- * Erweiterte Toolbar mit Suchfunktion, Filter-Reset und Spaltenauswahl
- *
- * @param table - Die TanStack Table Instanz
- * @param searchKey - Der Schlüssel für die Suchspalte
- * @param searchPlaceholder - Placeholder-Text für das Suchfeld
- * @param columnLabels - Mapping von Spalten-IDs zu Display-Labels
- * @param showColumnToggle - Ob die Spaltenauswahl angezeigt werden soll
- */
 export function DataTableToolbar<TData>({
   table,
   searchKey,
-  searchPlaceholder = 'Suchen...',
+  searchPlaceholder = 'Globale Suche...',
   columnLabels = {},
-  columnVisibility,
-  onColumnVisibilityChange,
   showColumnToggle = true,
+  showColumnToggleText = false,
+  onAddClick,
+  addButtonText,
+  globalFilter,
+  onGlobalFilterChange,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.getState().columnFilters.length > 0 || !!globalFilter;
 
-  // Funktion zum Abrufen des Column Labels
   const getColumnLabel = (columnId: string): string => columnLabels[columnId] || columnId;
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        {searchKey && (
-          <Input
-            placeholder={searchPlaceholder}
-            value={table.getColumn(searchKey)?.getFilterValue() as string}
-            onChange={(event) => table.getColumn(searchKey)?.setFilterValue(event.target.value)}
-            className="h-8 w-[150px] lg:w-[250px]"
-          />
-        )}
+        <Input
+          placeholder={searchPlaceholder}
+          value={globalFilter ?? ''}
+          onChange={(event) => {
+            onGlobalFilterChange?.(event.target.value);
+            table.setGlobalFilter(event.target.value);
+          }}
+          className="h-8 w-[200px] lg:w-[300px]"
+        />
         {isFiltered && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={() => {
+              table.resetColumnFilters();
+              table.resetGlobalFilter();
+              onGlobalFilterChange?.('');
+            }}
             className="h-8 px-2 lg:px-3"
           >
             Zurücksetzen
@@ -75,37 +70,41 @@ export function DataTableToolbar<TData>({
         )}
       </div>
 
-      {/* Spaltenauswahl - nur anzeigen wenn aktiviert */}
-      {showColumnToggle && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="ml-auto h-8">
-              <Settings2 className="mr-2 h-4 w-4" />
-              Spalten
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
-            <DropdownMenuLabel>Sichtbare Spalten</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {table
-              .getAllColumns()
-              .filter(
-                (column) =>
-                  // Verstecke actions und Spalten die nicht versteckbar sind
-                  column.getCanHide() && column.id !== 'actions',
-              )
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {getColumnLabel(column.id)}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      <div className="flex items-center space-x-2">
+        {onAddClick && (
+          <Button variant="outline" size="sm" className="h-8" onClick={onAddClick}>
+            <Plus className={addButtonText ? 'mr-2 h-4 w-4' : 'h-4 w-4'} />
+            {addButtonText}
+          </Button>
+        )}
+
+        {showColumnToggle && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8">
+                <Settings2 className={showColumnToggleText ? 'mr-2 h-4 w-4' : 'h-4 w-4'} />
+                {showColumnToggleText && 'Spalten'}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuLabel>Sichtbare Spalten</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide() && column.id !== 'actions')
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                  >
+                    {getColumnLabel(column.id)}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
     </div>
   );
 }
