@@ -1,6 +1,17 @@
 // src/shared/ui/sidebar.tsx
+import { useState } from 'react';
+
 import { Link, useLocation } from '@tanstack/react-router';
-import { Building2, Home, LogOut, Package, Users } from 'lucide-react';
+import {
+  Building2,
+  ChevronDown,
+  ChevronRight,
+  Home,
+  LogOut,
+  Package,
+  UserPlus,
+  Users,
+} from 'lucide-react';
 
 import { cn } from '~/shared/lib/utils';
 
@@ -13,6 +24,7 @@ type NavigationItem = {
   name: string;
   href: string;
   icon: React.ElementType;
+  children?: Array<NavigationItem>;
 };
 
 // ================= LOGIC =================
@@ -23,19 +35,107 @@ type NavigationItem = {
  */
 export const Sidebar = ({ isOpen }: SidebarProps) => {
   const location = useLocation();
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(['Team']));
 
   const navigationItems: Array<NavigationItem> = [
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Artikel', href: '/articles', icon: Package },
-    { name: 'Team', href: '/team', icon: Users },
+    {
+      name: 'Team',
+      href: '/team',
+      icon: Users,
+      children: [
+        { name: 'Übersicht', href: '/team', icon: Users },
+        { name: 'Neues Teammitglied', href: '/team/new', icon: UserPlus },
+      ],
+    },
     { name: 'Standorte', href: '/locations', icon: Building2 },
   ];
 
-  const isActive = (href: string) => location.pathname === href;
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return location.pathname === href;
+    }
+    return location.pathname === href || location.pathname.startsWith(href + '/');
+  };
+
+  const isParentActive = (item: NavigationItem) => {
+    if (!item.children) return false;
+    return item.children.some((child) => isActive(child.href));
+  };
+
+  const toggleExpanded = (name: string) => {
+    const newExpanded = new Set(expandedItems);
+    if (newExpanded.has(name)) {
+      newExpanded.delete(name);
+    } else {
+      newExpanded.add(name);
+    }
+    setExpandedItems(newExpanded);
+  };
 
   const handleLogout = () => {
     // TODO: Implement logout functionality
     console.log('Logout clicked');
+  };
+
+  const renderNavigationItem = (item: NavigationItem, level = 0) => {
+    const Icon = item.icon;
+    const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedItems.has(item.name);
+    const isCurrentActive = isActive(item.href);
+    const isParent = isParentActive(item);
+
+    if (hasChildren) {
+      return (
+        <div key={item.name}>
+          <button
+            onClick={() => toggleExpanded(item.name)}
+            className={cn(
+              'group flex w-full items-center rounded-md px-2 py-2 text-sm font-medium transition-colors',
+              isCurrentActive || isParent
+                ? 'bg-gray-800 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+              level > 0 && 'pl-8',
+            )}
+          >
+            <Icon className="h-5 w-5 flex-shrink-0" />
+            <span className={cn('ml-3 flex-1 text-left', !isOpen && 'hidden')}>{item.name}</span>
+            {isOpen && (
+              <span className="ml-auto">
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </span>
+            )}
+          </button>
+          {isExpanded && isOpen && (
+            <div className="mt-1 space-y-1">
+              {item.children.map((child) => renderNavigationItem(child, level + 1))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <Link
+        key={item.name}
+        to={item.href}
+        className={cn(
+          'group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors',
+          isCurrentActive
+            ? 'bg-gray-800 text-white'
+            : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+          level > 0 && 'pl-8',
+        )}
+      >
+        <Icon className="h-5 w-5 flex-shrink-0" />
+        <span className={cn('ml-3', !isOpen && 'hidden')}>{item.name}</span>
+      </Link>
+    );
   };
 
   // ================= RETURN =================
@@ -49,24 +149,7 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
         </div>
 
         <nav className="flex-1 space-y-1 px-2 py-4">
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  'group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors',
-                  isActive(item.href)
-                    ? 'bg-gray-800 text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                )}
-              >
-                <Icon className="h-5 w-5 flex-shrink-0" />
-                <span className={cn('ml-3', !isOpen && 'hidden')}>{item.name}</span>
-              </Link>
-            );
-          })}
+          {navigationItems.map((item) => renderNavigationItem(item))}
         </nav>
 
         <div className="border-t border-gray-700 p-4">

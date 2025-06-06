@@ -35,7 +35,16 @@ export const Detail = ({ memberId }: TeamDetailWidgetProps) => {
   };
 
   const handleEdit = () => {
-    navigate({ to: '/team/$memberId/edit', params: { memberId } });
+    console.log('Edit clicked for member:', memberId);
+    console.log('Navigating to:', `/team/${memberId}/edit`);
+
+    try {
+      navigate({ to: `/team/${memberId}/edit` });
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback
+      window.location.href = `/team/${memberId}/edit`;
+    }
   };
 
   const handleDeleteSuccess = () => {

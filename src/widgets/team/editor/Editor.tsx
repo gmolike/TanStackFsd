@@ -1,4 +1,4 @@
-// src/widgets/team/editor/ui/index.tsx
+// src/widgets/team/editor/Editor.tsx
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -40,8 +40,10 @@ export const Editor = ({ memberId }: Props) => {
   const navigate = useNavigate();
   const isEditMode = !!memberId;
 
-  // API Hooks
-  const { data: existingMember, isLoading: isLoadingMember } = useTeamMember(memberId || '');
+  // API Hooks - Nur laden wenn memberId vorhanden
+  const { data: existingMember, isLoading: isLoadingMember } = useTeamMember(memberId || '', {
+    enabled: isEditMode,
+  });
 
   const createMutation = useCreateTeamMember({
     onSuccess: (data) => {

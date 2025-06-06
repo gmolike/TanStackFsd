@@ -27,11 +27,11 @@ export const useTeamMembers = (params?: QueryParams) =>
 /**
  * Hook zum Abrufen eines einzelnen Teammitglieds
  */
-export const useTeamMember = (id: string) =>
+export const useTeamMember = (id: string, options?: { enabled?: boolean }) =>
   useQuery({
     queryKey: ['team-members', id],
     queryFn: () => teamMockApi.getTeamMemberById(id),
-    enabled: !!id,
+    enabled: options?.enabled !== undefined ? options.enabled : !!id,
     staleTime: 5 * 60 * 1000,
   });
 

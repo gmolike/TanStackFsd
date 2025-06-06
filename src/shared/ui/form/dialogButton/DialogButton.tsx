@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import React, { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
 import { cn } from '~/shared/lib/utils';
