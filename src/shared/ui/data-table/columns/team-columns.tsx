@@ -66,7 +66,7 @@ export const createTeamColumns = (
     accessorKey: 'phone',
     header: 'Telefon',
     cell: ({ row }) => {
-      const phone = row.getValue('phone') as string | undefined;
+      const phone = row.getValue('phone');
       return <div>{phone || '-'}</div>;
     },
   },
@@ -74,7 +74,7 @@ export const createTeamColumns = (
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status') as TeamMember['status'];
+      const status = row.getValue('status');
       const statusColors = {
         active: 'bg-green-100 text-green-800',
         inactive: 'bg-gray-100 text-gray-800',

@@ -30,6 +30,7 @@ export { DatePicker as FormDatePicker } from './datePicker';
 export { DateRange as FormDateRange } from './dateRange';
 export { DialogButton as FormDialogButton } from './dialogButton';
 export { Input as FormInput } from './input';
+export { NumberInput as FormNumberInput } from './numberInput';
 export { Select as FormSelect } from './select';
 export { TextArea as FormTextArea } from './textarea';
 

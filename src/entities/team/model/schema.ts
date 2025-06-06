@@ -64,6 +64,9 @@ export const teamMemberSchema = z.object({
   // Preferences
   newsletter: z.boolean().default(false),
   remoteWork: z.boolean().default(false),
+
+  // Location
+  locationId: z.string().optional(),
 });
 
 // Complex form schema (for the test form page)
@@ -167,6 +170,7 @@ export const teamMemberFormSchema = z.object({
   address: addressSchema.optional().nullable(),
   newsletter: z.boolean().default(false),
   remoteWork: z.boolean().default(false),
+  locationId: z.string().optional().default(''),
 });
 
 export const createTeamMemberFormSchema = teamMemberFormSchema;

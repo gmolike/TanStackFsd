@@ -2,7 +2,7 @@
 
 import { array, random, string } from '~/shared/mock';
 
-import { departmentOptions, roleOptions, teamStatusOptions } from '../model/options';
+import { departmentOptions, teamStatusOptions } from '../model/options';
 import type { Address, CreateTeamMember, TeamMember } from '../model/schema';
 
 /**
@@ -35,7 +35,7 @@ export const generateTeamMember = (overrides?: Partial<CreateTeamMember>): TeamM
   };
 
   const role =
-    overrides?.role || random.arrayElement(rolesByDepartment[department] || ['Mitarbeiter']);
+    overrides?.role || random.arrayElement(rolesByDepartment[department] ?? ['Mitarbeiter']);
 
   const teamMember: TeamMember = {
     id: random.uuid(),
@@ -56,6 +56,7 @@ export const generateTeamMember = (overrides?: Partial<CreateTeamMember>): TeamM
     address: random.boolean(0.7) ? generateAddress() : undefined,
     newsletter: random.boolean(0.6),
     remoteWork: random.boolean(0.4),
+    locationId: overrides?.locationId || (random.boolean(0.8) ? random.uuid() : undefined),
     ...overrides,
   };
 

@@ -15,10 +15,10 @@ export * from './api/useApi';
 
 // Export mock data generators for testing
 export {
-  mockArticles,
   generateArticle,
-  generateArticles,
   generateArticleMix,
+  generateArticles,
+  mockArticles,
 } from './api/mock-data';
 
 // Export mock API for direct usage in tests

@@ -1,6 +1,6 @@
 // src/shared/ui/sidebar.tsx
 import { Link, useLocation } from '@tanstack/react-router';
-import { Home, LogOut, Package, Users } from 'lucide-react';
+import { Building2, Home, LogOut, Package, Users } from 'lucide-react';
 
 import { cn } from '~/shared/lib/utils';
 
@@ -28,6 +28,7 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Artikel', href: '/articles', icon: Package },
     { name: 'Team', href: '/team', icon: Users },
+    { name: 'Standorte', href: '/locations', icon: Building2 },
   ];
 
   const isActive = (href: string) => location.pathname === href;

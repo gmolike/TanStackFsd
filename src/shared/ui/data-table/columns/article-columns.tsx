@@ -42,7 +42,7 @@ export const articleColumns: Array<ColumnDef<Article>> = [
       </Button>
     ),
     cell: ({ row }) => {
-      const category = row.getValue('category') as string;
+      const category = row.getValue('category');
       const subcategory = row.original.subcategory;
       return (
         <div>
@@ -78,7 +78,7 @@ export const articleColumns: Array<ColumnDef<Article>> = [
       </Button>
     ),
     cell: ({ row }) => {
-      const stock = row.getValue('stock') as number;
+      const stock = row.getValue('stock');
       const minStock = row.original.minStock;
       const unit = row.original.unit || 'Stück';
       const isLow = stock <= minStock;
@@ -95,7 +95,7 @@ export const articleColumns: Array<ColumnDef<Article>> = [
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status') as Article['status'];
+      const status = row.getValue('status');
       const statusColors = {
         available: 'bg-green-100 text-green-800',
         unavailable: 'bg-red-100 text-red-800',

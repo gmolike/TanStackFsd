@@ -20,7 +20,10 @@ export const Breadcrumb = () => {
     '': 'Dashboard',
     articles: 'Artikel',
     team: 'Team',
+    locations: 'Standorte',
     login: 'Anmeldung',
+    new: 'Neu',
+    edit: 'Bearbeiten',
   };
 
   const generateBreadcrumbs = (): Array<BreadcrumbItem> => {
@@ -29,9 +32,24 @@ export const Breadcrumb = () => {
     const breadcrumbs: Array<BreadcrumbItem> = [{ label: 'Dashboard', href: '/' }];
 
     let currentPath = '';
-    pathSegments.forEach((segment) => {
+    pathSegments.forEach((segment, index) => {
       currentPath += `/${segment}`;
-      const label = pathMap[segment] || segment;
+
+      // Handle dynamic segments (IDs)
+      let label = pathMap[segment] || segment;
+
+      // Spezielle Behandlung für IDs
+      if (segment.match(/^[0-9a-f-]+$/i)) {
+        const previousSegment = pathSegments[index - 1];
+        if (previousSegment === 'locations') {
+          label = 'Standort-Details';
+        } else if (previousSegment === 'team') {
+          label = 'Mitarbeiter-Details';
+        } else if (previousSegment === 'articles') {
+          label = 'Artikel-Details';
+        }
+      }
+
       breadcrumbs.push({ label, href: currentPath });
     });
 

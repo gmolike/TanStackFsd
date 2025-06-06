@@ -15,7 +15,7 @@ export class MockStorage<T extends { id: string }> {
   /**
    * Lädt alle Elemente aus dem Storage
    */
-  getAll(): T[] {
+  getAll(): Array<T> {
     try {
       const data = localStorage.getItem(this.storageKey);
       return data ? JSON.parse(data) : [];
@@ -36,7 +36,7 @@ export class MockStorage<T extends { id: string }> {
   /**
    * Speichert alle Elemente
    */
-  setAll(items: T[]): void {
+  setAll(items: Array<T>): void {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(items));
     } catch (error) {
@@ -102,7 +102,7 @@ export class MockStorage<T extends { id: string }> {
   /**
    * Initialisiert Storage mit Daten, wenn leer
    */
-  initialize(generator: () => T[]): void {
+  initialize(generator: () => Array<T>): void {
     if (this.isEmpty()) {
       const items = generator();
       this.setAll(items);
@@ -112,7 +112,7 @@ export class MockStorage<T extends { id: string }> {
   /**
    * Setzt Storage zurück und initialisiert neu
    */
-  reset(generator: () => T[]): void {
+  reset(generator: () => Array<T>): void {
     this.clear();
     this.initialize(generator);
   }
@@ -121,9 +121,8 @@ export class MockStorage<T extends { id: string }> {
 /**
  * Factory für Mock Storage Instanzen
  */
-export const createMockStorage = <T extends { id: string }>(key: string): MockStorage<T> => {
-  return new MockStorage<T>(key);
-};
+export const createMockStorage = <T extends { id: string }>(key: string): MockStorage<T> =>
+  new MockStorage<T>(key);
 
 /**
  * Globales Storage Management
@@ -141,7 +140,7 @@ export const mockStorageManager = {
   /**
    * Listet alle Mock Storage Keys
    */
-  listStorageKeys(): string[] {
+  listStorageKeys(): Array<string> {
     return Object.keys(localStorage)
       .filter((key) => key.startsWith('mock_'))
       .map((key) => key.replace('mock_', ''));
