@@ -223,6 +223,7 @@ export type UseTableStateReturn = {
  */
 export type TableSkeletonProps = {
   /** Spalten-Definitionen für Struktur */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: Array<ColumnDef<any, any>>;
 
   /** Anzahl der Skeleton-Zeilen */
