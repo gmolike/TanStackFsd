@@ -113,7 +113,7 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
           </button>
           {isExpanded && isOpen && (
             <div className="mt-1 space-y-1">
-              {item.children.map((child) => renderNavigationItem(child, level + 1))}
+              {item.children?.map((child) => renderNavigationItem(child, level + 1))}
             </div>
           )}
         </div>
