@@ -165,16 +165,10 @@
     "vitest": "^2.1.0"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
-    ],
+    "onlyBuiltDependencies": ["esbuild", "sharp"],
     "overrides": {
       "@types/react": "^19.0.10",
       "@types/react-dom": "^19.0.4"

@@ -49,7 +49,6 @@ export const TableToolbar = <TData,>({
               value={globalFilter ?? ''}
               onChange={(event) => {
                 onGlobalFilterChange(event.target.value);
-                table.setGlobalFilter(event.target.value);
               }}
               className="h-8 w-[200px] lg:w-[300px]"
             />

@@ -136,13 +136,19 @@ export const DataTable = <TData, TValue = unknown>({
   const filteredRowsCount = table.getFilteredRowModel().rows.length;
   const showExpandButton = expandable && filteredRowsCount > initialRowCount;
 
-  // Zeilen für Anzeige (berücksichtigt Expand-State)
+  // Ersetze displayRows komplett mit:
+  const allRows = table.getFilteredRowModel().rows;
+  const paginatedRows = table.getPaginationRowModel().rows;
+
+  // Wähle die richtigen Rows basierend auf dem State
   const displayRows = useMemo(() => {
+    // Wenn Pagination aktiv ist, nutze paginatedRows
     if (!expandable || isTableExpanded) {
-      return table.getRowModel().rows;
+      return paginatedRows;
     }
-    return table.getRowModel().rows.slice(0, initialRowCount);
-  }, [expandable, isTableExpanded, table, initialRowCount]);
+    // Sonst nutze gefilterte Rows mit Limit
+    return allRows.slice(0, initialRowCount);
+  }, [expandable, isTableExpanded, paginatedRows, allRows, initialRowCount]);
 
   // Handle Expand Toggle mit Pagination-Anpassung
   const handleExpandToggle = () => {
@@ -198,6 +204,16 @@ export const DataTable = <TData, TValue = unknown>({
       </div>
     );
   }
+
+  console.log('Table state:', {
+    globalFilter: table.getState().globalFilter,
+    globalFilterFn: table.options.globalFilterFn,
+    data: data.length,
+    coreRows: table.getCoreRowModel().rows.length,
+    filteredRows: table.getFilteredRowModel().rows.length,
+    sortedRows: table.getSortedRowModel().rows.length,
+    paginatedRows: table.getPaginationRowModel().rows.length,
+  });
 
   return (
     <div className={cn('space-y-4', className)}>
