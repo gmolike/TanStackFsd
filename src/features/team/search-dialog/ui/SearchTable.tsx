@@ -1,7 +1,7 @@
 // src/features/team/search-dialog/ui/SearchTable.tsx
 import { useMemo } from 'react';
 
-import { createTeamColumns, useTeamMembers } from '~/entities/team';
+import { createTeamColumns, teamTableLabels, useTeamMembers } from '~/entities/team';
 
 import { DataTable } from '~/shared/ui/data-table';
 
@@ -13,7 +13,11 @@ import type { SearchTableProps } from '../model/types';
  * @component
  * @param props - SearchTable Konfiguration
  */
-export const SearchTable = ({ onMemberSelect, excludeIds = [] }: SearchTableProps) => {
+export const SearchTable = ({
+  onMemberSelect,
+  selectedMemberId,
+  excludeIds = [],
+}: SearchTableProps) => {
   const { data, isLoading } = useTeamMembers();
 
   // Filtere ausgeschlossene IDs
@@ -23,16 +27,17 @@ export const SearchTable = ({ onMemberSelect, excludeIds = [] }: SearchTableProp
   }, [data?.data, excludeIds]);
 
   // Verwende die Standard Team Columns ohne Actions
-  const columns = useMemo(() => createTeamColumns().filter((col) => col.id !== 'actions'), []);
+  const columns = useMemo(() => createTeamColumns(), []);
 
-  // Column Labels für den Dialog
-  const columnLabels = {
-    name: 'Name',
-    email: 'E-Mail',
-    role: 'Position',
-    department: 'Abteilung',
-    phone: 'Telefon',
-    status: 'Status',
+  // Angepasste Visibility für Dialog
+  const dialogColumnVisibility = {
+    name: true,
+    email: true,
+    role: true,
+    department: true,
+    phone: false,
+    status: false,
+    actions: false, // Keine Actions im Such-Dialog
   };
 
   return (
@@ -46,14 +51,13 @@ export const SearchTable = ({ onMemberSelect, excludeIds = [] }: SearchTableProp
       searchPlaceholder="Nach Name, E-Mail oder Position suchen..."
       // Zeilen-Klick Handler
       onRowClick={onMemberSelect}
+      // Hervorhebung der ausgewählten Zeile
+      selectedRowId={selectedMemberId}
       // Kompakte Ansicht für Dialog
       pageSize={8}
       // Spalten-Konfiguration
-      columnLabels={columnLabels}
-      defaultColumnVisibility={{
-        phone: false, // Standardmäßig ausgeblendet
-        status: false, // Standardmäßig ausgeblendet
-      }}
+      columnLabels={teamTableLabels}
+      defaultColumnVisibility={dialogColumnVisibility}
       showColumnToggle={true}
       showColumnToggleText={false}
       // Entferne Container-Styling

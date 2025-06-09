@@ -42,7 +42,7 @@ import type { DataTableProps } from './types';
  * - Spaltenauswahl und globale Suche
  * - Error und Empty States
  */
-export const DataTable = <TData, TValue = unknown>({
+export const DataTable = <TData extends { id?: string }, TValue = unknown>({
   // Basis Props
   columns,
   data,
@@ -62,6 +62,7 @@ export const DataTable = <TData, TValue = unknown>({
   onAddClick,
   addButtonText,
   columnLabels,
+  selectedRowId,
 
   // Loading & Error States
   withSkeleton = false,
@@ -163,6 +164,13 @@ export const DataTable = <TData, TValue = unknown>({
     toggleExpanded();
   };
 
+  // Helper für Row-ID
+  const getRowId = (row: TData): string => {
+    if (row.id) return row.id;
+    // Fallback für Rows ohne ID
+    return JSON.stringify(row);
+  };
+
   // Loading State
   if (shouldShowSkeleton) {
     return (
@@ -205,16 +213,6 @@ export const DataTable = <TData, TValue = unknown>({
     );
   }
 
-  console.log('Table state:', {
-    globalFilter: table.getState().globalFilter,
-    globalFilterFn: table.options.globalFilterFn,
-    data: data.length,
-    coreRows: table.getCoreRowModel().rows.length,
-    filteredRows: table.getFilteredRowModel().rows.length,
-    sortedRows: table.getSortedRowModel().rows.length,
-    paginatedRows: table.getPaginationRowModel().rows.length,
-  });
-
   return (
     <div className={cn('space-y-4', className)}>
       {/* Toolbar */}
@@ -256,20 +254,28 @@ export const DataTable = <TData, TValue = unknown>({
 
           <ShadCnTableBody>
             {displayRows.length ? (
-              displayRows.map((row) => (
-                <ShadCnTableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  onClick={() => onRowClick?.(row.original)}
-                  className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <ShadCnTableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </ShadCnTableCell>
-                  ))}
-                </ShadCnTableRow>
-              ))
+              displayRows.map((row) => {
+                const rowId = getRowId(row.original);
+                const isSelected = selectedRowId === rowId;
+
+                return (
+                  <ShadCnTableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                    onClick={() => onRowClick?.(row.original)}
+                    className={cn(
+                      onRowClick ? 'cursor-pointer hover:bg-muted/50' : '',
+                      isSelected && 'bg-muted/50',
+                    )}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <ShadCnTableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </ShadCnTableCell>
+                    ))}
+                  </ShadCnTableRow>
+                );
+              })
             ) : (
               <ShadCnTableRow>
                 <ShadCnTableCell

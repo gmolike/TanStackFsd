@@ -2,24 +2,18 @@
 import { useNavigate } from '@tanstack/react-router';
 
 import type { TeamMember } from '~/entities/team';
-import { createTeamColumns, useTeamMembers } from '~/entities/team';
+import {
+  createDashboardColumns,
+  dashboardColumnVisibility,
+  teamTableLabels,
+  useTeamMembers,
+} from '~/entities/team';
 
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
 import { DataTable } from '~/shared/ui/data-table';
 
 import type { DashboardTableProps } from './model/types';
 import { TableHeader } from './ui/table-header';
-
-// Column Labels für Team
-const teamColumnLabels: Record<string, string> = {
-  name: 'Name',
-  email: 'E-Mail',
-  role: 'Rolle',
-  department: 'Abteilung',
-  phone: 'Telefon',
-  status: 'Status',
-  actions: 'Aktionen',
-};
 
 /**
  * Dashboard Team-Tabelle mit erweiterbarer Ansicht
@@ -46,20 +40,12 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
     }
   };
 
-  const handleEdit = (member: TeamMember) => {
-    navigate({ to: '/team/$memberId/edit', params: { memberId: member.id } });
-  };
-
-  const handleDelete = (member: TeamMember) => {
-    // TODO: Implementiere Delete-Dialog
-    console.log('Delete:', member);
-  };
-
   const handleAddClick = () => {
     navigate({ to: '/team/new' });
   };
 
-  const columns = createTeamColumns(handleEdit, handleDelete);
+  // Nutze Dashboard-spezifische Columns (ohne Actions standardmäßig)
+  const columns = createDashboardColumns();
 
   return (
     <div className={className}>
@@ -88,10 +74,8 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
             // Suche
             searchPlaceholder="Nach Namen, E-Mail oder Rolle suchen..."
             // UI Anpassungen
-            columnLabels={teamColumnLabels}
-            defaultColumnVisibility={{
-              phone: false, // Nur Phone initial ausblenden
-            }}
+            columnLabels={teamTableLabels}
+            defaultColumnVisibility={dashboardColumnVisibility}
           />
         </CardContent>
       </Card>

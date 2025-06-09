@@ -1,9 +1,10 @@
+// src/widgets/team/list/List.tsx
 import { useState } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
 import { AlertCircle, Loader2, Plus } from 'lucide-react';
 
-import { TeamCreateButton, TeamDeleteDialog } from '~/features/team';
+import { TeamCreateButton } from '~/features/team';
 
 import type { TeamMember } from '~/entities/team';
 import { useTeamMembers } from '~/entities/team';
@@ -17,8 +18,6 @@ import { TableView } from './ui/table-view';
 
 export const List = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
   const navigate = useNavigate();
 
   const { data, isLoading, error, refetch } = useTeamMembers({
@@ -28,15 +27,6 @@ export const List = () => {
   });
 
   const teamMembers = data?.data || [];
-
-  const handleDelete = (member: TeamMember) => {
-    setMemberToDelete(member);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleEdit = (member: TeamMember) => {
-    navigate({ to: '/team/$memberId/edit', params: { memberId: member.id } });
-  };
 
   const handleRowClick = (member: TeamMember) => {
     navigate({ to: '/team/$memberId', params: { memberId: member.id } });
@@ -98,44 +88,25 @@ export const List = () => {
   }
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Team</h1>
-            <p className="mt-2 text-gray-600">
-              {data?.total || teamMembers.length} Teammitglieder insgesamt
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Team</h1>
+          <p className="mt-2 text-gray-600">
+            {data?.total || teamMembers.length} Teammitglieder insgesamt
+          </p>
         </div>
 
-        {viewMode === 'table' ? (
-          <TableView
-            teamMembers={teamMembers}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onRowClick={handleRowClick}
-          />
-        ) : (
-          <CardView
-            teamMembers={teamMembers}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onClick={handleRowClick}
-          />
-        )}
+        <div className="flex items-center gap-4">
+          <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
+        </div>
       </div>
 
-      <TeamDeleteDialog
-        member={memberToDelete}
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onSuccess={() => refetch()}
-      />
-    </>
+      {viewMode === 'table' ? (
+        <TableView teamMembers={teamMembers} onRowClick={handleRowClick} refetch={refetch} />
+      ) : (
+        <CardView teamMembers={teamMembers} onClick={handleRowClick} refetch={refetch} />
+      )}
+    </div>
   );
 };

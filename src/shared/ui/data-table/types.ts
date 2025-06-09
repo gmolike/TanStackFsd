@@ -55,6 +55,12 @@ export type BaseDataTableProps<TData, TValue = unknown> = {
 
   /** Labels für die Spalten (für Anzeige in UI) */
   columnLabels?: Record<string, string>;
+
+  /** Liste der durchsuchbaren Spalten */
+  searchableColumns?: Array<string>;
+
+  /** ID der aktuell ausgewählten Zeile (für visuelle Hervorhebung) */
+  selectedRowId?: string | null;
 };
 
 /**
@@ -143,6 +149,9 @@ export type ToolbarProps<TData> = {
 
   /** Text für Add-Button */
   addButtonText?: string;
+
+  /** Liste der durchsuchbaren Spalten */
+  searchableColumns?: Array<string>;
 };
 
 /**

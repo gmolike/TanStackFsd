@@ -1,3 +1,4 @@
+// src/widgets/team/detail/Detail.tsx
 import { useState } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
@@ -17,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from '~/shared/shadcn';
+import { CompactDeleteButton } from '~/shared/ui/data-table';
 
 import { AddressCard } from './ui/AddressCard';
 import { InfoCards } from './ui/InfoCard';
@@ -35,16 +37,7 @@ export const Detail = ({ memberId }: TeamDetailWidgetProps) => {
   };
 
   const handleEdit = () => {
-    console.log('Edit clicked for member:', memberId);
-    console.log('Navigating to:', `/team/${memberId}/edit`);
-
-    try {
-      navigate({ to: `/team/${memberId}/edit` });
-    } catch (error) {
-      console.error('Navigation error:', error);
-      // Fallback
-      window.location.href = `/team/${memberId}/edit`;
-    }
+    navigate({ to: `/team/${memberId}/edit` });
   };
 
   const handleDeleteSuccess = () => {
@@ -99,9 +92,7 @@ export const Detail = ({ memberId }: TeamDetailWidgetProps) => {
           <Button variant="outline" onClick={handleEdit}>
             Bearbeiten
           </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteDialogOpen(true)}>
-            Löschen
-          </Button>
+          <CompactDeleteButton onClick={() => setDeleteDialogOpen(true)} />
         </div>
       </div>
 
