@@ -1,9 +1,10 @@
+// src/widgets/team/list/ui/table-view.tsx
 import { useNavigate } from '@tanstack/react-router';
 
 import type { TeamMember } from '~/entities/team';
+import { createTeamColumns } from '~/entities/team';
 
 import { DataTable } from '~/shared/ui/data-table';
-import { createTeamColumns } from '~/shared/ui/data-table/columns/team-columns';
 
 type Props = {
   teamMembers: Array<TeamMember>;

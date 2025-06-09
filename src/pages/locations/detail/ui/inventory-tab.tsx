@@ -4,7 +4,7 @@ import { useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Package, Plus, Trash2 } from 'lucide-react';
 
-import type { Article, Location, LocationInventory } from '~/entities/location';
+import type { Location, LocationInventory } from '~/entities/location';
 import { useLocationInventory, useRemoveArticleFromLocation } from '~/entities/location';
 
 import { toast } from '~/shared/hooks/use-toast';
@@ -25,6 +25,8 @@ import {
   CardTitle,
 } from '~/shared/shadcn';
 import { DataTable } from '~/shared/ui/data-table';
+
+import type { Article } from '../../../../entities/article';
 
 interface InventoryTabProps {
   locationId: string;
@@ -253,7 +255,7 @@ export function InventoryTab({ locationId, locationType }: InventoryTabProps) {
           <DataTable
             columns={columns}
             data={inventory}
-            searchKey="article.name"
+            // searchKey entfernt - nutzt global filter
             searchPlaceholder="Nach Artikelname suchen..."
             pageSize={20}
             showColumnToggle={true}
@@ -267,6 +269,9 @@ export function InventoryTab({ locationId, locationType }: InventoryTabProps) {
               maxStock: 'Maximalbestand',
               'article.price': 'Wert',
             }}
+            // Loading state aktivieren
+            withSkeleton={true}
+            isLoading={isLoading}
           />
         </CardContent>
       </Card>
@@ -278,7 +283,7 @@ export function InventoryTab({ locationId, locationType }: InventoryTabProps) {
             <AlertDialogTitle>Artikel aus Lager entfernen?</AlertDialogTitle>
             <AlertDialogDescription>
               Möchten Sie den Artikel <strong>{itemToDelete?.article?.name || 'Unbekannt'}</strong>
-              wirklich aus diesem Lager entfernen? Der aktuelle Bestand von
+              wirklich aus diesem Lager entfernen? Der aktuelle Bestand von{' '}
               <strong>{itemToDelete?.stock} Einheiten</strong> geht dabei verloren.
             </AlertDialogDescription>
           </AlertDialogHeader>

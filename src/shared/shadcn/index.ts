@@ -18,7 +18,14 @@ export * from './popover';
 export * from './select';
 export * from './skeleton';
 export * from './skeleton';
-export * from './table';
+export {
+  Table as ShadCnTable,
+  TableBody as ShadCnTableBody,
+  TableCell as ShadCnTableCell,
+  TableHead as ShadCnTableHead,
+  TableHeader as ShadCnTableHeader,
+  TableRow as ShadCnTableRow,
+} from './table';
 export * from './tabs';
 export * from './textarea';
 export * from './toggle';

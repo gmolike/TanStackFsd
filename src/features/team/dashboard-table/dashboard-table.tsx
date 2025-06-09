@@ -1,13 +1,11 @@
 // src/features/team/dashboard-table/dashboard-table.tsx
 import { useNavigate } from '@tanstack/react-router';
-import { Loader2 } from 'lucide-react';
 
 import type { TeamMember } from '~/entities/team';
-import { useTeamMembers } from '~/entities/team';
+import { createTeamColumns, useTeamMembers } from '~/entities/team';
 
-import { Alert, AlertDescription, Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
-import { createTeamColumns } from '~/shared/ui/data-table/columns/team-columns';
-import { ExpandableDataTable } from '~/shared/ui/expandable-data-table';
+import { Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
+import { DataTable } from '~/shared/ui/data-table';
 
 import type { DashboardTableProps } from './model/types';
 import { TableHeader } from './ui/table-header';
@@ -29,7 +27,16 @@ const teamColumnLabels: Record<string, string> = {
  */
 export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps) => {
   const navigate = useNavigate();
-  const { data, isLoading, error } = useTeamMembers();
+  const { data, isLoading } = useTeamMembers();
+
+  const teamMembers = data?.data || [];
+
+  // Stats für den Header
+  const stats = {
+    total: teamMembers.length,
+    active: teamMembers.filter((m) => m.status === 'active').length,
+    remote: teamMembers.filter((m) => m.remoteWork).length,
+  };
 
   const handleMemberClick = (member: TeamMember) => {
     if (onMemberClick) {
@@ -44,7 +51,7 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
   };
 
   const handleDelete = (member: TeamMember) => {
-    // Hier würde normalerweise ein Delete-Dialog geöffnet
+    // TODO: Implementiere Delete-Dialog
     console.log('Delete:', member);
   };
 
@@ -52,38 +59,6 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
     navigate({ to: '/team/new' });
   };
 
-  if (isLoading) {
-    return (
-      <Card className={className}>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className={className}>
-        <CardContent className="py-8">
-          <Alert variant="destructive">
-            <AlertDescription>
-              Fehler beim Laden der Teammitglieder: {error.message}
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const teamMembers = data?.data || [];
-  const stats = {
-    total: teamMembers.length,
-    active: teamMembers.filter((m) => m.status === 'active').length,
-    remote: teamMembers.filter((m) => m.remoteWork).length,
-  };
-
-  // Verwende die gleichen Columns wie in der großen Übersicht
   const columns = createTeamColumns(handleEdit, handleDelete);
 
   return (
@@ -95,24 +70,27 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
         <CardContent>
           <TableHeader {...stats} />
 
-          <ExpandableDataTable
+          <DataTable
+            // Key nur notwendig wegen des Race Condition Bugs
+            key={`team-table-${teamMembers.length}-${isLoading}`}
+            // Basis Props
             columns={columns}
             data={teamMembers}
+            // Loading State
+            withSkeleton
+            isLoading={isLoading}
+            // Expandable Feature für Dashboard
+            expandable
             initialRowCount={3}
+            // Interaktion
             onRowClick={handleMemberClick}
-            containerClassName="max-h-[50vh]" // 50% des Viewports
-            searchPlaceholder="Nach Namen, E-Mail oder Rolle suchen..."
-            columnLabels={teamColumnLabels}
-            showColumnToggle={true}
             onAddClick={handleAddClick}
+            // Suche
+            searchPlaceholder="Nach Namen, E-Mail oder Rolle suchen..."
+            // UI Anpassungen
+            columnLabels={teamColumnLabels}
             defaultColumnVisibility={{
-              name: true,
-              email: true,
-              role: true,
-              department: true,
-              phone: false, // Phone initial ausgeblendet
-              status: true,
-              actions: true,
+              phone: false, // Nur Phone initial ausblenden
             }}
           />
         </CardContent>

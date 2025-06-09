@@ -18,7 +18,8 @@ import {
   AlertDialogTitle,
 } from '~/shared/shadcn';
 import { DataTable } from '~/shared/ui/data-table';
-import { createLocationColumns } from '~/shared/ui/data-table/columns/location-columns';
+
+import { createLocationColumns } from '../../../../entities/location/model/location-columns';
 
 interface LocationTableViewProps {
   locations: Array<Location>;
@@ -86,9 +87,10 @@ export function LocationTableView({ locations }: LocationTableViewProps) {
       <DataTable
         columns={columns}
         data={locations}
-        searchKey="name"
         searchPlaceholder="Nach Namen suchen..."
         onRowClick={handleRowClick}
+        // searchKey entfernt - nutzt jetzt global filter
+
         // Standard-Sortierung nach Name (aufsteigend)
         defaultSorting={[{ id: 'name', desc: false }]}
         // Standard-Spalten-Sichtbarkeit
@@ -107,6 +109,10 @@ export function LocationTableView({ locations }: LocationTableViewProps) {
         // Weitere Optionen
         pageSize={10}
         showColumnToggle={true}
+        // Neue Features können optional hinzugefügt werden
+        withSkeleton={false} // Falls Loading State benötigt
+        enableGlobalFilter={true}
+        enableRowSelection={false}
       />
 
       {/* Lösch-Bestätigungsdialog */}

@@ -180,9 +180,7 @@ export function TeamTab({ locationId, managerId }: TeamTabProps) {
                           <p className="text-sm text-muted-foreground">{member.role}</p>
                           <p className="text-xs text-muted-foreground">{member.department}</p>
                         </div>
-                        {member.id === managerId && (
-                          <UserCheck className="h-4 w-4 text-primary" title="Standortleiter" />
-                        )}
+                        {member.id === managerId && <UserCheck className="h-4 w-4 text-primary" />}
                       </div>
                       <div className="space-y-1 pt-2">
                         <a

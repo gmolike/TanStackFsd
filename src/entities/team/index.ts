@@ -57,3 +57,4 @@ export {
   generateTeamMembers,
   mockTeamMembers,
 } from './api/mock-data';
+export * from './model/table-columns';

@@ -76,7 +76,7 @@ export const createTeamColumns = (
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status') as string;
+      const status = row.getValue('status');
       const statusColors: Record<string, string> = {
         active: 'bg-green-100 text-green-800',
         inactive: 'bg-gray-100 text-gray-800',

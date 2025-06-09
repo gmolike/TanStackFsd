@@ -1,5 +1,5 @@
-// src/shared/ui/data-table/toolbar.tsx
-import type { Table } from '@tanstack/react-table';
+// ===== TableToolbar.tsx =====
+// src/shared/ui/data-table/components/TableToolbar.tsx
 import { Plus, Settings2, X } from 'lucide-react';
 
 import {
@@ -13,22 +13,17 @@ import {
   InputShadcn as Input,
 } from '~/shared/shadcn';
 
-interface DataTableToolbarProps<TData> {
-  table: Table<TData>;
-  searchKey?: string;
-  searchPlaceholder?: string;
-  columnLabels?: Record<string, string>;
-  showColumnToggle?: boolean;
-  showColumnToggleText?: boolean;
-  onAddClick?: () => void;
-  addButtonText?: string;
-  globalFilter?: string;
-  onGlobalFilterChange?: (value: string) => void;
-}
+import type { ToolbarProps } from '../types';
 
-export function DataTableToolbar<TData>({
+/**
+ * Toolbar für DataTable mit Suche und Aktionen
+ *
+ * @component
+ * @param props - Toolbar Konfiguration
+ */
+export const TableToolbar = <TData,>({
   table,
-  searchPlaceholder = 'Globale Suche...',
+  searchPlaceholder = 'Suche...',
   columnLabels = {},
   showColumnToggle = true,
   showColumnToggleText = false,
@@ -36,36 +31,43 @@ export function DataTableToolbar<TData>({
   addButtonText,
   globalFilter,
   onGlobalFilterChange,
-}: DataTableToolbarProps<TData>) {
+}: ToolbarProps<TData>) => {
   const isFiltered = table.getState().columnFilters.length > 0 || !!globalFilter;
 
+  /**
+   * Holt das Label für eine Spalte
+   */
   const getColumnLabel = (columnId: string): string => columnLabels[columnId] || columnId;
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        <Input
-          placeholder={searchPlaceholder}
-          value={globalFilter ?? ''}
-          onChange={(event) => {
-            onGlobalFilterChange?.(event.target.value);
-            table.setGlobalFilter(event.target.value);
-          }}
-          className="h-8 w-[200px] lg:w-[300px]"
-        />
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              table.resetColumnFilters();
-              table.resetGlobalFilter();
-              onGlobalFilterChange?.('');
-            }}
-            className="h-8 px-2 lg:px-3"
-          >
-            Zurücksetzen
-            <X className="ml-2 h-4 w-4" />
-          </Button>
+        {onGlobalFilterChange && (
+          <>
+            <Input
+              placeholder={searchPlaceholder}
+              value={globalFilter ?? ''}
+              onChange={(event) => {
+                onGlobalFilterChange(event.target.value);
+                table.setGlobalFilter(event.target.value);
+              }}
+              className="h-8 w-[200px] lg:w-[300px]"
+            />
+            {isFiltered && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  table.resetColumnFilters();
+                  table.resetGlobalFilter();
+                  onGlobalFilterChange('');
+                }}
+                className="h-8 px-2 lg:px-3"
+              >
+                Zurücksetzen
+                <X className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </>
         )}
       </div>
 
@@ -106,4 +108,4 @@ export function DataTableToolbar<TData>({
       </div>
     </div>
   );
-}
+};

@@ -1,108 +1,284 @@
 // src/shared/ui/data-table/types.ts
-import type { SortingState, VisibilityState } from '@tanstack/react-table';
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  Table as TanstackTable,
+  VisibilityState,
+} from '@tanstack/react-table';
 
 /**
- * Konfiguration für DataTable Standard-Einstellungen
+ * Basis-Props die alle Table-Varianten teilen
  */
-export interface DataTableConfig {
-  /**
-   * Standard-Sortierung beim ersten Laden
-   * @example [{ id: 'name', desc: false }]
-   */
+export type BaseDataTableProps<TData, TValue = unknown> = {
+  /** Spalten-Definitionen für die Tabelle */
+  columns: Array<ColumnDef<TData, TValue>>;
+
+  /** Daten-Array für die Tabelle */
+  data: Array<TData>;
+
+  /** Placeholder-Text für das Suchfeld */
+  searchPlaceholder?: string;
+
+  /** Key für die Suche (deprecated - nutzt global filter) */
+  searchKey?: string;
+
+  /** Callback wenn eine Zeile angeklickt wird */
+  onRowClick?: (row: TData) => void;
+
+  /** CSS-Klasse für den Wrapper */
+  className?: string;
+
+  /** CSS-Klasse für den Table-Container */
+  containerClassName?: string;
+
+  /** Standard-Sortierung beim ersten Laden */
   defaultSorting?: SortingState;
 
-  /**
-   * Standard-Spalten-Sichtbarkeit
-   * @example { name: true, email: true, phone: false }
-   */
+  /** Standard-Spalten-Sichtbarkeit */
   defaultColumnVisibility?: VisibilityState;
 
-  /**
-   * Anzahl der Zeilen pro Seite
-   * @default 10
-   */
+  /** Anzahl der Zeilen pro Seite */
   pageSize?: number;
 
-  /**
-   * Ob Zeilen beim Klick ausgewählt werden sollen
-   * @default false
-   */
-  enableRowSelection?: boolean;
-
-  /**
-   * Ob die Spaltenauswahl angezeigt werden soll
-   * @default true
-   */
+  /** Ob die Spaltenauswahl angezeigt werden soll */
   showColumnToggle?: boolean;
 
-  /**
-   * Labels für die Spalten (für generische Anzeige)
-   */
-  columnLabels?: Record<string, string>;
+  /** Ob der Text beim Spalten-Button angezeigt werden soll */
+  showColumnToggleText?: boolean;
 
-  /**
-   * Placeholder für das Suchfeld
-   */
-  searchPlaceholder?: string;
-}
+  /** Callback für den Plus-Button */
+  onAddClick?: () => void;
+
+  /** Text für den Plus-Button */
+  addButtonText?: string;
+
+  /** Labels für die Spalten (für Anzeige in UI) */
+  columnLabels?: Record<string, string>;
+};
 
 /**
- * Vordefinierte Konfigurationen für verschiedene Tabellen
+ * Feature-Flags für verschiedene Table-Varianten
  */
-export const tableConfigs = {
-  team: {
-    defaultSorting: [{ id: 'name', desc: false }],
-    defaultColumnVisibility: {
-      name: true,
-      email: true,
-      role: true,
-      department: true,
-      phone: false,
-      status: true,
-      actions: true,
-    },
+export type DataTableFeatures = {
+  /** Aktiviert Skeleton-Loading */
+  withSkeleton?: boolean;
+
+  /** Zeigt Loading-State an */
+  isLoading?: boolean;
+
+  /** Anzahl der Skeleton-Zeilen */
+  skeletonRows?: number;
+
+  /** Aktiviert Expand/Collapse Feature */
+  expandable?: boolean;
+
+  /** Anzahl der initial angezeigten Zeilen (bei expandable) */
+  initialRowCount?: number;
+
+  /** Texte für Expand/Collapse Button */
+  expandButtonText?: {
+    expand?: string;
+    collapse?: string;
+  };
+
+  /** Aktiviert Zeilen-Selektion */
+  enableRowSelection?: boolean;
+
+  /** Aktiviert globale Suche */
+  enableGlobalFilter?: boolean;
+
+  /** Macht den Header sticky */
+  stickyHeader?: boolean;
+
+  /** Höhenbeschränkung für die Tabelle */
+  maxHeight?: string;
+};
+
+/**
+ * Vollständige Props für DataTable
+ */
+export type DataTableProps<TData, TValue = unknown> = BaseDataTableProps<TData, TValue> &
+  DataTableFeatures & {
+    /** Error-State */
+    error?: Error | null;
+
+    /** Retry-Callback bei Fehler */
+    onRetry?: () => void;
+
+    /** Custom Empty-State Komponente */
+    emptyStateComponent?: React.ComponentType;
+
+    /** Custom Error-State Komponente */
+    errorStateComponent?: React.ComponentType<{ error: Error; onRetry?: () => void }>;
+  };
+
+/**
+ * Props für Toolbar-Komponente
+ */
+export type ToolbarProps<TData> = {
+  /** TanStack Table Instanz */
+  table: TanstackTable<TData>;
+
+  /** Aktueller globaler Filter-Wert */
+  globalFilter?: string;
+
+  /** Callback für globale Filter-Änderung */
+  onGlobalFilterChange?: (value: string) => void;
+
+  /** Placeholder für Suchfeld */
+  searchPlaceholder?: string;
+
+  /** Spalten-Labels für Anzeige */
+  columnLabels?: Record<string, string>;
+
+  /** Zeigt Spalten-Toggle */
+  showColumnToggle?: boolean;
+
+  /** Zeigt Text bei Spalten-Toggle */
+  showColumnToggleText?: boolean;
+
+  /** Callback für Add-Button */
+  onAddClick?: () => void;
+
+  /** Text für Add-Button */
+  addButtonText?: string;
+};
+
+/**
+ * Props für Pagination-Komponente
+ */
+export type PaginationProps<TData> = {
+  /** TanStack Table Instanz */
+  table: TanstackTable<TData>;
+};
+
+/**
+ * Props für Expand-Button
+ */
+export type ExpandButtonProps = {
+  /** Ist die Tabelle expandiert? */
+  isExpanded: boolean;
+
+  /** Toggle-Callback */
+  onToggle: () => void;
+
+  /** Anzahl der Zeilen im kollabierten Zustand */
+  collapsedCount: number;
+
+  /** Gesamtanzahl der Zeilen */
+  totalCount: number;
+
+  /** Custom Texte */
+  customText?: {
+    expand?: string;
+    collapse?: string;
+  };
+};
+
+/**
+ * Interner State der Tabelle
+ */
+export type TableState = {
+  /** Sortier-State */
+  sorting: SortingState;
+
+  /** Spalten-Filter */
+  columnFilters: ColumnFiltersState;
+
+  /** Spalten-Sichtbarkeit */
+  columnVisibility: VisibilityState;
+
+  /** Zeilen-Selektion */
+  rowSelection: Record<string, boolean>;
+
+  /** Globaler Filter */
+  globalFilter: string;
+
+  /** Expand-State */
+  isExpanded: boolean;
+};
+
+/**
+ * Return Type für useTableState Hook
+ */
+export type UseTableStateReturn = {
+  /** Aktueller State */
+  state: TableState;
+
+  /** State-Setter Actions */
+  actions: {
+    setSorting: (sorting: SortingState) => void;
+    setColumnFilters: (filters: ColumnFiltersState) => void;
+    setColumnVisibility: (visibility: VisibilityState) => void;
+    setRowSelection: (selection: Record<string, boolean>) => void;
+    setGlobalFilter: (filter: string) => void;
+    toggleExpanded: () => void;
+    resetFilters: () => void;
+  };
+};
+
+/**
+ * Skeleton Props
+ */
+export type TableSkeletonProps = {
+  /** Spalten-Definitionen für Struktur */
+  columns: Array<ColumnDef<any, any>>;
+
+  /** Anzahl der Skeleton-Zeilen */
+  rows?: number;
+
+  /** Zeigt Toolbar-Skeleton */
+  showToolbar?: boolean;
+
+  /** Zeigt Pagination-Skeleton */
+  showPagination?: boolean;
+};
+
+/**
+ * Preset-Konfigurationen für häufige Use-Cases
+ */
+export const tablePresets = {
+  /** Einfache Tabelle mit Basis-Features */
+  simple: {
+    showColumnToggle: false,
+    enableGlobalFilter: true,
     pageSize: 10,
-    showColumnToggle: true,
-    searchPlaceholder: 'Nach Namen, E-Mail oder Rolle suchen...',
-    columnLabels: {
-      name: 'Name',
-      email: 'E-Mail',
-      role: 'Rolle',
-      department: 'Abteilung',
-      phone: 'Telefon',
-      status: 'Status',
-      birthDate: 'Geburtsdatum',
-      startDate: 'Eintrittsdatum',
-      newsletter: 'Newsletter',
-      remoteWork: 'Remote-Arbeit',
-    },
   },
-  article: {
-    defaultSorting: [{ id: 'articleNumber', desc: false }],
-    defaultColumnVisibility: {
-      articleNumber: true,
-      name: true,
-      category: true,
-      price: true,
-      stock: true,
-      status: true,
-      actions: true,
-    },
+
+  /** Erweiterte Tabelle mit allen Features */
+  advanced: {
+    showColumnToggle: true,
+    enableGlobalFilter: true,
+    enableRowSelection: true,
     pageSize: 20,
-    showColumnToggle: true,
-    searchPlaceholder: 'Nach Artikelnummer oder Name suchen...',
-    columnLabels: {
-      articleNumber: 'Art.-Nr.',
-      name: 'Name',
-      category: 'Kategorie',
-      subcategory: 'Unterkategorie',
-      price: 'Preis',
-      stock: 'Bestand',
-      minStock: 'Mindestbestand',
-      unit: 'Einheit',
-      status: 'Status',
-      manufacturer: 'Hersteller',
-      supplier: 'Lieferant',
-    },
   },
-} as const satisfies Record<string, DataTableConfig>;
+
+  /** Dashboard-Tabelle mit Expand-Feature */
+  dashboard: {
+    expandable: true,
+    initialRowCount: 3,
+    showColumnToggle: false,
+    pageSize: 10,
+  },
+
+  /** Kompakte Tabelle für kleine Bereiche */
+  compact: {
+    showColumnToggle: false,
+    pageSize: 5,
+    maxHeight: '400px',
+  },
+} as const;
+
+/**
+ * Type Guards
+ */
+export const isExpandable = <TData, TValue>(props: DataTableProps<TData, TValue>): boolean =>
+  !!props.expandable && typeof props.initialRowCount === 'number';
+
+export const hasError = <TData, TValue>(
+  props: DataTableProps<TData, TValue>,
+): props is DataTableProps<TData, TValue> & { error: Error } => !!props.error;
+
+export const isLoading = <TData, TValue>(props: DataTableProps<TData, TValue>): boolean =>
+  !!props.withSkeleton && !!props.isLoading;
