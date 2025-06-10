@@ -1,6 +1,4 @@
-// shared/ui/data-table/components/table-definition.ts
-
-import type { CellTemplateName } from '../components/CellTemplates';
+// shared/ui/data-table/model/table-definition.ts
 
 /**
  * Field Definition für eine Tabellen-Spalte
@@ -24,17 +22,11 @@ export type FieldDefinition<TData = unknown> = {
   /** Standard-Sichtbarkeit */
   defaultVisible?: boolean;
 
-  /** Header-Typ */
-  headerType?: 'simple' | 'sortable' | 'filterable';
-
-  /** Cell Template Name (nutzt vordefinierte Templates) */
-  cellTemplate?: CellTemplateName;
-
-  /** Custom Cell Component */
-  cellComponent?: React.ComponentType<any>;
-
-  /** Props für Cell Component */
-  cellProps?: (value: unknown, row: TData) => Record<string, unknown>;
+  /**
+   * Cell Component, "default" für Standard-Text oder "actions" für Action-Buttons
+   * Wenn nicht gesetzt, wird Text-Component verwendet
+   */
+  cell?: React.ComponentType<{ value: unknown; row: TData }> | 'default' | 'actions';
 
   /** Breite der Spalte */
   width?: number | string;

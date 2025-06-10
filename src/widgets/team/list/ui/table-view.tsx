@@ -6,7 +6,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { TeamDeleteDialog } from '~/features/team';
 
 import type { TeamMember } from '~/entities/team';
-import { createTeamColumns, defaultColumnVisibility, teamTableLabels } from '~/entities/team';
+import { teamTableDefinition } from '~/entities/team';
 
 import { DataTable } from '~/shared/ui/data-table';
 
@@ -34,23 +34,27 @@ export const TableView = ({ teamMembers, onRowClick, refetch }: Props) => {
     refetch?.();
   };
 
-  // Nutze die zentral definierten Columns mit Standard-Buttons
-  const columns = createTeamColumns(handleEdit, handleDelete);
+  const handleAddClick = () => {
+    navigate({ to: '/team/new' });
+  };
 
   return (
     <>
       <DataTable
-        columns={columns}
+        // Neue Table Definition
+        tableDefinition={teamTableDefinition}
+        selectableColumns={['name', 'email', 'role', 'department', 'phone', 'status', 'actions']}
         data={teamMembers}
-        searchPlaceholder="Globale Suche nach Namen, E-Mail oder Rolle..."
+        // Callbacks
         onRowClick={onRowClick}
-        defaultSorting={[{ id: 'name', desc: false }]}
-        defaultColumnVisibility={defaultColumnVisibility}
-        columnLabels={teamTableLabels}
-        pageSize={10}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onAdd={handleAddClick}
+        // UI Options
+        searchPlaceholder="Globale Suche nach Namen, E-Mail oder Rolle..."
         showColumnToggle={true}
         showColumnToggleText={false}
-        onAddClick={() => navigate({ to: '/team/new' })}
+        pageSize={10}
       />
 
       <TeamDeleteDialog

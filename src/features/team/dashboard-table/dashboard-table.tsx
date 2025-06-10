@@ -2,12 +2,7 @@
 import { useNavigate } from '@tanstack/react-router';
 
 import type { TeamMember } from '~/entities/team';
-import {
-  createDashboardColumns,
-  dashboardColumnVisibility,
-  teamTableLabels,
-  useTeamMembers,
-} from '~/entities/team';
+import { teamTableDefinition, useTeamMembers } from '~/entities/team';
 
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
 import { DataTable } from '~/shared/ui/data-table';
@@ -44,9 +39,6 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
     navigate({ to: '/team/new' });
   };
 
-  // Nutze Dashboard-spezifische Columns (ohne Actions standardmäßig)
-  const columns = createDashboardColumns();
-
   return (
     <div className={className}>
       <Card>
@@ -57,26 +49,22 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
           <TableHeader {...stats} />
 
           <DataTable
-            // Key nur notwendig wegen des Race Condition Bugs
-            key={`team-table-${teamMembers.length}-${isLoading}`}
-            // Basis Props
-            columns={columns}
+            // Neue Table Definition
+            tableDefinition={teamTableDefinition}
+            selectableColumns={['name', 'department', 'status', 'remoteWork']}
             data={teamMembers}
             // Loading State
-            withSkeleton
             isLoading={isLoading}
             // Expandable Feature für Dashboard
             expandable
             initialRowCount={3}
-            pageSize={10} // Explizite pageSize für expandierten Zustand
+            pageSize={10}
             // Interaktion
             onRowClick={handleMemberClick}
-            onAddClick={handleAddClick}
-            // Suche
-            searchPlaceholder="Nach Namen, E-Mail oder Rolle suchen..."
+            onAdd={handleAddClick}
             // UI Anpassungen
-            columnLabels={teamTableLabels}
-            defaultColumnVisibility={dashboardColumnVisibility}
+            searchPlaceholder="Nach Namen, E-Mail oder Rolle suchen..."
+            showColumnToggle={false}
           />
         </CardContent>
       </Card>

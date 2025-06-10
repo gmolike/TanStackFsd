@@ -10,7 +10,13 @@ import { TableDeleteButton, TableEditButton } from './CellButtons';
 
 // Text Cell - Standard für Text
 export const TextCell = ({ value }: { value: unknown }) => (
-  <div className="truncate">{String(value ?? '')}</div>
+  <div className="truncate">
+    {typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? (
+      String(value)
+    ) : (
+      <span className="text-muted-foreground">-</span>
+    )}
+  </div>
 );
 
 // Email Cell
@@ -29,7 +35,12 @@ export const EmailCell = ({ value }: { value: unknown }) => (
 
 // Phone Cell
 export const PhoneCell = ({ value }: { value: unknown }) => {
-  if (!value || String(value).trim() === '') {
+  if (
+    value === null ||
+    value === undefined ||
+    (typeof value === 'string' && value.trim() === '') ||
+    (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean')
+  ) {
     return <span className="text-muted-foreground">-</span>;
   }
 
@@ -51,7 +62,14 @@ export const PhoneCell = ({ value }: { value: unknown }) => {
 export const DateCell = ({ value }: { value: unknown }) => {
   if (!value) return <span className="text-muted-foreground">-</span>;
 
-  const date = value instanceof Date ? value : new Date(String(value));
+  let date: Date;
+  if (value instanceof Date) {
+    date = value;
+  } else if (typeof value === 'string' || typeof value === 'number') {
+    date = new Date(value);
+  } else {
+    return <span className="text-muted-foreground">-</span>;
+  }
 
   if (isNaN(date.getTime())) {
     return <span className="text-muted-foreground">-</span>;
@@ -80,8 +98,8 @@ export const ActionsCell = ({
   onDelete,
 }: {
   row: unknown;
-  onEdit?: (row: unknown) => void;
-  onDelete?: (row: unknown) => void;
+  onEdit?: (rowData: unknown) => void;
+  onDelete?: (rowData: unknown) => void;
 }) => (
   <div className="flex items-center gap-2">
     {onEdit && <TableEditButton onClick={() => onEdit(row)} />}

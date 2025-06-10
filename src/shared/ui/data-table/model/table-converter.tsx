@@ -1,16 +1,18 @@
-// shared/ui/data-table/components/table-converter.tsx
-import type { ColumnDef, HeaderContext, CellContext } from '@tanstack/react-table';
+// shared/ui/data-table/model/table-converter.tsx
+
+import type {
+  AccessorColumnDef,
+  CellContext,
+  ColumnDef,
+  DisplayColumnDef,
+  HeaderContext,
+} from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
-import React from 'react';
+
 import { Button } from '~/shared/shadcn';
-import {
-  ActionsCell,
-  BooleanCell,
-  DateCell,
-  EmailCell,
-  PhoneCell,
-  TextCell,
-} from './CellTemplates';
+
+import { ActionsCell, TextCell } from '../components/CellTemplates';
+
 import type { FieldDefinition, TableDefinition } from './table-definition';
 
 /**
@@ -34,27 +36,6 @@ const createHeader = <TData,>(label: string, sortable?: boolean) => {
 };
 
 /**
- * Erstellt die Cell-Render-Funktion für Custom Components
- */
-const createCustomCellRenderer = <TData,>(
-  field: FieldDefinition<TData>,
-  Component: React.ComponentType<any>,
-) => {
-  return ({ getValue, row }: CellContext<TData, unknown>) => {
-    if (field.accessor) {
-      const value = getValue();
-      const props = field.cellProps ? field.cellProps(value as any, row.original) : { value };
-      return <Component {...props} />;
-    } else {
-      const props = field.cellProps
-        ? field.cellProps(undefined, row.original)
-        : { row: row.original };
-      return <Component {...props} />;
-    }
-  };
-};
-
-/**
  * Konvertiert eine Field Definition zu einer TanStack Column Definition
  */
 const fieldToColumn = <TData,>(
@@ -64,79 +45,84 @@ const fieldToColumn = <TData,>(
     onEdit?: (row: TData) => void;
     onDelete?: (row: TData) => void;
   },
-): ColumnDef<TData, unknown> => {
-  const column: ColumnDef<TData, unknown> = {
+): ColumnDef<TData> => {
+  // Basis-Column-Eigenschaften
+  let size: number | undefined;
+  if (field.width !== undefined) {
+    size = typeof field.width === 'number' ? field.width : undefined;
+  } else {
+    size = undefined;
+  }
+
+  const baseColumn = {
     id: field.id,
     enableSorting: field.sortable ?? true,
     enableGlobalFilter: field.searchable ?? true,
     enableColumnFilter: field.filterable ?? false,
+    header: createHeader<TData>(label, field.sortable),
+    size,
   };
 
-  // Accessor
+  // Wenn wir einen Accessor haben, erstelle eine AccessorColumnDef
   if (field.accessor) {
-    if (typeof field.accessor === 'function') {
-      column.accessorFn = field.accessor;
+    const accessorColumn: AccessorColumnDef<TData> = {
+      ...baseColumn,
+      ...(typeof field.accessor === 'function'
+        ? { accessorFn: field.accessor }
+        : { accessorKey: field.accessor as keyof TData }),
+    };
+
+    // Cell renderer
+    if (!field.cell || field.cell === 'default') {
+      accessorColumn.cell = ({ getValue }: CellContext<TData, unknown>) => (
+        <TextCell value={getValue()} />
+      );
+    } else if (field.cell === 'actions') {
+      accessorColumn.cell = ({ row }: CellContext<TData, unknown>) => (
+        <ActionsCell
+          row={row.original}
+          onEdit={callbacks?.onEdit ? (rowData) => callbacks.onEdit?.(rowData as TData) : undefined}
+          onDelete={
+            callbacks?.onDelete ? (rowData) => callbacks.onDelete?.(rowData as TData) : undefined
+          }
+        />
+      );
     } else {
-      column.accessorKey = field.accessor as keyof TData;
+      const CellComponent = field.cell;
+      accessorColumn.cell = ({ getValue, row }: CellContext<TData, unknown>) => (
+        <CellComponent value={getValue()} row={row.original} />
+      );
     }
+
+    return accessorColumn;
   }
 
-  // Header
-  column.header = createHeader<TData>(label, field.sortable);
+  // Ohne Accessor erstelle eine DisplayColumnDef (z.B. für Actions)
+  const displayColumn: DisplayColumnDef<TData> = {
+    ...baseColumn,
+  };
 
-  // Cell
-  if (field.cellComponent) {
-    column.cell = createCustomCellRenderer(field, field.cellComponent);
-  } else if (field.cellTemplate) {
-    // Direkte Zuordnung der Templates ohne dynamischen Zugriff
-    switch (field.cellTemplate) {
-      case 'actions':
-        column.cell = ({ row }: CellContext<TData, unknown>) => (
-          <ActionsCell
-            row={row.original}
-            onEdit={callbacks?.onEdit}
-            onDelete={callbacks?.onDelete}
-          />
-        );
-        break;
-      case 'email':
-        column.cell = ({ getValue }: CellContext<TData, unknown>) => (
-          <EmailCell value={getValue()} />
-        );
-        break;
-      case 'phone':
-        column.cell = ({ getValue }: CellContext<TData, unknown>) => (
-          <PhoneCell value={getValue()} />
-        );
-        break;
-      case 'date':
-        column.cell = ({ getValue }: CellContext<TData, unknown>) => (
-          <DateCell value={getValue()} />
-        );
-        break;
-      case 'boolean':
-        column.cell = ({ getValue }: CellContext<TData, unknown>) => (
-          <BooleanCell value={getValue()} />
-        );
-        break;
-      case 'text':
-      default:
-        column.cell = ({ getValue }: CellContext<TData, unknown>) => (
-          <TextCell value={getValue()} />
-        );
-        break;
-    }
+  // Cell renderer für Display Columns
+  if (field.cell === 'actions') {
+    displayColumn.cell = ({ row }: CellContext<TData, unknown>) => (
+      <ActionsCell
+        row={row.original}
+        onEdit={callbacks?.onEdit ? (rowData) => callbacks.onEdit?.(rowData as TData) : undefined}
+        onDelete={
+          callbacks?.onDelete ? (rowData) => callbacks.onDelete?.(rowData as TData) : undefined
+        }
+      />
+    );
+  } else if (field.cell && field.cell !== 'default') {
+    const CellComponent = field.cell;
+    displayColumn.cell = ({ row }: CellContext<TData, unknown>) => (
+      <CellComponent value={undefined} row={row.original} />
+    );
   } else {
-    // Default: Text Template
-    column.cell = ({ getValue }: CellContext<TData, unknown>) => <TextCell value={getValue()} />;
+    displayColumn.cell = () => <TextCell value="" />;
   }
 
-  // Width
-  if (field.width) {
-    column.size = typeof field.width === 'number' ? field.width : undefined;
-  }
-
-  return column;
+  return displayColumn;
 };
 
 /**
@@ -144,12 +130,12 @@ const fieldToColumn = <TData,>(
  */
 export const convertTableDefinition = <TData,>(
   definition: TableDefinition<TData>,
-  selectableColumns?: string[],
+  selectableColumns?: Array<string>,
   callbacks?: {
     onEdit?: (row: TData) => void;
     onDelete?: (row: TData) => void;
   },
-): ColumnDef<TData, unknown>[] => {
+): Array<ColumnDef<TData>> => {
   // Filter fields basierend auf selectableColumns
   const fieldsToShow = selectableColumns
     ? definition.fields.filter((field) => selectableColumns.includes(field.id))
@@ -166,7 +152,7 @@ export const convertTableDefinition = <TData,>(
  */
 export const getColumnVisibility = <TData,>(
   definition: TableDefinition<TData>,
-  selectableColumns?: string[],
+  selectableColumns?: Array<string>,
 ): Record<string, boolean> => {
   const visibility: Record<string, boolean> = {};
 
@@ -184,6 +170,5 @@ export const getColumnVisibility = <TData,>(
 /**
  * Extrahiert searchable columns
  */
-export const getSearchableColumns = <TData,>(definition: TableDefinition<TData>): string[] => {
-  return definition.fields.filter((field) => field.searchable === true).map((field) => field.id);
-};
+export const getSearchableColumns = <TData,>(definition: TableDefinition<TData>): Array<string> =>
+  definition.fields.filter((field) => field.searchable === true).map((field) => field.id);

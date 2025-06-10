@@ -44,3 +44,19 @@ export const dashboardLabels = {
   contact: 'Kontakt',
   remoteWork: 'Remote',
 } as const;
+
+/**
+ * Team Info Labels für Detail-Ansichten
+ */
+export const teamInfoLabels = {
+  contactInfo: 'Kontaktinformationen',
+  aboutMe: 'Über mich',
+  settings: 'Einstellungen',
+  address: {
+    _title: 'Adresse',
+    street: 'Straße',
+    city: 'Stadt',
+    postalCode: 'Postleitzahl',
+    country: 'Land',
+  },
+} as const;

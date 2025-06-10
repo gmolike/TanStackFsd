@@ -18,7 +18,6 @@ export { TableToolbar } from './components/TableToolbar';
 // Cell Templates
 export {
   ActionsCell,
-  type ActionsCellProps,
   BooleanCell,
   type CellTemplateName,
   cellTemplates,
