@@ -1,4 +1,4 @@
-// src/shared/ui/data-table/standard-buttons.tsx
+// shared/ui/data-table/components/CellButtons.tsx
 import { Edit, Trash2 } from 'lucide-react';
 
 import { Button } from '~/shared/shadcn';

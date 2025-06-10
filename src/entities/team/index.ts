@@ -1,91 +1,40 @@
-// src/entities/team/index.ts
+// entities/team/index.ts
 
 // UI Components
 export type { MemberCardProps as TeamMemberCardProps } from './ui/member-card';
 export { MemberCard as TeamMemberCard } from './ui/member-card';
-export type { MemberInfoProps as TeamMemberInfoProps } from './ui/member-info';
-export type { ExtendedMemberInfoProps as TeamExtendedMemberInfoProps } from './ui/member-info';
-export { MemberInfo as TeamMemberInfo } from './ui/member-info';
-export { ExtendedMemberInfo as TeamExtendedMemberInfo } from './ui/member-info';
+export type {
+  ExtendedMemberInfoProps as TeamExtendedMemberInfoProps,
+  MemberInfoProps as TeamMemberInfoProps,
+} from './ui/member-info';
+export {
+  ExtendedMemberInfo as TeamExtendedMemberInfo,
+  MemberInfo as TeamMemberInfo,
+} from './ui/member-info';
 export type { StatusBadgeProps as TeamStatusBadgeProps } from './ui/status-badge';
 export { StatusBadge as TeamStatusBadge } from './ui/status-badge';
 
-// Table Components (aus der neuen kombinierten Datei)
-export {
-  // Cell Components
-  ActionsCell,
-  createDashboardColumns,
-  createTeamColumns,
-  dashboardColumnVisibility,
-  DashboardContactCell,
-  DashboardNameCell,
-  defaultColumnVisibility,
-  DepartmentCell,
-  EmailCell,
-  NameCell,
-  PhoneCell,
-  RemoteWorkCell,
-  RoleCell,
-  SimpleHeader,
-  SortableHeader,
-  StatusCell,
-} from './ui/table-components';
-
-// Model exports - Labels
+// Model - Schema
 export type {
-  TeamAddressLabelKey,
-  TeamInfoLabelKey,
-  TeamLabelKey,
-  TeamStatusLabelKey,
-  TeamTableLabelKey,
-} from './model/labels';
-export {
-  getAddressLabel,
-  getStatusLabel,
-  getTableLabel,
-  getTeamLabel,
-  teamAddressLabels,
-  teamBaseLabels,
-  teamInfoLabels,
-  teamLabels,
-  teamStatusLabels,
-  teamTableLabels,
-} from './model/labels';
-
-// Model exports - Table Definitions (aus der neuen kombinierten Datei)
-export type { ColumnMetadata } from './model/table-definitions';
-export {
-  dashboardColumnsMetadata,
-  getColumnMetadata,
-  getDefaultVisibility,
-  getSearchableColumns,
-  teamColumnsMetadata,
-} from './model/table-definitions';
-
-// Model exports - Options
-export * from './model/options';
-
-// Model exports - Schema
+  Address,
+  CreateTeamMember,
+  CreateTeamMemberFormData,
+  TeamFormData,
+  TeamMember,
+  TeamMemberFormData,
+  UpdateTeamMember,
+  UpdateTeamMemberFormData,
+} from './model/schema';
 export * from './model/schema';
 
-// Explizite Schema exports für bessere Übersicht
-export {
-  type Address,
-  addressSchema,
-  type CreateTeamMember,
-  type CreateTeamMemberFormData,
-  createTeamMemberFormSchema,
-  createTeamMemberSchema,
-  type TeamFormData,
-  type TeamMember,
-  type TeamMemberFormData,
-  teamMemberFormSchema,
-  teamMemberSchema,
-  type UpdateTeamMember,
-  type UpdateTeamMemberFormData,
-  updateTeamMemberFormSchema,
-  updateTeamMemberSchema,
-} from './model/schema';
+// Model - Labels
+export { dashboardLabels, teamLabels } from './model/labels';
+
+// Model - Table Definition
+export { teamColumnSets, teamTableDefinition } from './model/table-definition';
+
+// Model - Options
+export * from './model/options';
 
 // API Hooks
 export {
@@ -103,7 +52,7 @@ export {
   useUpdateTeamMemberStatus,
 } from './api/useApi';
 
-// Mock API direkt exportieren
+// Mock API
 export { teamMockApi } from './api/mock-api';
 
 // Mock Data Generators
