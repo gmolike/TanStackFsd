@@ -68,6 +68,7 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
             // Expandable Feature für Dashboard
             expandable
             initialRowCount={3}
+            pageSize={10} // Explizite pageSize für expandierten Zustand
             // Interaktion
             onRowClick={handleMemberClick}
             onAddClick={handleAddClick}

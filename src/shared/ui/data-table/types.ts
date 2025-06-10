@@ -263,7 +263,3 @@ export const hasError = <TData extends TableDataConstraint, TValue>(
 export const isLoading = <TData extends TableDataConstraint, TValue>(
   props: DataTableProps<TData, TValue>,
 ): boolean => !!props.withSkeleton && !!props.isLoading;
-
-// Re-export types from model
-export type { DataTableController } from './model/useDataTableController';
-export type { TableState, TableStateActions, UseTableStateReturn } from './model/useTableState';

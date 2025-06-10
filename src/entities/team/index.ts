@@ -10,15 +10,26 @@ export { ExtendedMemberInfo as TeamExtendedMemberInfo } from './ui/member-info';
 export type { StatusBadgeProps as TeamStatusBadgeProps } from './ui/status-badge';
 export { StatusBadge as TeamStatusBadge } from './ui/status-badge';
 
-// UI Table Components
-export { createDashboardColumns, createTeamColumns } from './ui/table-columns';
-export { dashboardColumnVisibility, defaultColumnVisibility } from './ui/table-columns';
-
-// UI Table Cells (für custom usage)
-export * from './ui/table-cells';
-
-// UI Table Headers (für custom usage)
-export * from './ui/table-header';
+// Table Components (aus der neuen kombinierten Datei)
+export {
+  // Cell Components
+  ActionsCell,
+  createDashboardColumns,
+  createTeamColumns,
+  dashboardColumnVisibility,
+  DashboardContactCell,
+  DashboardNameCell,
+  defaultColumnVisibility,
+  DepartmentCell,
+  EmailCell,
+  NameCell,
+  PhoneCell,
+  RemoteWorkCell,
+  RoleCell,
+  SimpleHeader,
+  SortableHeader,
+  StatusCell,
+} from './ui/table-components';
 
 // Model exports - Labels
 export type {
@@ -41,15 +52,15 @@ export {
   teamTableLabels,
 } from './model/labels';
 
-// Model exports - Column Metadata
-export type { ColumnMetadata } from './model/column-metadata';
+// Model exports - Table Definitions (aus der neuen kombinierten Datei)
+export type { ColumnMetadata } from './model/table-definitions';
 export {
   dashboardColumnsMetadata,
   getColumnMetadata,
   getDefaultVisibility,
   getSearchableColumns,
   teamColumnsMetadata,
-} from './model/column-metadata';
+} from './model/table-definitions';
 
 // Model exports - Options
 export * from './model/options';

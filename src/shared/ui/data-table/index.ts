@@ -32,28 +32,26 @@ export { TableSkeleton } from './components/TableSkeleton';
 export { TableToolbar } from './components/TableToolbar';
 export { DataTable } from './DataTable';
 
-// Hooks
-export { useTableFeatures } from './hooks/useTableFeatures';
-
-// Model
-export { useDataTableController } from './model/useDataTableController';
-export { useTableState } from './model/useTableState';
+// Unified Hook
+export type {
+  DataTableController,
+  RowSelectionState,
+  TableFeatures,
+  TableState,
+  TableStateActions,
+} from './model/useDataTable';
+export { useDataTable } from './model/useDataTable';
 
 // Types
 export type {
   BaseDataTableProps,
-  DataTableController,
   DataTableFeatures,
   DataTableProps,
   ExpandButtonProps,
   PaginationProps,
   TableDataConstraint,
   TableSkeletonProps,
-  // Re-exported from model
-  TableState,
-  TableStateActions,
   ToolbarProps,
-  UseTableStateReturn,
 } from './types';
 
 // Type Guards and Constants

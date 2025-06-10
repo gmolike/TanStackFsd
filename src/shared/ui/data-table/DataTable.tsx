@@ -19,14 +19,14 @@ import { ExpandButton } from './components/ExpandButton';
 import { TablePagination } from './components/TablePagination';
 import { TableSkeleton } from './components/TableSkeleton';
 import { TableToolbar } from './components/TableToolbar';
-import { useDataTableController } from './model/useDataTableController';
+import { useDataTable } from './model/useDataTable';
 import type { DataTableProps } from './types';
 
 /**
  * DataTable Component
  *
  * Eine vereinheitlichte DataTable-Komponente für verschiedene Use-Cases.
- * Die Business-Logik ist im useDataTableController gekapselt.
+ * Die Business-Logik ist im useDataTable Hook gekapselt.
  */
 export const DataTable = <TData extends { id?: string }, TValue = unknown>(
   props: DataTableProps<TData, TValue>,
@@ -57,8 +57,8 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>(
     searchableColumns,
   } = props;
 
-  // Controller Hook - enthält die gesamte Logik
-  const controller = useDataTableController(props);
+  // Unified Controller Hook
+  const controller = useDataTable(props);
   const {
     table,
     state,
@@ -71,6 +71,7 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>(
     handleGlobalFilterChange,
     getRowId,
     columns,
+    isTableExpanded,
   } = controller;
 
   // Loading State
@@ -196,7 +197,7 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>(
       </div>
 
       {/* Pagination oder Expand Button */}
-      {controller.isTableExpanded && !expandable && displayRows.length > 0 && (
+      {isTableExpanded && !expandable && displayRows.length > 0 && (
         <TablePagination table={table} />
       )}
 
@@ -204,7 +205,7 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>(
         <ExpandButton
           isExpanded={state.isExpanded}
           onToggle={handleExpandToggle}
-          collapsedCount={props.initialRowCount || 5}
+          collapsedCount={props.initialRowCount ?? 5}
           totalCount={filteredRowsCount}
           customText={expandButtonText}
         />

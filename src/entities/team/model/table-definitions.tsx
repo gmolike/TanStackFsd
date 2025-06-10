@@ -1,16 +1,19 @@
-// src/entities/team/model/column-metadata.ts
+// src/entities/team/model/table-definitions.tsx
+
 import { teamTableLabels } from './labels';
 import type { TeamMember } from './schema';
 
 /**
- * Column Metadata ohne UI-Komponenten
- * @description Reine Datenstruktur für Spalten-Konfiguration
+ * Team Table Definitions
+ * @description Kombiniert Column Metadata und Table Config in einer Datei
  */
+
+// ===== COLUMN METADATA (Reine Daten-Konfiguration) =====
 
 export type ColumnMetadata = {
   id: string;
   label: string;
-  accessor?: keyof TeamMember | ((row: TeamMember) => any);
+  accessor?: keyof TeamMember | ((row: TeamMember) => unknown);
   sortable?: boolean;
   searchable?: boolean;
   defaultVisible?: boolean;
@@ -102,7 +105,8 @@ export const dashboardColumnsMetadata: Array<ColumnMetadata> = [
   },
 ];
 
-// Helper Functions
+// ===== HELPER FUNCTIONS =====
+
 export const getColumnMetadata = (
   id: string,
   type: 'team' | 'dashboard' = 'team',
@@ -115,12 +119,10 @@ export const getSearchableColumns = (): Array<string> =>
   teamColumnsMetadata
     .filter((col) => col.searchable)
     .map((col) => {
-      // Wenn accessor eine Funktion ist, nutze die ID
       if (typeof col.accessor === 'function') {
         return col.id;
       }
-      // Sonst nutze den accessor key
-      return col.accessor || col.id;
+      return col.accessor ?? col.id;
     });
 
 export const getDefaultVisibility = (
@@ -135,3 +137,35 @@ export const getDefaultVisibility = (
     {} as Record<string, boolean>,
   );
 };
+
+// ===== COLUMN VISIBILITY CONFIGS =====
+
+export const defaultColumnVisibility = {
+  name: true,
+  email: true,
+  role: true,
+  department: true,
+  phone: false,
+  status: true,
+  actions: true,
+};
+
+export const dashboardColumnVisibility = {
+  name: true,
+  department: true,
+  contact: true,
+  status: true,
+  remoteWork: true,
+};
+
+// ===== TABLE COLUMN DEFINITIONS (Mit UI-Komponenten) =====
+
+/**
+ * Team Table Column Definitions
+ * @description Erstellt die vollständigen Spalten-Definitionen mit UI-Komponenten
+ * WICHTIG: Diese Funktionen müssen in einer separaten Datei sein,
+ * die die UI-Komponenten importiert, um zirkuläre Abhängigkeiten zu vermeiden.
+ * Verwenden Sie stattdessen die Exports aus table-components.tsx
+ */
+
+// Diese Funktionen werden in table-components.tsx definiert und von dort exportiert
