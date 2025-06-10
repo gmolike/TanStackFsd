@@ -1,15 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/shared/ui/data-table/DataTable.tsx
-import { useMemo } from 'react';
-
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+import { flexRender } from '@tanstack/react-table';
 
 import { cn } from '~/shared/lib/utils';
 import {
@@ -29,147 +19,59 @@ import { ExpandButton } from './components/ExpandButton';
 import { TablePagination } from './components/TablePagination';
 import { TableSkeleton } from './components/TableSkeleton';
 import { TableToolbar } from './components/TableToolbar';
-import { useTableState } from './hooks/useTableState';
+import { useDataTableController } from './model/useDataTableController';
 import type { DataTableProps } from './types';
 
 /**
  * DataTable Component
  *
- * Eine vereinheitlichte DataTable-Komponente die verschiedene Features kombiniert:
- * - Loading States mit Skeleton
- * - Expandable/Collapsible Rows
- * - Client-side Pagination, Sortierung und Filterung
- * - Spaltenauswahl und globale Suche
- * - Error und Empty States
+ * Eine vereinheitlichte DataTable-Komponente für verschiedene Use-Cases.
+ * Die Business-Logik ist im useDataTableController gekapselt.
  */
-export const DataTable = <TData extends { id?: string }, TValue = unknown>({
-  // Basis Props
-  columns,
-  data,
-  searchPlaceholder = 'Suche...',
-  onRowClick,
-  className,
-  containerClassName,
-
-  // Standard-Konfigurationen
-  defaultSorting = [],
-  defaultColumnVisibility = {},
-  pageSize = 10,
-
-  // UI Features
-  showColumnToggle = true,
-  showColumnToggleText = false,
-  onAddClick,
-  addButtonText,
-  columnLabels,
-  selectedRowId,
-
-  // Loading & Error States
-  withSkeleton = false,
-  isLoading: isLoadingProp = false,
-  skeletonRows = 10,
-  error,
-  onRetry,
-  emptyStateComponent: EmptyStateComponent,
-  errorStateComponent: ErrorStateComponent,
-
-  // Expandable Features
-  expandable = false,
-  initialRowCount = 5,
-  expandButtonText,
-
-  // Advanced Features
-  enableRowSelection = false,
-  enableGlobalFilter = true,
-  stickyHeader = false,
-  maxHeight,
-}: DataTableProps<TData, TValue>) => {
-  // State Management
+export const DataTable = <TData extends { id?: string }, TValue = unknown>(
+  props: DataTableProps<TData, TValue>,
+) => {
   const {
-    state,
-    actions: {
-      setSorting,
-      setColumnFilters,
-      setColumnVisibility,
-      setRowSelection,
-      setGlobalFilter,
-      toggleExpanded,
-    },
-  } = useTableState({
-    defaultSorting,
-    defaultColumnVisibility,
+    // Props for UI
+    searchPlaceholder,
+    onRowClick,
+    className,
+    containerClassName,
+    showColumnToggle,
+    showColumnToggleText,
+    onAddClick,
+    addButtonText,
+    columnLabels,
+    selectedRowId,
+    error,
+    onRetry,
+    emptyStateComponent: EmptyStateComponent,
+    errorStateComponent: ErrorStateComponent,
     expandable,
-  });
+    expandButtonText,
+    stickyHeader,
+    maxHeight,
+    enableGlobalFilter = true,
+    isLoading,
+    skeletonRows = 10,
+    searchableColumns,
+  } = props;
 
-  // Table Instance mit korrekten Typen
-  const table = useReactTable({
-    data,
+  // Controller Hook - enthält die gesamte Logik
+  const controller = useDataTableController(props);
+  const {
+    table,
+    state,
+    displayRows,
+    hasData,
+    filteredRowsCount,
+    showExpandButton,
+    shouldShowSkeleton,
+    handleExpandToggle,
+    handleGlobalFilterChange,
+    getRowId,
     columns,
-    state: {
-      sorting: state.sorting,
-      columnFilters: state.columnFilters,
-      columnVisibility: state.columnVisibility,
-      rowSelection: state.rowSelection,
-      globalFilter: enableGlobalFilter ? state.globalFilter : undefined,
-    },
-    onSortingChange: setSorting as any,
-    onColumnFiltersChange: setColumnFilters as any,
-    onColumnVisibilityChange: setColumnVisibility as any,
-    onRowSelectionChange: enableRowSelection ? (setRowSelection as any) : undefined,
-    onGlobalFilterChange: enableGlobalFilter ? (setGlobalFilter as any) : undefined,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    globalFilterFn: 'includesString',
-    enableRowSelection,
-    initialState: {
-      pagination: {
-        pageSize: expandable && !state.isExpanded ? initialRowCount : pageSize,
-      },
-    },
-  });
-
-  // Berechnete Werte
-  const isTableExpanded = expandable ? state.isExpanded : true;
-  const shouldShowSkeleton = withSkeleton && isLoadingProp;
-  const hasData = data.length > 0;
-  const filteredRowsCount = table.getFilteredRowModel().rows.length;
-  const showExpandButton = expandable && filteredRowsCount > initialRowCount;
-
-  // Ersetze displayRows komplett mit:
-  const allRows = table.getFilteredRowModel().rows;
-  const paginatedRows = table.getPaginationRowModel().rows;
-
-  // Wähle die richtigen Rows basierend auf dem State
-  const displayRows = useMemo(() => {
-    // Wenn Pagination aktiv ist, nutze paginatedRows
-    if (!expandable || isTableExpanded) {
-      return paginatedRows;
-    }
-    // Sonst nutze gefilterte Rows mit Limit
-    return allRows.slice(0, initialRowCount);
-  }, [expandable, isTableExpanded, paginatedRows, allRows, initialRowCount]);
-
-  // Handle Expand Toggle mit Pagination-Anpassung
-  const handleExpandToggle = () => {
-    if (state.isExpanded) {
-      // Beim Kollabieren
-      table.setPageSize(initialRowCount);
-      table.setPageIndex(0);
-    } else {
-      // Beim Expandieren
-      table.setPageSize(pageSize);
-    }
-    toggleExpanded();
-  };
-
-  // Helper für Row-ID
-  const getRowId = (row: TData): string => {
-    if (row.id) return row.id;
-    // Fallback für Rows ohne ID
-    return JSON.stringify(row);
-  };
+  } = controller;
 
   // Loading State
   if (shouldShowSkeleton) {
@@ -199,8 +101,8 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>({
     );
   }
 
-  // Empty State (keine Daten)
-  if (!hasData && !isLoadingProp) {
+  // Empty State
+  if (!hasData && !isLoading) {
     const EmptyComponent = EmptyStateComponent || EmptyState;
     return (
       <div className={cn('space-y-4', className)}>
@@ -225,7 +127,8 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>({
         onAddClick={onAddClick}
         addButtonText={addButtonText}
         globalFilter={state.globalFilter}
-        onGlobalFilterChange={enableGlobalFilter ? setGlobalFilter : undefined}
+        onGlobalFilterChange={enableGlobalFilter !== false ? handleGlobalFilterChange : undefined}
+        searchableColumns={searchableColumns}
       />
 
       {/* Table Container */}
@@ -291,7 +194,7 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>({
       </div>
 
       {/* Pagination oder Expand Button */}
-      {isTableExpanded && !expandable && displayRows.length > 0 && (
+      {controller.isTableExpanded && !expandable && displayRows.length > 0 && (
         <TablePagination table={table} />
       )}
 
@@ -299,7 +202,7 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>({
         <ExpandButton
           isExpanded={state.isExpanded}
           onToggle={handleExpandToggle}
-          collapsedCount={initialRowCount}
+          collapsedCount={props.initialRowCount || 5}
           totalCount={filteredRowsCount}
           customText={expandButtonText}
         />

@@ -1,16 +1,27 @@
 // src/shared/ui/data-table/types.ts
 import type {
   ColumnDef,
-  ColumnFiltersState,
   SortingState,
   Table as TanstackTable,
   VisibilityState,
 } from '@tanstack/react-table';
 
 /**
+ * Row Selection State Type
+ */
+export type RowSelectionState = Record<string, boolean>;
+
+/**
+ * Base constraint for table data
+ */
+export interface TableDataConstraint {
+  id?: string;
+}
+
+/**
  * Basis-Props die alle Table-Varianten teilen
  */
-export type BaseDataTableProps<TData, TValue = unknown> = {
+export interface BaseDataTableProps<TData extends TableDataConstraint, TValue = unknown> {
   /** Spalten-Definitionen für die Tabelle */
   columns: Array<ColumnDef<TData, TValue>>;
 
@@ -61,12 +72,12 @@ export type BaseDataTableProps<TData, TValue = unknown> = {
 
   /** ID der aktuell ausgewählten Zeile (für visuelle Hervorhebung) */
   selectedRowId?: string | null;
-};
+}
 
 /**
  * Feature-Flags für verschiedene Table-Varianten
  */
-export type DataTableFeatures = {
+export interface DataTableFeatures {
   /** Aktiviert Skeleton-Loading */
   withSkeleton?: boolean;
 
@@ -99,30 +110,31 @@ export type DataTableFeatures = {
 
   /** Höhenbeschränkung für die Tabelle */
   maxHeight?: string;
-};
+}
 
 /**
  * Vollständige Props für DataTable
  */
-export type DataTableProps<TData, TValue = unknown> = BaseDataTableProps<TData, TValue> &
-  DataTableFeatures & {
-    /** Error-State */
-    error?: Error | null;
+export interface DataTableProps<TData extends TableDataConstraint, TValue = unknown>
+  extends BaseDataTableProps<TData, TValue>,
+    DataTableFeatures {
+  /** Error-State */
+  error?: Error | null;
 
-    /** Retry-Callback bei Fehler */
-    onRetry?: () => void;
+  /** Retry-Callback bei Fehler */
+  onRetry?: () => void;
 
-    /** Custom Empty-State Komponente */
-    emptyStateComponent?: React.ComponentType;
+  /** Custom Empty-State Komponente */
+  emptyStateComponent?: React.ComponentType;
 
-    /** Custom Error-State Komponente */
-    errorStateComponent?: React.ComponentType<{ error: Error; onRetry?: () => void }>;
-  };
+  /** Custom Error-State Komponente */
+  errorStateComponent?: React.ComponentType<{ error: Error; onRetry?: () => void }>;
+}
 
 /**
  * Props für Toolbar-Komponente
  */
-export type ToolbarProps<TData> = {
+export interface ToolbarProps<TData> {
   /** TanStack Table Instanz */
   table: TanstackTable<TData>;
 
@@ -152,20 +164,20 @@ export type ToolbarProps<TData> = {
 
   /** Liste der durchsuchbaren Spalten */
   searchableColumns?: Array<string>;
-};
+}
 
 /**
  * Props für Pagination-Komponente
  */
-export type PaginationProps<TData> = {
+export interface PaginationProps<TData> {
   /** TanStack Table Instanz */
   table: TanstackTable<TData>;
-};
+}
 
 /**
  * Props für Expand-Button
  */
-export type ExpandButtonProps = {
+export interface ExpandButtonProps {
   /** Ist die Tabelle expandiert? */
   isExpanded: boolean;
 
@@ -183,57 +195,14 @@ export type ExpandButtonProps = {
     expand?: string;
     collapse?: string;
   };
-};
-
-/**
- * Interner State der Tabelle
- */
-export type TableState = {
-  /** Sortier-State */
-  sorting: SortingState;
-
-  /** Spalten-Filter */
-  columnFilters: ColumnFiltersState;
-
-  /** Spalten-Sichtbarkeit */
-  columnVisibility: VisibilityState;
-
-  /** Zeilen-Selektion */
-  rowSelection: Record<string, boolean>;
-
-  /** Globaler Filter */
-  globalFilter: string;
-
-  /** Expand-State */
-  isExpanded: boolean;
-};
-
-/**
- * Return Type für useTableState Hook
- */
-export type UseTableStateReturn = {
-  /** Aktueller State */
-  state: TableState;
-
-  /** State-Setter Actions */
-  actions: {
-    setSorting: (sorting: SortingState) => void;
-    setColumnFilters: (filters: ColumnFiltersState) => void;
-    setColumnVisibility: (visibility: VisibilityState) => void;
-    setRowSelection: (selection: Record<string, boolean>) => void;
-    setGlobalFilter: (filter: string) => void;
-    toggleExpanded: () => void;
-    resetFilters: () => void;
-  };
-};
+}
 
 /**
  * Skeleton Props
  */
-export type TableSkeletonProps = {
+export interface TableSkeletonProps<TData = unknown, TValue = unknown> {
   /** Spalten-Definitionen für Struktur */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: Array<ColumnDef<any, any>>;
+  columns: Array<ColumnDef<TData, TValue>>;
 
   /** Anzahl der Skeleton-Zeilen */
   rows?: number;
@@ -243,7 +212,7 @@ export type TableSkeletonProps = {
 
   /** Zeigt Pagination-Skeleton */
   showPagination?: boolean;
-};
+}
 
 /**
  * Preset-Konfigurationen für häufige Use-Cases
@@ -281,14 +250,20 @@ export const tablePresets = {
 } as const;
 
 /**
- * Type Guards
+ * Type Guards with proper type constraints
  */
-export const isExpandable = <TData, TValue>(props: DataTableProps<TData, TValue>): boolean =>
-  !!props.expandable && typeof props.initialRowCount === 'number';
+export const isExpandable = <TData extends TableDataConstraint, TValue>(
+  props: DataTableProps<TData, TValue>,
+): boolean => !!props.expandable && typeof props.initialRowCount === 'number';
 
-export const hasError = <TData, TValue>(
+export const hasError = <TData extends TableDataConstraint, TValue>(
   props: DataTableProps<TData, TValue>,
 ): props is DataTableProps<TData, TValue> & { error: Error } => !!props.error;
 
-export const isLoading = <TData, TValue>(props: DataTableProps<TData, TValue>): boolean =>
-  !!props.withSkeleton && !!props.isLoading;
+export const isLoading = <TData extends TableDataConstraint, TValue>(
+  props: DataTableProps<TData, TValue>,
+): boolean => !!props.withSkeleton && !!props.isLoading;
+
+// Re-export types from model
+export type { DataTableController } from './model/useDataTableController';
+export type { TableState, TableStateActions, UseTableStateReturn } from './model/useTableState';

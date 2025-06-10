@@ -18,12 +18,12 @@ import type { TableSkeletonProps } from '../types';
  * />
  * ```
  */
-export const TableSkeleton = ({
+export const TableSkeleton = <TData = unknown, TValue = unknown>({
   columns,
   rows = 10,
   showToolbar = true,
   showPagination = true,
-}: TableSkeletonProps) => (
+}: TableSkeletonProps<TData, TValue>) => (
   <div className="space-y-4">
     {showToolbar && (
       <div className="flex items-center justify-between">
