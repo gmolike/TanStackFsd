@@ -117,19 +117,21 @@ export const DataTable = <TData extends { id?: string }, TValue = unknown>(
 
   return (
     <div className={cn('space-y-4', className)}>
-      {/* Toolbar */}
-      <TableToolbar
-        table={table}
-        searchPlaceholder={searchPlaceholder}
-        columnLabels={columnLabels}
-        showColumnToggle={showColumnToggle}
-        showColumnToggleText={showColumnToggleText}
-        onAddClick={onAddClick}
-        addButtonText={addButtonText}
-        globalFilter={state.globalFilter}
-        onGlobalFilterChange={enableGlobalFilter !== false ? handleGlobalFilterChange : undefined}
-        searchableColumns={searchableColumns}
-      />
+      {/* Toolbar mit overflow-visible für Dropdown */}
+      <div className="relative z-10 overflow-visible">
+        <TableToolbar
+          table={table}
+          searchPlaceholder={searchPlaceholder}
+          columnLabels={columnLabels}
+          showColumnToggle={showColumnToggle}
+          showColumnToggleText={showColumnToggleText}
+          onAddClick={onAddClick}
+          addButtonText={addButtonText}
+          globalFilter={state.globalFilter}
+          onGlobalFilterChange={enableGlobalFilter !== false ? handleGlobalFilterChange : undefined}
+          searchableColumns={searchableColumns}
+        />
+      </div>
 
       {/* Table Container */}
       <div

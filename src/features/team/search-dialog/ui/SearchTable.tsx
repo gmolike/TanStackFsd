@@ -60,9 +60,11 @@ export const SearchTable = ({
       defaultColumnVisibility={dialogColumnVisibility}
       showColumnToggle={true}
       showColumnToggleText={false}
-      // Entferne Container-Styling
-      containerClassName=""
-      className=""
+      // Container-Styling für Overflow
+      containerClassName="max-h-[450px]"
+      className="h-full"
+      // Sticky Header für bessere UX beim Scrollen
+      stickyHeader={true}
     />
   );
 };

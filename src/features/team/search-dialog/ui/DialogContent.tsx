@@ -16,9 +16,9 @@ export const DialogContent = ({
   onMemberSelect,
   excludeIds,
 }: DialogContentProps) => (
-  <div className="grid h-[550px] gap-4 md:grid-cols-2">
+  <div className="grid max-h-[550px] gap-4 overflow-hidden md:grid-cols-2">
     {/* Linke Seite: Such-Tabelle */}
-    <div className="h-full">
+    <div className="flex h-full flex-col overflow-hidden">
       <SearchTable
         onMemberSelect={onMemberSelect}
         selectedMemberId={selectedMember?.id || null}
@@ -27,7 +27,7 @@ export const DialogContent = ({
     </div>
 
     {/* Rechte Seite: Details */}
-    <div className="h-full">
+    <div className="h-full overflow-auto">
       <MemberDetails member={selectedMember} />
     </div>
   </div>

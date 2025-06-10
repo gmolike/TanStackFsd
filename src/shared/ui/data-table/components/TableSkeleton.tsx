@@ -50,7 +50,7 @@ export const TableSkeleton = <TData = unknown, TValue = unknown>({
         <div className="space-y-3 p-3">
           {Array.from({ length: rows }).map((_, rowIndex) => (
             <div key={rowIndex} className="flex gap-4">
-              {columns.slice(0, 5).map((_, colIndex) => (
+              {columns.slice(0, 5).map((__, colIndex) => (
                 <Skeleton
                   key={colIndex}
                   className="h-4 w-24"
