@@ -20,3 +20,13 @@ export {
   generateArticles,
   mockArticles,
 } from './api/mock-data';
+
+// Table Definition
+export { articleColumnSets, articleTableDefinition } from './model/table-definition';
+
+// Labels
+export { articleLabels } from './model/labels';
+
+// UI Components
+export { ArticleStatusBadge } from './ui/status-badge';
+export { ArticleStockIndicator } from './ui/stock-indicator';

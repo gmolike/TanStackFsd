@@ -5,21 +5,16 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { ChevronRight, Grid3X3, List, Package, Tag } from 'lucide-react';
 
 import type { Article } from '~/entities/article';
+import { articleColumnSets, articleTableDefinition } from '~/entities/article';
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
 import { DataTable } from '~/shared/ui/data-table';
-
-import { articleColumns } from '../../../entities/article/model/article-columns';
 
 interface ArticleListProps {
   articles: Array<Article>;
   defaultView?: 'grid' | 'table';
 }
 
-/**
- * ArticleList Widget
- * Zeigt eine Liste von Artikeln in Karten- oder Tabellenformat an
- */
 export function ArticleList({ articles, defaultView = 'grid' }: ArticleListProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>(defaultView);
   const navigate = useNavigate();
@@ -29,10 +24,19 @@ export function ArticleList({ articles, defaultView = 'grid' }: ArticleListProps
   };
 
   const handleAddClick = () => {
-    navigate({ to: '/' });
+    navigate({ to: '/articles' });
   };
 
-  // Kartenansicht (original)
+  const handleEdit = (article: Article) => {
+    navigate({ to: '/articles' });
+  };
+
+  const handleDelete = (article: Article) => {
+    // Implement delete logic
+    console.log('Delete article:', article.id);
+  };
+
+  // Grid view remains the same...
   const renderGridView = () => {
     const statusColors = {
       available: 'bg-green-100 text-green-800',
@@ -117,38 +121,28 @@ export function ArticleList({ articles, defaultView = 'grid' }: ArticleListProps
     );
   };
 
-  // Tabellenansicht mit neuer DataTable
   const renderTableView = () => (
     <DataTable
-      columns={articleColumns}
+      // Table Definition
+      tableDefinition={articleTableDefinition}
+      // Type-safe column selection
+      selectableColumns={articleColumnSets.full}
       data={articles}
-      searchPlaceholder="Artikel suchen..."
+      // ID handling - KEINE selectedId, da wir auf der List-Route sind
+      idKey="id"
+      // Callbacks
       onRowClick={handleRowClick}
-      onAddClick={handleAddClick}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onAdd={handleAddClick}
+      // UI Options
+      searchPlaceholder="Artikel suchen..."
       addButtonText="Neuer Artikel"
-      defaultSorting={[{ id: 'articleNumber', desc: false }]}
-      defaultColumnVisibility={{
-        articleNumber: true,
-        name: true,
-        category: true,
-        price: true,
-        stock: true,
-        status: true,
-        actions: true,
-      }}
-      columnLabels={{
-        articleNumber: 'Art.-Nr.',
-        name: 'Name',
-        category: 'Kategorie',
-        subcategory: 'Unterkategorie',
-        price: 'Preis',
-        stock: 'Bestand',
-        minStock: 'Mindestbestand',
-        unit: 'Einheit',
-        status: 'Status',
-      }}
-      pageSize={20}
       showColumnToggle={true}
+      pageSize={20}
+      // Sticky Features
+      stickyActionColumn={true}
+      stickyHeader={true}
     />
   );
 

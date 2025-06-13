@@ -1,12 +1,12 @@
 // src/widgets/team/list/ui/table-view.tsx
 import { useState } from 'react';
 
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useParams } from '@tanstack/react-router';
 
 import { TeamDeleteDialog } from '~/features/team';
 
 import type { TeamMember } from '~/entities/team';
-import { teamTableDefinition } from '~/entities/team';
+import { teamColumnSets, teamTableDefinition } from '~/entities/team';
 
 import { DataTable } from '~/shared/ui/data-table';
 
@@ -18,6 +18,8 @@ type Props = {
 
 export const TableView = ({ teamMembers, onRowClick, refetch }: Props) => {
   const navigate = useNavigate();
+
+  const { memberId } = useParams({ strict: false });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<TeamMember | null>(null);
 
@@ -41,10 +43,15 @@ export const TableView = ({ teamMembers, onRowClick, refetch }: Props) => {
   return (
     <>
       <DataTable
-        // Neue Table Definition
+        // Table Definition
         tableDefinition={teamTableDefinition}
-        selectableColumns={['name', 'email', 'role', 'department', 'phone', 'status', 'actions']}
+        // Type-safe column selection
+        selectableColumns={teamColumnSets.full}
         data={teamMembers}
+        // ID handling
+        idKey="id"
+        selectedId={memberId}
+        selectedRowId={memberId}
         // Callbacks
         onRowClick={onRowClick}
         onEdit={handleEdit}
@@ -52,9 +59,13 @@ export const TableView = ({ teamMembers, onRowClick, refetch }: Props) => {
         onAdd={handleAddClick}
         // UI Options
         searchPlaceholder="Globale Suche nach Namen, E-Mail oder Rolle..."
+        addButtonText="Neues Teammitglied"
         showColumnToggle={true}
         showColumnToggleText={false}
         pageSize={10}
+        // Sticky Features
+        stickyActionColumn={true}
+        stickyHeader={true}
       />
 
       <TeamDeleteDialog

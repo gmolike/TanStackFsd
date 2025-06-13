@@ -1,5 +1,5 @@
 // shared/ui/data-table/DataTable.tsx
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/react-table';
 import {
@@ -34,25 +34,32 @@ import {
   getColumnVisibility,
   getSearchableColumns,
 } from './model/table-converter';
-import type { DataTableProps } from './model/table-definition';
+import type { DataTableProps, TableDefinition } from './model/table-definition';
 
 /**
  * CSDoc: DataTable Component
  * @description Hauptkomponente für Tabellen - arbeitet ausschließlich mit TableDefinition
  * @param tableDefinition - Definition mit Labels und Fields
- * @param selectableColumns - Array der anzuzeigenden Spalten IDs
+ * @param selectableColumns - Array der anzuzeigenden Spalten IDs (default: alle)
  * @param data - Daten-Array
+ * @param idKey - Key für die ID (default: "id")
+ * @param selectedId - ID der zu selektierenden Zeile
  * @example
  * ```tsx
  * <DataTable
  *   tableDefinition={teamTableDefinition}
- *   selectableColumns={['name', 'email', 'status']}
+ *   selectableColumns={['name', 'email', 'status']} // optional, type-safe!
  *   data={teamMembers}
  *   onRowClick={(member) => navigate(`/team/${member.id}`)}
+ *   selectedId="123"
+ *   idKey="id"
  * />
  * ```
  */
-export const DataTable = <TData extends Record<string, unknown> = Record<string, unknown>>({
+export const DataTable = <
+  TData extends Record<string, unknown> = Record<string, unknown>,
+  TTableDef extends TableDefinition<TData> = TableDefinition<TData>,
+>({
   // Core Props
   tableDefinition,
   selectableColumns,
@@ -80,9 +87,12 @@ export const DataTable = <TData extends Record<string, unknown> = Record<string,
   initialRowCount = 5,
   expandButtonText,
   stickyHeader = false,
+  stickyActionColumn = false,
   maxHeight,
   pageSize = 20,
   selectedRowId,
+  selectedId,
+  idKey = 'id',
 
   // Styling
   className,
@@ -91,22 +101,29 @@ export const DataTable = <TData extends Record<string, unknown> = Record<string,
   // Custom Components
   emptyStateComponent: EmptyStateComponent,
   errorStateComponent: ErrorStateComponent,
-}: DataTableProps<TData>) => {
+}: DataTableProps<TData, TTableDef>) => {
   // State
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [isExpanded, setIsExpanded] = useState(!expandable);
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  // Verwende alle Spalten als Standard, wenn selectableColumns nicht angegeben
+  const effectiveSelectableColumns = useMemo(
+    () => selectableColumns || tableDefinition.fields.map((field) => field.id),
+    [selectableColumns, tableDefinition.fields],
+  );
 
   // Convert TableDefinition to Columns
   const columns = useMemo(
-    () => convertTableDefinition(tableDefinition, selectableColumns, { onEdit, onDelete }),
-    [tableDefinition, selectableColumns, onEdit, onDelete],
+    () => convertTableDefinition(tableDefinition, effectiveSelectableColumns, { onEdit, onDelete }),
+    [tableDefinition, effectiveSelectableColumns, onEdit, onDelete],
   );
 
   // Column Visibility
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
-    getColumnVisibility(tableDefinition, selectableColumns),
+    getColumnVisibility(tableDefinition, effectiveSelectableColumns),
   );
 
   // Searchable Columns
@@ -139,11 +156,58 @@ export const DataTable = <TData extends Record<string, unknown> = Record<string,
 
   // Computed values
   const filteredRows = table.getFilteredRowModel().rows;
+  const sortedRows = table.getSortedRowModel().rows;
+  const filteredRowsCount = filteredRows.length;
   const paginatedRows = table.getPaginationRowModel().rows;
-  const displayRows =
-    expandable && !isExpanded ? filteredRows.slice(0, initialRowCount) : paginatedRows;
 
-  const showExpandButton = expandable && filteredRows.length > initialRowCount;
+  // Display Rows berechnung - das ist der Kern der Logik
+  const displayRows = useMemo(() => {
+    if (expandable && !isExpanded) {
+      // Im kollabierten Zustand: Nutze die ersten X der SORTIERTEN Rows (nicht nur gefilterten!)
+      return sortedRows.slice(0, initialRowCount);
+    } else {
+      // Im expandierten Zustand: Nutze paginierte Rows
+      return paginatedRows;
+    }
+  }, [expandable, isExpanded, sortedRows, paginatedRows, initialRowCount]);
+
+  const showExpandButton = expandable && filteredRowsCount > initialRowCount;
+
+  // Effect für selectedId - scrollt zur ausgewählten Zeile
+  useEffect(() => {
+    if (selectedId && data.length > 0 && tableRef.current) {
+      // Finde den Index der Zeile mit der selectedId
+      const rowIndex = data.findIndex((row) => row[idKey] === selectedId);
+
+      if (rowIndex !== -1) {
+        // Berechne auf welcher Seite die Zeile ist
+        const pageIndex = Math.floor(rowIndex / pageSize);
+
+        // Setze die Pagination nur wenn nötig
+        if (table.getState().pagination.pageIndex !== pageIndex) {
+          table.setPageIndex(pageIndex);
+        }
+
+        // Wenn die Tabelle expandable ist und kollabiert, expandiere sie
+        if (expandable && !isExpanded && rowIndex >= initialRowCount) {
+          setIsExpanded(true);
+        }
+
+        // Scroll zur Zeile nach einem kurzen Delay (damit die Tabelle Zeit hat zu rendern)
+        const timeoutId = setTimeout(() => {
+          if (tableRef.current) {
+            const rowElement = tableRef.current.querySelector(`[data-row-id="${selectedId}"]`);
+            if (rowElement) {
+              rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        }, 100);
+
+        // Cleanup timeout
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [selectedId, data, idKey, pageSize, expandable, isExpanded, initialRowCount, table]);
 
   // Loading State
   if (isLoading && data.length === 0) {
@@ -205,6 +269,7 @@ export const DataTable = <TData extends Record<string, unknown> = Record<string,
 
       {/* Table */}
       <div
+        ref={tableRef}
         className={cn(
           'overflow-auto rounded-md border',
           stickyHeader && 'relative',
@@ -216,27 +281,38 @@ export const DataTable = <TData extends Record<string, unknown> = Record<string,
           <ShadCnTableHeader className={stickyHeader ? 'sticky top-0 z-10 bg-background' : ''}>
             {table.getHeaderGroups().map((headerGroup) => (
               <ShadCnTableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <ShadCnTableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </ShadCnTableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const isActionColumn = header.column.id === 'actions';
+                  return (
+                    <ShadCnTableHead
+                      key={header.id}
+                      className={cn(
+                        isActionColumn &&
+                          stickyActionColumn &&
+                          'sticky right-0 bg-background shadow-sm',
+                      )}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </ShadCnTableHead>
+                  );
+                })}
               </ShadCnTableRow>
             ))}
           </ShadCnTableHeader>
 
           <ShadCnTableBody>
-            {displayRows.length ? (
+            {displayRows.length > 0 ? (
               displayRows.map((row) => {
-                const rowOriginal = row.original as TData & { id?: string };
-                const rowId = rowOriginal.id;
-                const isSelected = selectedRowId === rowId;
+                const rowOriginal = row.original as TData & Record<string, unknown>;
+                const rowId = String(rowOriginal[idKey] ?? '');
+                const isSelected = selectedRowId === rowId || selectedId === rowOriginal[idKey];
 
                 return (
                   <ShadCnTableRow
                     key={row.id}
+                    data-row-id={rowId}
                     data-state={row.getIsSelected() && 'selected'}
                     onClick={() => onRowClick?.(row.original)}
                     className={cn(
@@ -244,11 +320,21 @@ export const DataTable = <TData extends Record<string, unknown> = Record<string,
                       isSelected && 'bg-muted/50',
                     )}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <ShadCnTableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </ShadCnTableCell>
-                    ))}
+                    {row.getVisibleCells().map((cell) => {
+                      const isActionColumn = cell.column.id === 'actions';
+                      return (
+                        <ShadCnTableCell
+                          key={cell.id}
+                          className={cn(
+                            isActionColumn &&
+                              stickyActionColumn &&
+                              'sticky right-0 bg-background shadow-sm',
+                          )}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </ShadCnTableCell>
+                      );
+                    })}
                   </ShadCnTableRow>
                 );
               })
@@ -274,7 +360,7 @@ export const DataTable = <TData extends Record<string, unknown> = Record<string,
           isExpanded={isExpanded}
           onToggle={() => setIsExpanded(!isExpanded)}
           collapsedCount={initialRowCount}
-          totalCount={filteredRows.length}
+          totalCount={filteredRowsCount}
           customText={expandButtonText}
         />
       )}

@@ -1,27 +1,29 @@
-// shared/types/label-validation.ts
+// src/shared/types/label-validation.ts
 /**
- * Vereinfachtes Type-Safe Label System
+ * Helper Type für type-safe Labels
+ * Stellt sicher, dass alle Felder eines Types ein Label haben
  */
 
-// Basis Type für flache Felder
-type FlattenKeys<T> = {
-  [K in keyof T]: T[K] extends object
-    ? T[K] extends Date | null | undefined
-      ? K
-      : K | `${string & K}.${string & keyof T[K]}`
-    : K;
+type RequiredKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
 }[keyof T];
 
-// Einfache Validierung: Alle DTO-Keys müssen Labels haben
-export type RequiredLabels<T> = Record<FlattenKeys<T>, string>;
+type OptionalKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? K : never;
+}[keyof T];
 
-// Helper Type für zusätzliche Felder
-export type LabelsWithExtras<T, TExtra extends string = never> = Record<
-  FlattenKeys<T> | TExtra,
+type BaseKeys<T> = RequiredKeys<T> | OptionalKeys<T>;
+
+export type ValidatedLabels<T, AdditionalKeys extends string = never> = Record<
+  BaseKeys<T> | AdditionalKeys,
   string
 >;
 
-// Vereinfachte createValidatedLabels Funktion
-export const createValidatedLabels = <TData, TExtra extends string = never>(
-  labels: LabelsWithExtras<TData, TExtra>,
-): LabelsWithExtras<TData, TExtra> => labels;
+/**
+ * Erstellt type-safe Labels mit Validierung
+ */
+export function createValidatedLabels<T, AdditionalKeys extends string = never>(
+  labels: ValidatedLabels<T, AdditionalKeys>,
+): ValidatedLabels<T, AdditionalKeys> {
+  return labels;
+}

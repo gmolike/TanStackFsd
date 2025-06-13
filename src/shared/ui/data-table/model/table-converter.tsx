@@ -7,7 +7,7 @@ import type {
   DisplayColumnDef,
   HeaderContext,
 } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 import { Button } from '~/shared/shadcn';
 
@@ -20,16 +20,22 @@ import type { FieldDefinition, TableDefinition } from './table-definition';
  */
 const createHeader = <TData,>(label: string, sortable?: boolean) => {
   if (sortable !== false) {
-    return ({ column }: HeaderContext<TData, unknown>) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="-ml-3 h-8 text-xs font-medium uppercase tracking-wider hover:bg-transparent"
-      >
-        {label}
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    );
+    return ({ column }: HeaderContext<TData, unknown>) => {
+      const isSorted = column.getIsSorted();
+
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className="-ml-3 h-8 text-xs font-medium uppercase tracking-wider hover:bg-transparent"
+        >
+          {label}
+          {isSorted === 'asc' && <ArrowUp className="ml-2 h-4 w-4" />}
+          {isSorted === 'desc' && <ArrowDown className="ml-2 h-4 w-4" />}
+          {!isSorted && <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />}
+        </Button>
+      );
+    };
   }
 
   return () => <span className="text-xs font-medium uppercase tracking-wider">{label}</span>;
@@ -136,7 +142,7 @@ export const convertTableDefinition = <TData,>(
     onDelete?: (row: TData) => void;
   },
 ): Array<ColumnDef<TData>> => {
-  // Filter fields basierend auf selectableColumns
+  // Wenn keine selectableColumns angegeben, verwende alle Felder
   const fieldsToShow = selectableColumns
     ? definition.fields.filter((field) => selectableColumns.includes(field.id))
     : definition.fields;
@@ -160,7 +166,8 @@ export const getColumnVisibility = <TData,>(
     if (selectableColumns) {
       visibility[field.id] = selectableColumns.includes(field.id);
     } else {
-      visibility[field.id] = field.defaultVisible ?? true;
+      // Wenn keine selectableColumns, zeige alle als sichtbar
+      visibility[field.id] = true;
     }
   });
 
