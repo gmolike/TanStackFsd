@@ -19,7 +19,9 @@ export const BulkActions = <TData extends Record<string, unknown>>({
   onAction,
 }: BulkActionsProps<TData>) => {
   const { selection, table } = useDataTableContext();
-  const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original as TData);
+  const selectedRows = table
+    .getSelectedRowModel()
+    .rows.map((row: { original: TData }) => row.original);
 
   if (selection.selectedCount === 0) return null;
 

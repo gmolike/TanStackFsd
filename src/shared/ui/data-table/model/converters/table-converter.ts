@@ -1,4 +1,6 @@
 // model/converters/table-converter.tsx
+import React from 'react';
+
 import type {
   AccessorColumnDef,
   CellContext,
@@ -9,36 +11,45 @@ import type {
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 import { Button } from '~/shared/shadcn';
-import type { FieldDefinition, TableDefinition } from '../types/table-definition';
+
 import { ActionsCell, TextCell } from '../../ui/cells';
+import type { FieldDefinition, TableDefinition } from '../types/table-definition';
 
 /**
  * Erstellt den Header für eine Column
  */
-const createHeader = <TData,>(label: string, sortable?: boolean) => {
+const createHeader = <TData>(label: string, sortable?: boolean) => {
   if (sortable !== false) {
     return ({ column }: HeaderContext<TData, unknown>) => {
       const isSorted = column.getIsSorted();
 
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="-ml-3 h-8 text-xs font-medium uppercase tracking-wider hover:bg-transparent"
-        >
-
-        </Button>
+      return React.createElement(
+        Button,
+        {
+          variant: 'ghost',
+          onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+          className: '-ml-3 h-8 text-xs font-medium uppercase tracking-wider hover:bg-transparent',
+        },
+        label,
+        isSorted === 'asc' && React.createElement(ArrowUp, { className: 'ml-2 h-4 w-4' }),
+        isSorted === 'desc' && React.createElement(ArrowDown, { className: 'ml-2 h-4 w-4' }),
+        !isSorted && React.createElement(ArrowUpDown, { className: 'ml-2 h-4 w-4 opacity-50' }),
       );
     };
   }
 
-  return () => <span className="text-xs font-medium uppercase tracking-wider">{label}</span>;
+  return () =>
+    React.createElement(
+      'span',
+      { className: 'text-xs font-medium uppercase tracking-wider' },
+      label,
+    );
 };
 
 /**
  * Konvertiert eine Field Definition zu einer TanStack Column Definition
  */
-const fieldToColumn = <TData extends Record<string, unknown>,>(
+const fieldToColumn = <TData extends Record<string, unknown>>(
   field: FieldDefinition<TData>,
   label: string,
   callbacks?: {
@@ -47,9 +58,12 @@ const fieldToColumn = <TData extends Record<string, unknown>,>(
   },
 ): ColumnDef<TData> => {
   // Basis-Column-Eigenschaften
-  const size = field.width !== undefined ?
-    (typeof field.width === 'number' ? field.width : undefined) :
-    undefined;
+  let size: number | undefined;
+  if (field.width !== undefined) {
+    size = typeof field.width === 'number' ? field.width : undefined;
+  } else {
+    size = undefined;
+  }
 
   const baseColumn = {
     id: field.id,
@@ -71,22 +85,22 @@ const fieldToColumn = <TData extends Record<string, unknown>,>(
 
     // Cell renderer
     if (!field.cell || field.cell === 'default') {
-      accessorColumn.cell = ({ getValue }: CellContext<TData, unknown>) => (
-        <TextCell value={getValue()} />
-      );
+      accessorColumn.cell = ({ getValue }: CellContext<TData, unknown>) =>
+        React.createElement(TextCell, { value: getValue() });
     } else if (field.cell === 'actions') {
-      accessorColumn.cell = ({ row }: CellContext<TData, unknown>) => (
-        <ActionsCell<TData>
-          row={row.original}
-          onEdit={callbacks?.onEdit}
-          onDelete={callbacks?.onDelete}
-        />
-      );
+      accessorColumn.cell = ({ row }: CellContext<TData, unknown>) =>
+        React.createElement(ActionsCell, {
+          row: row.original,
+          onEdit: callbacks?.onEdit as ((rowData: unknown) => void) | undefined,
+          onDelete: callbacks?.onDelete as ((rowData: unknown) => void) | undefined,
+        });
     } else {
       const CellComponent = field.cell;
-      accessorColumn.cell = ({ getValue, row }: CellContext<TData, unknown>) => (
-        <CellComponent value={getValue()} row={row.original} />
-      );
+      accessorColumn.cell = ({ getValue, row }: CellContext<TData, unknown>) =>
+        React.createElement(CellComponent, {
+          value: getValue(),
+          row: row.original,
+        });
     }
 
     return accessorColumn;
@@ -99,20 +113,21 @@ const fieldToColumn = <TData extends Record<string, unknown>,>(
 
   // Cell renderer für Display Columns
   if (field.cell === 'actions') {
-    displayColumn.cell = ({ row }: CellContext<TData, unknown>) => (
-      <ActionsCell<TData>
-        row={row.original}
-        onEdit={callbacks?.onEdit}
-        onDelete={callbacks?.onDelete}
-      />
-    );
+    displayColumn.cell = ({ row }: CellContext<TData, unknown>) =>
+      React.createElement(ActionsCell, {
+        row: row.original,
+        onEdit: callbacks?.onEdit as ((rowData: unknown) => void) | undefined,
+        onDelete: callbacks?.onDelete as ((rowData: unknown) => void) | undefined,
+      });
   } else if (field.cell && field.cell !== 'default') {
     const CellComponent = field.cell;
-    displayColumn.cell = ({ row }: CellContext<TData, unknown>) => (
-      <CellComponent value={undefined} row={row.original} />
-    );
+    displayColumn.cell = ({ row }: CellContext<TData, unknown>) =>
+      React.createElement(CellComponent, {
+        value: undefined,
+        row: row.original,
+      });
   } else {
-    displayColumn.cell = () => <TextCell value="" />;
+    displayColumn.cell = () => React.createElement(TextCell, { value: '' });
   }
 
   return displayColumn;
@@ -121,7 +136,7 @@ const fieldToColumn = <TData extends Record<string, unknown>,>(
 /**
  * Konvertiert eine Table Definition zu TanStack Columns
  */
-export const convertTableDefinition = <TData extends Record<string, unknown>,>(
+export const convertTableDefinition = <TData extends Record<string, unknown>>(
   definition: TableDefinition<TData>,
   selectableColumns?: Array<string>,
   callbacks?: {
@@ -143,7 +158,7 @@ export const convertTableDefinition = <TData extends Record<string, unknown>,>(
 /**
  * Extrahiert Column Visibility aus der Definition
  */
-export const getColumnVisibility = <TData,>(
+export const getColumnVisibility = <TData>(
   definition: TableDefinition<TData>,
   selectableColumns?: Array<string>,
 ): Record<string, boolean> => {
@@ -164,7 +179,5 @@ export const getColumnVisibility = <TData,>(
 /**
  * Extrahiert searchable columns
  */
-export const getSearchableColumns = <TData,>(
-  definition: TableDefinition<TData>
-): Array<string> =>
+export const getSearchableColumns = <TData>(definition: TableDefinition<TData>): Array<string> =>
   definition.fields.filter((field) => field.searchable === true).map((field) => field.id);

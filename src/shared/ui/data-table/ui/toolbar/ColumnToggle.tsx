@@ -1,3 +1,4 @@
+import type { Column } from '@tanstack/react-table';
 import { Settings2 } from 'lucide-react';
 
 import {
@@ -14,9 +15,9 @@ import { useDataTableContext } from '../DataTableProvider';
 
 export const ColumnToggle = () => {
   const { table, ui, props } = useDataTableContext();
-  const columnLabels = props?.tableDefinition.labels ?? {};
+  const columnLabels = props?.tableDefinition.labels || {};
 
-  const getColumnLabel = (columnId: string): string => columnLabels[columnId] ?? columnId;
+  const getColumnLabel = (columnId: string): string => columnLabels[columnId] || columnId;
 
   return (
     <DropdownMenu>
@@ -35,8 +36,10 @@ export const ColumnToggle = () => {
         <DropdownMenuSeparator />
         {table
           .getAllColumns()
-          .filter((column) => column.getCanHide() && column.id !== 'actions')
-          .map((column) => (
+          .filter(
+            (column: Column<unknown, unknown>) => column.getCanHide() && column.id !== 'actions',
+          )
+          .map((column: Column<unknown, unknown>) => (
             <DropdownMenuCheckboxItem
               key={column.id}
               checked={column.getIsVisible()}

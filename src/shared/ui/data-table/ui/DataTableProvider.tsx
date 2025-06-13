@@ -1,9 +1,23 @@
 import { createContext, useContext } from 'react';
 
-const DataTableContext = createContext<any>(null);
+import type { DataTableController } from '../model/hooks/useDataTable';
+import type { DataTableProps } from '../model/types/props';
 
-export const DataTableProvider = ({ children, value }: any) => (
-  <DataTableContext.Provider value={value}>{children}</DataTableContext.Provider>
+interface DataTableContextValue<TData extends Record<string, unknown> = Record<string, unknown>>
+  extends DataTableController<TData> {
+  props?: DataTableProps<TData, any>;
+}
+
+const DataTableContext = createContext<DataTableContextValue<any> | null>(null);
+
+interface DataTableProviderProps {
+  children: React.ReactNode;
+  value: DataTableController<any>;
+  props?: any;
+}
+
+export const DataTableProvider = ({ children, value, props }: DataTableProviderProps) => (
+  <DataTableContext.Provider value={{ ...value, props }}>{children}</DataTableContext.Provider>
 );
 
 export const useDataTableContext = () => {

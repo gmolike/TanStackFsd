@@ -28,7 +28,9 @@ export const FilterableHeader = <TData,>({ label, column }: FilterableHeaderProp
             <Input
               placeholder={`Filter ${label}...`}
               value={typeof filterValue === 'string' ? filterValue : ''}
-              onChange={(e) => column.setFilterValue(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                column.setFilterValue(e.target.value)
+              }
               className="h-8"
             />
             {typeof filterValue === 'string' && filterValue && (

@@ -5,8 +5,6 @@ import type { OnChangeFn, Updater } from '@tanstack/react-table';
 import type { DataTableProps } from '../types/props';
 import type { TableDefinition } from '../types/table-definition';
 
-import type { TableStateReturn } from './useTableState';
-
 export interface TableSearchReturn {
   state: {
     globalFilter: string;
@@ -19,8 +17,6 @@ export const useTableSearch = <
   TData extends Record<string, unknown>,
   TTableDef extends TableDefinition<TData>,
 >(
-  props: DataTableProps<TData, TTableDef>,
-  state: TableStateReturn,
   props: DataTableProps<TData, TTableDef>,
 ): TableSearchReturn => {
   const [globalFilter, setGlobalFilterState] = useState('');

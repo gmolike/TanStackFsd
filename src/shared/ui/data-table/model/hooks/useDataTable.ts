@@ -37,7 +37,7 @@ export interface DataTableController<TData> {
   error: Error | null;
 
   // Computed Values
-  displayRows: Array<Row<TData>>;
+  displayRows: Array<Row<TData>>; // Fix: Array type notation
   filteredRowsCount: number;
   isTableExpanded: boolean;
   showExpandButton: boolean;
@@ -88,8 +88,8 @@ export const useDataTable = <
 
   // State Management
   const state = useTableState(props);
-  const search = useTableSearch(props, state);
-  const selection = useTableSelection(props, state);
+  const search = useTableSearch(props);
+  const selection = useTableSelection(props);
   const features = useTableFeatures(props);
 
   // Column Visibility

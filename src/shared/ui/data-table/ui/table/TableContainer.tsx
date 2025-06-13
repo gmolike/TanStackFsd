@@ -1,4 +1,4 @@
-// ui/table/TableContainer.tsx
+import type { HeaderGroup, Row } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
 
 import { cn } from '~/shared/lib/utils';
@@ -14,11 +14,7 @@ import {
 import { useDataTableContext } from '../DataTableProvider';
 
 export const TableContainer = () => {
-  const controller = useDataTableContext();
-  const { table, displayRows, callbacks, ui } = controller;
-
-  // Props von der originalen DataTable
-  const props = controller.props || {};
+  const { table, displayRows, callbacks, props } = useDataTableContext();
   const {
     stickyHeader,
     stickyActionColumn,
@@ -27,7 +23,7 @@ export const TableContainer = () => {
     idKey = 'id',
     selectedId,
     selectedRowId,
-  } = props;
+  } = props || {};
 
   return (
     <div
@@ -40,7 +36,7 @@ export const TableContainer = () => {
     >
       <ShadCnTable>
         <ShadCnTableHeader className={stickyHeader ? 'sticky top-0 z-10 bg-background' : ''}>
-          {table.getHeaderGroups().map((headerGroup) => (
+          {table.getHeaderGroups().map((headerGroup: HeaderGroup<Record<string, unknown>>) => (
             <ShadCnTableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 const isActionColumn = header.column.id === 'actions';
@@ -65,7 +61,7 @@ export const TableContainer = () => {
 
         <ShadCnTableBody>
           {displayRows.length > 0 ? (
-            displayRows.map((row) => {
+            displayRows.map((row: Row<Record<string, unknown>>) => {
               const rowOriginal = row.original;
               const rowId = String(rowOriginal[idKey] ?? '');
               const isSelected = selectedRowId === rowId || selectedId === rowOriginal[idKey];
@@ -75,7 +71,7 @@ export const TableContainer = () => {
                   key={row.id}
                   data-row-id={rowId}
                   data-state={row.getIsSelected() && 'selected'}
-                  onClick={() => callbacks.onRowClick?.(row.original)}
+                  onClick={() => callbacks.onRowClick?.(rowOriginal)}
                   className={cn(
                     callbacks.onRowClick ? 'cursor-pointer hover:bg-muted/50' : '',
                     isSelected && 'bg-muted/50',

@@ -8,18 +8,24 @@ import type { TableDefinition } from '../model/types/table-definition';
  * Extended Context Value with original props
  * @template TData - Der Datentyp für die Tabelle
  */
+/**
+ * Extended Context Value with original props
+ * @template TData - Der Datentyp für die Tabelle
+ */
 export interface DataTableContextValue<
   TData extends Record<string, unknown> = Record<string, unknown>,
 > extends DataTableController<TData> {
   // any hier notwendig, da wir die genaue TableDefinition nicht kennen können
-  props?: DataTableProps<TData, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  props?: DataTableProps<TData, any>;
 }
 
 /**
  * DataTable Context
  * any hier notwendig für die initiale Context-Erstellung
  */
-const DataTableContext = createContext<DataTableContextValue<any> | null>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const DataTableContext = createContext<DataTableContextValue<any> | null>(null);
 
 /**
  * DataTable Provider Props

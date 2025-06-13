@@ -1,15 +1,21 @@
-import { ShadCnTableBody, ShadCnTableCell, ShadCnTableRow } from '~/shared/shadcn';
+// ui/table/TableBody.tsx
+import type { Row } from '@tanstack/react-table';
+import { flexRender } from '@tanstack/react-table';
+
+import {
+  ShadCnTableBody as TableBodyElement,
+  ShadCnTableCell,
+  ShadCnTableRow,
+} from '~/shared/shadcn';
 
 import { useDataTableContext } from '../DataTableProvider';
-
-import { TableRow } from './TableRow';
 
 export const TableBody = () => {
   const { displayRows, table } = useDataTableContext();
 
   if (displayRows.length === 0) {
     return (
-      <ShadCnTableBody>
+      <TableBodyElement>
         <ShadCnTableRow>
           <ShadCnTableCell
             colSpan={table.getAllColumns().length}
@@ -18,15 +24,21 @@ export const TableBody = () => {
             Keine Ergebnisse gefunden.
           </ShadCnTableCell>
         </ShadCnTableRow>
-      </ShadCnTableBody>
+      </TableBodyElement>
     );
   }
 
   return (
-    <ShadCnTableBody>
-      {displayRows.map((row) => (
-        <TableRow key={row.id} row={row} />
+    <TableBodyElement>
+      {displayRows.map((row: Row<Record<string, unknown>>) => (
+        <ShadCnTableRow key={row.id}>
+          {row.getVisibleCells().map((cell) => (
+            <ShadCnTableCell key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </ShadCnTableCell>
+          ))}
+        </ShadCnTableRow>
       ))}
-    </ShadCnTableBody>
+    </TableBodyElement>
   );
 };

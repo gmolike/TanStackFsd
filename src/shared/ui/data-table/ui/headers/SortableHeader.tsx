@@ -1,8 +1,12 @@
+import type { Column } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
 import { Button } from '~/shared/shadcn';
 
-import type { SortableHeaderProps } from './index';
+export type SortableHeaderProps<TData> = {
+  label: string;
+  column: Column<TData, unknown>;
+};
 
 export const SortableHeader = <TData,>({ label, column }: SortableHeaderProps<TData>) => {
   const isSorted = column.getIsSorted();

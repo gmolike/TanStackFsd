@@ -1,12 +1,14 @@
 // Main Component
 export { DataTable } from './ui/DataTable';
 
-// Types
+// Types - aus props.ts exportieren
+export type { DataTableProps } from './model/types/props';
+
+// Types - aus table-definition.ts exportieren
 export type { DataTableController } from './model/hooks/useDataTable';
 export type { TableState, TableStateActions } from './model/types/state';
 export type {
   CellComponentProps,
-  DataTableProps,
   ExtractFieldIds,
   FieldDefinition,
   TableDefinition,
