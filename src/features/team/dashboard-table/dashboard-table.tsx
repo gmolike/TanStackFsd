@@ -57,10 +57,6 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
             // Dashboard specific features
             expandable
             initialRowCount={3}
-            expandButtonText={{
-              expand: 'Alle Teammitglieder anzeigen',
-              collapse: 'Weniger anzeigen',
-            }}
             pageSize={10}
             // Callbacks
             onRowClick={handleMemberClick}

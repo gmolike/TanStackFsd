@@ -145,7 +145,7 @@ export const DataTable = <
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: expandable && !isExpanded ? undefined : getPaginationRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     initialState: {
       pagination: {
@@ -156,17 +156,26 @@ export const DataTable = <
 
   // Computed values
   const filteredRows = table.getFilteredRowModel().rows;
+  const sortedRows = table.getSortedRowModel().rows;
   const filteredRowsCount = filteredRows.length;
-  const paginatedRows =
-    expandable && !isExpanded ? filteredRows : table.getPaginationRowModel().rows;
-  const displayRows =
-    expandable && !isExpanded ? filteredRows.slice(0, initialRowCount) : paginatedRows;
+  const paginatedRows = table.getPaginationRowModel().rows;
+
+  // Display Rows berechnung - das ist der Kern der Logik
+  const displayRows = useMemo(() => {
+    if (expandable && !isExpanded) {
+      // Im kollabierten Zustand: Nutze die ersten X der SORTIERTEN Rows (nicht nur gefilterten!)
+      return sortedRows.slice(0, initialRowCount);
+    } else {
+      // Im expandierten Zustand: Nutze paginierte Rows
+      return paginatedRows;
+    }
+  }, [expandable, isExpanded, sortedRows, paginatedRows, initialRowCount]);
 
   const showExpandButton = expandable && filteredRowsCount > initialRowCount;
 
   // Effect für selectedId - scrollt zur ausgewählten Zeile
   useEffect(() => {
-    if (selectedId && data.length > 0) {
+    if (selectedId && data.length > 0 && tableRef.current) {
       // Finde den Index der Zeile mit der selectedId
       const rowIndex = data.findIndex((row) => row[idKey] === selectedId);
 
@@ -174,8 +183,10 @@ export const DataTable = <
         // Berechne auf welcher Seite die Zeile ist
         const pageIndex = Math.floor(rowIndex / pageSize);
 
-        // Setze die Pagination
-        table.setPageIndex(pageIndex);
+        // Setze die Pagination nur wenn nötig
+        if (table.getState().pagination.pageIndex !== pageIndex) {
+          table.setPageIndex(pageIndex);
+        }
 
         // Wenn die Tabelle expandable ist und kollabiert, expandiere sie
         if (expandable && !isExpanded && rowIndex >= initialRowCount) {
@@ -183,10 +194,17 @@ export const DataTable = <
         }
 
         // Scroll zur Zeile nach einem kurzen Delay (damit die Tabelle Zeit hat zu rendern)
-        setTimeout(() => {
-          const rowElement = tableRef.current?.querySelector(`[data-row-id="${selectedId}"]`);
-          rowElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const timeoutId = setTimeout(() => {
+          if (tableRef.current) {
+            const rowElement = tableRef.current.querySelector(`[data-row-id="${selectedId}"]`);
+            if (rowElement) {
+              rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
         }, 100);
+
+        // Cleanup timeout
+        return () => clearTimeout(timeoutId);
       }
     }
   }, [selectedId, data, idKey, pageSize, expandable, isExpanded, initialRowCount, table]);
@@ -285,7 +303,7 @@ export const DataTable = <
           </ShadCnTableHeader>
 
           <ShadCnTableBody>
-            {displayRows.length ? (
+            {displayRows.length > 0 ? (
               displayRows.map((row) => {
                 const rowOriginal = row.original as TData & Record<string, unknown>;
                 const rowId = String(rowOriginal[idKey] ?? '');
@@ -342,7 +360,7 @@ export const DataTable = <
           isExpanded={isExpanded}
           onToggle={() => setIsExpanded(!isExpanded)}
           collapsedCount={initialRowCount}
-          totalCount={filteredRows.length}
+          totalCount={filteredRowsCount}
           customText={expandButtonText}
         />
       )}

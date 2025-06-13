@@ -1,4 +1,3 @@
-// ===== TableToolbar.tsx =====
 // src/shared/ui/data-table/components/TableToolbar.tsx
 import { Plus, Settings2, X } from 'lucide-react';
 
@@ -86,7 +85,11 @@ export const TableToolbar = <TData,>({
                 {showColumnToggleText && 'Spalten'}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]">
+            <DropdownMenuContent
+              align="end"
+              className="w-[200px]"
+              onCloseAutoFocus={(e) => e.preventDefault()}
+            >
               <DropdownMenuLabel>Sichtbare Spalten</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {table
@@ -97,6 +100,7 @@ export const TableToolbar = <TData,>({
                     key={column.id}
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    onSelect={(e) => e.preventDefault()}
                   >
                     {getColumnLabel(column.id)}
                   </DropdownMenuCheckboxItem>

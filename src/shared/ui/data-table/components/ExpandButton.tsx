@@ -31,8 +31,8 @@ export const ExpandButton = ({
 }: ExpandButtonProps) => {
   if (totalCount <= collapsedCount) return null;
 
-  const expandText = customText?.expand || `Alle ${totalCount} Einträge anzeigen`;
-  const collapseText = customText?.collapse || 'Weniger anzeigen';
+  const expandText = customText?.expand ?? `Alle ${totalCount} Einträge anzeigen`;
+  const collapseText = customText?.collapse ?? 'Weniger anzeigen';
 
   return (
     <div className="flex justify-center border-t py-4">
