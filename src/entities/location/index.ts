@@ -66,16 +66,3 @@ export {
   useUpdateLocation,
   useUpdateLocationInventory,
 } from './api/useApi';
-
-// Mock API direkt exportieren (nicht als namespace)
-export { locationMockApi } from './api/mock-api';
-
-// Mock Data Generators
-export {
-  generateLocation,
-  generateLocationInventory,
-  generateLocationMix,
-  generateLocations,
-  generateLocationsByCity,
-  mockLocations,
-} from './api/mock-data';

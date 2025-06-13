@@ -7,8 +7,6 @@ import type {
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
-import { apiGet } from '../api-client';
-
 export type UseRemoteQueryOptions<TData, TError> = Omit<
   UseQueryOptions<TData, TError, TData, QueryKey>,
   'queryKey' | 'queryFn'

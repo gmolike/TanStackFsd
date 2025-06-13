@@ -1,14 +1,10 @@
 // src/entities/location/api/useApi.ts
 
 import { useQueryClient } from '@tanstack/react-query';
-
 import type { Article } from '~/entities/article';
 import type { TeamMember } from '~/entities/team';
-
 import { useRemoteMutation, useRemoteQuery } from '~/shared/api/query';
 import type { RemoteMutationOptions, RemoteQueryOptions } from '~/shared/api/query/type';
-import type { PaginatedResult, QueryParams } from '~/shared/mock';
-
 import type {
   CreateLocation,
   CreateLocationInventory,
@@ -17,12 +13,11 @@ import type {
   UpdateLocation,
   UpdateLocationInventory,
 } from '../model/schema';
-
-import { locationMockApi } from './mock-api';
+import { QueryParams, PaginatedResult } from '~/shared/mock/types';
 
 /**
  * Zentrale API Hooks für Location Entity
- * Alle Location-bezogenen API Aufrufe sind hier gebündelt
+ * Nutzt jetzt echte HTTP-Requests über MSW
  */
 
 // ===== QUERY HOOKS =====
@@ -36,24 +31,20 @@ export const useLocations = (
 ) =>
   useRemoteQuery<PaginatedResult<Location>>(
     ['locations', params],
-    '/mock/locations',
+    '/api/locations',
     {
-      params,
+      params: params as any,
     },
-    {
-      ...options,
-      queryFn: async () => locationMockApi.getLocations(params),
-    },
+    options,
   );
 
 /**
  * Hook zum Abrufen eines einzelnen Standorts
  */
 export const useLocation = (id: string, options?: RemoteQueryOptions<Location>) =>
-  useRemoteQuery<Location>(['locations', id], `/mock/locations/${id}`, undefined, {
+  useRemoteQuery<Location>(['locations', id], `/api/locations/${id}`, undefined, {
     enabled: !!id,
     ...options,
-    queryFn: async () => locationMockApi.getLocationById(id),
   });
 
 /**
@@ -66,12 +57,11 @@ export const useLocationsByType = (
 ) =>
   useRemoteQuery<PaginatedResult<Location>>(
     ['locations', 'type', type, params],
-    `/mock/locations/type/${type}`,
-    { params },
+    `/api/locations/type/${type}`,
+    { params: params as any },
     {
       enabled: !!type,
       ...options,
-      queryFn: async () => locationMockApi.getLocationsByType(type, params),
     },
   );
 
@@ -85,12 +75,11 @@ export const useLocationsByStatus = (
 ) =>
   useRemoteQuery<PaginatedResult<Location>>(
     ['locations', 'status', status, params],
-    `/mock/locations/status/${status}`,
-    { params },
+    `/api/locations/status/${status}`,
+    { params: params as any },
     {
       enabled: !!status,
       ...options,
-      queryFn: async () => locationMockApi.getLocationsByStatus(status, params),
     },
   );
 
@@ -106,12 +95,11 @@ export const useLocationInventory = (
 ) =>
   useRemoteQuery<PaginatedResult<LocationInventory & { article?: Article }>>(
     ['locations', locationId, 'inventory', params],
-    `/mock/locations/${locationId}/inventory`,
-    { params },
+    `/api/locations/${locationId}/inventory`,
+    { params: params as any },
     {
       enabled: !!locationId,
       ...options,
-      queryFn: async () => locationMockApi.getLocationInventory(locationId, params),
     },
   );
 
@@ -127,12 +115,11 @@ export const useLocationTeamMembers = (
 ) =>
   useRemoteQuery<PaginatedResult<TeamMember>>(
     ['locations', locationId, 'team', params],
-    `/mock/locations/${locationId}/team`,
-    { params },
+    `/api/locations/${locationId}/team`,
+    { params: params as any },
     {
       enabled: !!locationId,
       ...options,
-      queryFn: async () => locationMockApi.getLocationTeamMembers(locationId, params),
     },
   );
 
@@ -145,12 +132,11 @@ export const useLocationManager = (
 ) =>
   useRemoteQuery<TeamMember | null>(
     ['locations', locationId, 'manager'],
-    `/mock/locations/${locationId}/manager`,
+    `/api/locations/${locationId}/manager`,
     undefined,
     {
       enabled: !!locationId,
       ...options,
-      queryFn: async () => locationMockApi.getLocationManager(locationId),
     },
   );
 
@@ -172,12 +158,11 @@ export const useLocationStats = (
 ) =>
   useRemoteQuery(
     ['locations', locationId, 'stats'],
-    `/mock/locations/${locationId}/stats`,
+    `/api/locations/${locationId}/stats`,
     undefined,
     {
       enabled: !!locationId,
       ...options,
-      queryFn: async () => locationMockApi.getLocationStats(locationId),
     },
   );
 
@@ -192,11 +177,7 @@ export const useGlobalLocationStats = (
     totalCapacity: number;
     totalTeamMembers: number;
   }>,
-) =>
-  useRemoteQuery(['locations', 'global-stats'], '/mock/locations/stats', undefined, {
-    ...options,
-    queryFn: async () => locationMockApi.getGlobalLocationStats(),
-  });
+) => useRemoteQuery(['locations', 'global-stats'], '/api/locations/stats', undefined, options);
 
 // ===== MUTATION HOOKS =====
 
@@ -208,12 +189,11 @@ export const useCreateLocation = (options?: RemoteMutationOptions<Location, Crea
 
   return useRemoteMutation<Location, CreateLocation>(
     ['locations', 'create'],
-    '/mock/locations',
+    '/api/locations',
     'POST',
     undefined,
     {
       ...options,
-      mutationFn: async (data) => locationMockApi.createLocation(data),
       onSuccess: async (data, variables, context) => {
         // Invalidiere relevante Queries
         await queryClient.invalidateQueries({ queryKey: ['locations'] });
@@ -233,15 +213,11 @@ export const useUpdateLocation = (options?: RemoteMutationOptions<Location, Upda
 
   return useRemoteMutation<Location, UpdateLocation>(
     ['locations', 'update'],
-    '/mock/locations',
+    (data) => `/api/locations/${data.id}`,
     'PUT',
     undefined,
     {
       ...options,
-      mutationFn: async (data) => {
-        if (!data.id) throw new Error('Location ID is required for update');
-        return locationMockApi.updateLocation(data.id, data);
-      },
       onSuccess: async (data, variables, context) => {
         // Invalidiere spezifischen Standort und Listen
         await queryClient.invalidateQueries({ queryKey: ['locations', data.id] });
@@ -262,12 +238,11 @@ export const useDeleteLocation = (options?: RemoteMutationOptions<void, string>)
 
   return useRemoteMutation<void, string>(
     ['locations', 'delete'],
-    '/mock/locations',
+    (id) => `/api/locations/${id}`,
     'DELETE',
     undefined,
     {
       ...options,
-      mutationFn: async (id) => locationMockApi.deleteLocation(id),
       onSuccess: async (data, id, context) => {
         // Entferne aus Cache und invalidiere Listen
         queryClient.removeQueries({ queryKey: ['locations', id] });
@@ -292,12 +267,11 @@ export const useAddArticleToLocation = (
 
   return useRemoteMutation<LocationInventory, CreateLocationInventory>(
     ['locations', 'inventory', 'add'],
-    '/mock/locations/inventory',
+    '/api/locations/inventory',
     'POST',
     undefined,
     {
       ...options,
-      mutationFn: async (data) => locationMockApi.addArticleToLocation(data),
       onSuccess: async (data, variables, context) => {
         // Invalidiere Inventar des Standorts
         await queryClient.invalidateQueries({
@@ -323,15 +297,11 @@ export const useUpdateLocationInventory = (
 
   return useRemoteMutation<LocationInventory, UpdateLocationInventory>(
     ['locations', 'inventory', 'update'],
-    '/mock/locations/inventory',
+    (data) => `/api/locations/inventory/${data.id}`,
     'PUT',
     undefined,
     {
       ...options,
-      mutationFn: async (data) => {
-        if (!data.id) throw new Error('Inventory ID is required for update');
-        return locationMockApi.updateLocationInventory(data.id, data);
-      },
       onSuccess: async (data, variables, context) => {
         // Invalidiere Inventar des Standorts
         await queryClient.invalidateQueries({
@@ -342,19 +312,6 @@ export const useUpdateLocationInventory = (
         });
 
         options?.onSuccess?.(data, variables, context);
-      },
-      onMutate: async (data) => {
-        // Optimistisches Update für Bestandsänderungen
-        if ('stock' in data && data.id) {
-          const queryKey = ['locations', 'inventory'];
-          await queryClient.cancelQueries({ queryKey });
-
-          const previousData = queryClient.getQueryData(queryKey);
-
-          // Hier könnten wir das optimistische Update implementieren
-
-          return { previousData };
-        }
       },
     },
   );
@@ -368,12 +325,11 @@ export const useRemoveArticleFromLocation = (options?: RemoteMutationOptions<voi
 
   return useRemoteMutation<void, string>(
     ['locations', 'inventory', 'remove'],
-    '/mock/locations/inventory',
+    (inventoryId) => `/api/locations/inventory/${inventoryId}`,
     'DELETE',
     undefined,
     {
       ...options,
-      mutationFn: async (inventoryId) => locationMockApi.removeArticleFromLocation(inventoryId),
       onSuccess: async (data, inventoryId, context) => {
         // Invalidiere alle Inventar-bezogenen Queries
         await queryClient.invalidateQueries({
@@ -390,8 +346,6 @@ export const useRemoveArticleFromLocation = (options?: RemoteMutationOptions<voi
   );
 };
 
-// ===== UTILITY HOOKS =====
-
 /**
  * Hook zum Zurücksetzen der Mock-Daten
  */
@@ -400,12 +354,11 @@ export const useResetLocations = (options?: RemoteMutationOptions<void, void>) =
 
   return useRemoteMutation<void, void>(
     ['locations', 'reset'],
-    '/mock/locations/reset',
+    '/api/locations/reset',
     'POST',
     undefined,
     {
       ...options,
-      mutationFn: async () => locationMockApi.resetData(),
       onSuccess: async (data, variables, context) => {
         // Invalidiere alle Location-bezogenen Queries
         await queryClient.invalidateQueries({ queryKey: ['locations'] });

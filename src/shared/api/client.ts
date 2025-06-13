@@ -1,40 +1,63 @@
 // src/shared/api/client.ts
-import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import axios from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { env } from '~/shared/config/env';
+import { config } from '~/shared/config/env';
 
 // ================= TYPES =================
 
 export interface ApiError {
   message: string;
-  status: number;
+  status?: number;
   code?: string;
   details?: unknown;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  success: boolean;
-  timestamp: string;
+export interface ApiRequestOptions extends AxiosRequestConfig {
+  skipAuth?: boolean;
+  customHeaders?: Record<string, string>;
 }
 
-export interface RequestConfig extends AxiosRequestConfig {
-  skipAuth?: boolean;
-  retry?: number;
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+// ================= TOKEN MANAGEMENT =================
+
+class TokenManager {
+  private static readonly ACCESS_TOKEN_KEY = 'accessToken';
+  private static readonly REFRESH_TOKEN_KEY = 'refreshToken';
+
+  static getAccessToken(): string | null {
+    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+  }
+
+  static getRefreshToken(): string | null {
+    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  static setTokens(accessToken: string, refreshToken: string): void {
+    localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+  }
+
+  static clearTokens(): void {
+    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+  }
 }
 
 // ================= API CLIENT CLASS =================
 
 class ApiClient {
-  private static instance: ApiClient;
-  private readonly axiosInstance: AxiosInstance;
-  private tokenRefreshPromise: Promise<string> | null = null;
+  private axiosInstance: AxiosInstance;
+  private isRefreshing = false;
+  private refreshSubscribers: Array<(token: string) => void> = [];
 
-  private constructor() {
+  constructor() {
     this.axiosInstance = axios.create({
-      baseURL: env.VITE_API_URL,
+      baseURL: config.apiUrl,
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
@@ -44,158 +67,182 @@ class ApiClient {
     this.setupInterceptors();
   }
 
-  public static getInstance(): ApiClient {
-    if (!ApiClient.instance) {
-      ApiClient.instance = new ApiClient();
-    }
-    return ApiClient.instance;
-  }
+  // ================= INTERCEPTORS =================
 
   private setupInterceptors(): void {
-    // Request Interceptor
+    // Request interceptor
     this.axiosInstance.interceptors.request.use(
-      (config) => {
-        // Füge Auth Token hinzu wenn nicht explizit übersprungen
-        if (!config.skipAuth) {
-          const token = this.getStoredToken();
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
+      (axiosConfig) => {
+        const token = TokenManager.getAccessToken();
+
+        if (token && !axiosConfig.skipAuth) {
+          axiosConfig.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Entferne custom properties vor dem Request
-        delete config.skipAuth;
-        delete config.retry;
+        // Add custom headers if provided
+        if (axiosConfig.customHeaders) {
+          Object.assign(axiosConfig.headers, axiosConfig.customHeaders);
+        }
 
-        return config;
+        // Log request in development
+        if (config.isDevelopment) {
+          console.log(
+            `🚀 ${axiosConfig.method?.toUpperCase()} ${axiosConfig.url}`,
+            axiosConfig.data,
+          );
+        }
+
+        return axiosConfig;
       },
-      (error) => Promise.reject(this.createApiError(error)),
+      (error) => {
+        return Promise.reject(error);
+      },
     );
 
-    // Response Interceptor
+    // Response interceptor
     this.axiosInstance.interceptors.response.use(
-      (response) => response,
-      async (error: AxiosError) => {
-        const originalRequest = error.config as RequestConfig;
-
-        // Handle 401 - Token expired
-        if (error.response?.status === 401 && !originalRequest.skipAuth) {
-          try {
-            const newToken = await this.refreshToken();
-            if (newToken && originalRequest) {
-              originalRequest.headers.Authorization = `Bearer ${newToken}`;
-              return this.axiosInstance(originalRequest);
-            }
-          } catch (refreshError) {
-            this.handleAuthError();
-            return Promise.reject(this.createApiError(refreshError as AxiosError));
-          }
+      (response) => {
+        // Log response in development
+        if (config.isDevelopment) {
+          console.log(
+            `✅ ${response.config.method?.toUpperCase()} ${response.config.url}`,
+            response.data,
+          );
         }
 
-        return Promise.reject(this.createApiError(error));
+        return response;
+      },
+      async (error: AxiosError) => {
+        const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+
+        // Handle 401 Unauthorized
+        if (
+          error.response?.status === 401 &&
+          !originalRequest._retry &&
+          !originalRequest.skipAuth
+        ) {
+          originalRequest._retry = true;
+
+          if (!this.isRefreshing) {
+            this.isRefreshing = true;
+
+            try {
+              const refreshToken = TokenManager.getRefreshToken();
+              if (!refreshToken) {
+                throw new Error('No refresh token available');
+              }
+
+              const response = await this.refreshToken(refreshToken);
+              const { accessToken, refreshToken: newRefreshToken } = response;
+
+              TokenManager.setTokens(accessToken, newRefreshToken);
+              this.onRefreshed(accessToken);
+
+              return this.axiosInstance(originalRequest);
+            } catch (refreshError) {
+              this.onRefreshFailed();
+              TokenManager.clearTokens();
+
+              // Redirect to login
+              window.location.href = '/login';
+
+              return Promise.reject(refreshError);
+            } finally {
+              this.isRefreshing = false;
+            }
+          }
+
+          // Wait for token refresh
+          return new Promise((resolve) => {
+            this.subscribeTokenRefresh((token: string) => {
+              originalRequest.headers!.Authorization = `Bearer ${token}`;
+              resolve(this.axiosInstance(originalRequest));
+            });
+          });
+        }
+
+        // Handle other errors
+        const apiError: ApiError = {
+          message: error.response?.data?.message || error.message || 'An error occurred',
+          status: error.response?.status,
+          code: error.response?.data?.code,
+          details: error.response?.data,
+        };
+
+        // Log error in development
+        if (config.isDevelopment) {
+          console.error(`❌ ${error.config?.method?.toUpperCase()} ${error.config?.url}`, apiError);
+        }
+
+        return Promise.reject(apiError);
       },
     );
   }
 
-  private getStoredToken(): string | null {
-    return localStorage.getItem('accessToken');
-  }
+  // ================= TOKEN REFRESH LOGIC =================
 
-  private async refreshToken(): Promise<string> {
-    if (this.tokenRefreshPromise) {
-      return this.tokenRefreshPromise;
-    }
-
-    this.tokenRefreshPromise = (async () => {
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-          throw new Error('No refresh token available');
-        }
-
-        const response = await this.axiosInstance.post<{ accessToken: string }>(
-          '/auth/refresh',
-          { refreshToken },
-          { skipAuth: true },
-        );
-
-        const { accessToken } = response.data;
-        localStorage.setItem('accessToken', accessToken);
-        return accessToken;
-      } catch (error) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        throw error;
-      } finally {
-        this.tokenRefreshPromise = null;
-      }
-    })();
-
-    return this.tokenRefreshPromise;
-  }
-
-  private handleAuthError(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-
-    // Redirect zu Login wenn nicht bereits dort
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login';
-    }
-  }
-
-  private createApiError(error: AxiosError): ApiError {
-    const status = error.response?.status ?? 500;
-    const message =
-      error.response?.data?.message ?? error.message ?? 'Ein unbekannter Fehler ist aufgetreten';
-
-    return {
-      message,
-      status,
-      code: error.code,
-      details: error.response?.data,
-    };
-  }
-
-  // ================= PUBLIC API METHODS =================
-
-  async get<T>(url: string, config?: RequestConfig): Promise<T> {
-    const response = await this.axiosInstance.get<T>(url, config);
+  private async refreshToken(refreshToken: string): Promise<RefreshTokenResponse> {
+    const response = await axios.post<RefreshTokenResponse>(
+      `${config.apiUrl}/auth/refresh`,
+      { refreshToken },
+      { skipAuth: true } as AxiosRequestConfig,
+    );
     return response.data;
   }
 
-  async post<T, TData = unknown>(url: string, data?: TData, config?: RequestConfig): Promise<T> {
-    const response = await this.axiosInstance.post<T>(url, data, config);
+  private subscribeTokenRefresh(cb: (token: string) => void): void {
+    this.refreshSubscribers.push(cb);
+  }
+
+  private onRefreshed(token: string): void {
+    this.refreshSubscribers.forEach((cb) => cb(token));
+    this.refreshSubscribers = [];
+  }
+
+  private onRefreshFailed(): void {
+    this.refreshSubscribers = [];
+  }
+
+  // ================= HTTP METHODS =================
+
+  async get<T = any>(url: string, options?: ApiRequestOptions): Promise<T> {
+    const response = await this.axiosInstance.get<T>(url, options);
     return response.data;
   }
 
-  async put<T, TData = unknown>(url: string, data?: TData, config?: RequestConfig): Promise<T> {
-    const response = await this.axiosInstance.put<T>(url, data, config);
+  async post<T = any>(url: string, data?: any, options?: ApiRequestOptions): Promise<T> {
+    const response = await this.axiosInstance.post<T>(url, data, options);
     return response.data;
   }
 
-  async patch<T, TData = unknown>(url: string, data?: TData, config?: RequestConfig): Promise<T> {
-    const response = await this.axiosInstance.patch<T>(url, data, config);
+  async put<T = any>(url: string, data?: any, options?: ApiRequestOptions): Promise<T> {
+    const response = await this.axiosInstance.put<T>(url, data, options);
     return response.data;
   }
 
-  async delete<T>(url: string, config?: RequestConfig): Promise<T> {
-    const response = await this.axiosInstance.delete<T>(url, config);
+  async patch<T = any>(url: string, data?: any, options?: ApiRequestOptions): Promise<T> {
+    const response = await this.axiosInstance.patch<T>(url, data, options);
     return response.data;
   }
 
-  // Upload mit Progress Tracking
-  async upload<T>(
+  async delete<T = any>(url: string, options?: ApiRequestOptions): Promise<T> {
+    const response = await this.axiosInstance.delete<T>(url, options);
+    return response.data;
+  }
+
+  // ================= FILE UPLOAD =================
+
+  async upload<T = any>(
     url: string,
     formData: FormData,
     onProgress?: (progress: number) => void,
-    config?: RequestConfig,
+    options?: ApiRequestOptions,
   ): Promise<T> {
     const response = await this.axiosInstance.post<T>(url, formData, {
-      ...config,
+      ...options,
       headers: {
         'Content-Type': 'multipart/form-data',
-        ...config?.headers,
+        ...options?.headers,
       },
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
@@ -207,43 +254,44 @@ class ApiClient {
     return response.data;
   }
 
-  // Request Cancellation Support
-  createCancelToken(): { token: AbortController; cancel: () => void } {
-    const controller = new AbortController();
-    return {
-      token: controller,
-      cancel: () => controller.abort(),
-    };
+  // ================= DOWNLOAD =================
+
+  async download(url: string, filename: string, options?: ApiRequestOptions): Promise<void> {
+    const response = await this.axiosInstance.get(url, {
+      ...options,
+      responseType: 'blob',
+    });
+
+    const blob = new Blob([response.data]);
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    window.URL.revokeObjectURL(link.href);
+  }
+
+  // ================= UTILITIES =================
+
+  setAuthToken(token: string): void {
+    this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+
+  removeAuthToken(): void {
+    delete this.axiosInstance.defaults.headers.common['Authorization'];
+  }
+
+  getAxiosInstance(): AxiosInstance {
+    return this.axiosInstance;
   }
 }
 
+// ================= SINGLETON INSTANCE =================
+
+export const apiClient = new ApiClient();
+
 // ================= EXPORTS =================
 
-export const apiClient = ApiClient.getInstance();
-
-// Legacy exports für Kompatibilität
-export const apiGet = <T>(url: string, config?: RequestConfig): Promise<T> =>
-  apiClient.get<T>(url, config);
-
-export const apiPost = <T, TData = unknown>(
-  url: string,
-  data?: TData,
-  config?: RequestConfig,
-): Promise<T> => apiClient.post<T, TData>(url, data, config);
-
-export const apiPut = <T, TData = unknown>(
-  url: string,
-  data?: TData,
-  config?: RequestConfig,
-): Promise<T> => apiClient.put<T, TData>(url, data, config);
-
-export const apiPatch = <T, TData = unknown>(
-  url: string,
-  data?: TData,
-  config?: RequestConfig,
-): Promise<T> => apiClient.patch<T, TData>(url, data, config);
-
-export const apiDelete = <T>(url: string, config?: RequestConfig): Promise<T> =>
-  apiClient.delete<T>(url, config);
-
 export default apiClient;
+
+// Re-export axios types for convenience
+export type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';

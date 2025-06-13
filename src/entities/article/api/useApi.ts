@@ -1,18 +1,14 @@
 // src/entities/article/api/useApi.ts
 
 import { useQueryClient } from '@tanstack/react-query';
-
 import { useRemoteMutation, useRemoteQuery } from '~/shared/api/query';
 import type { RemoteMutationOptions, RemoteQueryOptions } from '~/shared/api/query/type';
 import type { PaginatedResult, QueryParams } from '~/shared/mock';
-
 import type { Article, CreateArticle, UpdateArticle } from '../model/schema';
-
-import { articleMockApi } from './mock-api';
 
 /**
  * Zentrale API Hooks für Article Entity
- * Alle Article-bezogenen API Aufrufe sind hier gebündelt
+ * Nutzt jetzt echte HTTP-Requests über MSW
  */
 
 // ===== QUERY HOOKS =====
@@ -26,24 +22,20 @@ export const useArticles = (
 ) =>
   useRemoteQuery<PaginatedResult<Article>>(
     ['articles', params],
-    '/mock/articles', // Mock endpoint
+    '/api/articles',
     {
-      params, // Wird in echter API als query params verwendet
+      params: params as any, // Konvertiert zu URLSearchParams
     },
-    {
-      ...options,
-      queryFn: async () => articleMockApi.getArticles(params), // Mock implementation
-    },
+    options,
   );
 
 /**
  * Hook zum Abrufen eines einzelnen Artikels
  */
 export const useArticle = (id: string, options?: RemoteQueryOptions<Article>) =>
-  useRemoteQuery<Article>(['articles', id], `/mock/articles/${id}`, undefined, {
+  useRemoteQuery<Article>(['articles', id], `/api/articles/${id}`, undefined, {
     enabled: !!id,
     ...options,
-    queryFn: async () => articleMockApi.getArticleById(id),
   });
 
 /**
@@ -56,12 +48,11 @@ export const useArticlesByCategory = (
 ) =>
   useRemoteQuery<PaginatedResult<Article>>(
     ['articles', 'category', category, params],
-    `/mock/articles/category/${category}`,
-    { params },
+    `/api/articles/category/${category}`,
+    { params: params as any },
     {
       enabled: !!category,
       ...options,
-      queryFn: async () => articleMockApi.getArticlesByCategory(category, params),
     },
   );
 
@@ -75,12 +66,11 @@ export const useArticlesByStatus = (
 ) =>
   useRemoteQuery<PaginatedResult<Article>>(
     ['articles', 'status', status, params],
-    `/mock/articles/status/${status}`,
-    { params },
+    `/api/articles/status/${status}`,
+    { params: params as any },
     {
       enabled: !!status,
       ...options,
-      queryFn: async () => articleMockApi.getArticlesByStatus(status, params),
     },
   );
 
@@ -93,12 +83,9 @@ export const useLowStockArticles = (
 ) =>
   useRemoteQuery<PaginatedResult<Article>>(
     ['articles', 'low-stock', params],
-    '/mock/articles/low-stock',
-    { params },
-    {
-      ...options,
-      queryFn: async () => articleMockApi.getLowStockArticles(params),
-    },
+    '/api/articles/low-stock',
+    { params: params as any },
+    options,
   );
 
 /**
@@ -113,11 +100,7 @@ export const useArticleStats = (
     digitalCount: number;
     averagePrice: number;
   }>,
-) =>
-  useRemoteQuery(['articles', 'stats'], '/mock/articles/stats', undefined, {
-    ...options,
-    queryFn: async () => articleMockApi.getArticleStats(),
-  });
+) => useRemoteQuery(['articles', 'stats'], '/api/articles/stats', undefined, options);
 
 // ===== MUTATION HOOKS =====
 
@@ -129,12 +112,11 @@ export const useCreateArticle = (options?: RemoteMutationOptions<Article, Create
 
   return useRemoteMutation<Article, CreateArticle>(
     ['articles', 'create'],
-    '/mock/articles',
+    '/api/articles',
     'POST',
     undefined,
     {
       ...options,
-      mutationFn: async (data) => articleMockApi.createArticle(data),
       onSuccess: async (data, variables, context) => {
         // Invalidiere relevante Queries
         await queryClient.invalidateQueries({ queryKey: ['articles'] });
@@ -155,15 +137,11 @@ export const useUpdateArticle = (options?: RemoteMutationOptions<Article, Update
 
   return useRemoteMutation<Article, UpdateArticle>(
     ['articles', 'update'],
-    '/mock/articles',
+    (data) => `/api/articles/${data.id}`,
     'PUT',
     undefined,
     {
       ...options,
-      mutationFn: async (data) => {
-        if (!data.id) throw new Error('Article ID is required for update');
-        return articleMockApi.updateArticle(data.id, data);
-      },
       onSuccess: async (data, variables, context) => {
         // Invalidiere spezifischen Artikel und Listen
         await queryClient.invalidateQueries({ queryKey: ['articles', data.id] });
@@ -184,12 +162,11 @@ export const useDeleteArticle = (options?: RemoteMutationOptions<void, string>) 
 
   return useRemoteMutation<void, string>(
     ['articles', 'delete'],
-    '/mock/articles',
+    (id) => `/api/articles/${id}`,
     'DELETE',
     undefined,
     {
       ...options,
-      mutationFn: async (id) => articleMockApi.deleteArticle(id),
       onSuccess: async (data, id, context) => {
         // Entferne aus Cache und invalidiere Listen
         queryClient.removeQueries({ queryKey: ['articles', id] });
@@ -212,12 +189,11 @@ export const useUpdateStock = (
 
   return useRemoteMutation<Article, { id: string; quantity: number }>(
     ['articles', 'update-stock'],
-    '/mock/articles/stock',
+    ({ id }) => `/api/articles/${id}/stock`,
     'PATCH',
     undefined,
     {
       ...options,
-      mutationFn: async ({ id, quantity }) => articleMockApi.updateStock(id, quantity),
       onSuccess: async (data, variables, context) => {
         // Invalidiere relevante Queries
         await queryClient.invalidateQueries({ queryKey: ['articles', data.id] });
@@ -263,12 +239,11 @@ export const useCreateArticleBatch = (
 
   return useRemoteMutation<Array<Article>, Array<CreateArticle>>(
     ['articles', 'create-batch'],
-    '/mock/articles/batch',
+    '/api/articles/batch',
     'POST',
     undefined,
     {
       ...options,
-      mutationFn: async (articles) => articleMockApi.createArticleBatch(articles),
       onSuccess: async (data, variables, context) => {
         await queryClient.invalidateQueries({ queryKey: ['articles'] });
         await queryClient.invalidateQueries({ queryKey: ['articles', 'stats'] });
@@ -279,8 +254,6 @@ export const useCreateArticleBatch = (
   );
 };
 
-// ===== UTILITY HOOKS =====
-
 /**
  * Hook zum Zurücksetzen der Mock-Daten
  */
@@ -289,12 +262,11 @@ export const useResetArticles = (options?: RemoteMutationOptions<void, void>) =>
 
   return useRemoteMutation<void, void>(
     ['articles', 'reset'],
-    '/mock/articles/reset',
+    '/api/articles/reset',
     'POST',
     undefined,
     {
       ...options,
-      mutationFn: async () => articleMockApi.resetData(),
       onSuccess: async (data, variables, context) => {
         // Invalidiere alle Article-bezogenen Queries
         await queryClient.invalidateQueries({ queryKey: ['articles'] });

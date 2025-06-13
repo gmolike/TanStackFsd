@@ -7,7 +7,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { AuthProvider } from '~/features/auth/model/AuthContext';
 import { config } from '~/shared/config/env';
-import { Toaster } from '~/shared/shadcn/toaster';
 import { ErrorBoundary } from 'react-error-boundary';
 import { LoadingSpinner } from '../../shared/shadcn';
 
@@ -132,15 +131,6 @@ const MockProvider = ({ children }: PropsWithChildren) => {
   return <>{children}</>;
 };
 
-// ================= TOAST PROVIDER =================
-
-const ToastProvider = ({ children }: PropsWithChildren) => (
-  <>
-    {children}
-    <Toaster />
-  </>
-);
-
 // ================= MAIN APP PROVIDER =================
 
 interface AppProviderProps extends PropsWithChildren {
@@ -169,9 +159,7 @@ export const AppProvider = ({ children, queryClient, theme }: AppProviderProps) 
           <AuthProvider>
             <ThemeProvider defaultTheme={theme}>
               <MockProvider>
-                <ToastProvider>
-                  <Suspense fallback={<AppLoadingFallback />}>{children}</Suspense>
-                </ToastProvider>
+                <Suspense fallback={<AppLoadingFallback />}>{children}</Suspense>
               </MockProvider>
             </ThemeProvider>
           </AuthProvider>

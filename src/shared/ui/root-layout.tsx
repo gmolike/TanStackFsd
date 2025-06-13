@@ -1,52 +1,29 @@
-// src/widgets/layout/ui/root-layout.tsx
-import { useState } from 'react';
-import type { ReactNode } from 'react';
+// src/shared/ui/root-layout/index.tsx
+import type { PropsWithChildren } from 'react';
 
-import { useLocation } from '@tanstack/react-router';
-import { Menu } from 'lucide-react';
+import { cn } from '~/shared/lib/utils';
 
-import { Breadcrumb } from '~/shared/ui/breadcrumb';
-import { Sidebar } from '~/shared/ui/sidebar';
+/**
+ * CSDoc: RootLayout Component
+ * @description Root layout wrapper that provides consistent page structure
+ * @param children - Child components to render
+ * @param className - Additional CSS classes
+ * @example
+ * ```tsx
+ * <RootLayout>
+ *   <Outlet />
+ * </RootLayout>
+ * ```
+ */
 
-import { Button } from '../shadcn';
+interface RootLayoutProps extends PropsWithChildren {
+  className?: string;
+}
 
-// ================= TYPES =================
-type RootLayoutProps = {
-  children: ReactNode;
-};
-
-// ================= LOGIC =================
-export const RootLayout = ({ children }: RootLayoutProps) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const location = useLocation();
-
-  const isLoginPage = location.pathname === '/login';
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  // ================= RETURN =================
-  if (isLoginPage) {
-    return <>{children}</>;
-  }
-
+export const RootLayout = ({ children, className }: RootLayoutProps) => {
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar isOpen={sidebarOpen} />
-
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="border-b bg-white shadow-sm">
-          <div className="flex items-center px-4 py-3">
-            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-4">
-              <Menu className="h-5 w-5" />
-            </Button>
-            <Breadcrumb />
-          </div>
-        </header>
-
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
-      </div>
+    <div className={cn('min-h-screen bg-background font-sans antialiased', className)}>
+      {children}
     </div>
   );
 };

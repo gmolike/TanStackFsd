@@ -12,11 +12,3 @@ export {
 
 // Export all API hooks
 export * from './api/useApi';
-
-// Export mock data generators for testing
-export {
-  generateArticle,
-  generateArticleMix,
-  generateArticles,
-  mockArticles,
-} from './api/mock-data';

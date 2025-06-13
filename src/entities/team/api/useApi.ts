@@ -1,15 +1,14 @@
 // src/entities/team/api/useApi.ts
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type { QueryParams } from '~/shared/mock';
-
+import { useQueryClient } from '@tanstack/react-query';
+import { useRemoteMutation, useRemoteQuery } from '~/shared/api/query';
+import type { RemoteMutationOptions, RemoteQueryOptions } from '~/shared/api/query/type';
 import type { CreateTeamMember, TeamMember, UpdateTeamMember } from '../model/schema';
-
-import { teamMockApi } from './mock-api';
+import { QueryParams, PaginatedResult } from '~/shared/mock/types';
 
 /**
- * Vereinfachte API Hooks für Team Entity
- * Nutzt direkt die Mock-API ohne Remote-Calls
+ * Zentrale API Hooks für Team Entity
+ * Nutzt jetzt echte HTTP-Requests über MSW
  */
 
 // ===== QUERY HOOKS =====
@@ -17,43 +16,65 @@ import { teamMockApi } from './mock-api';
 /**
  * Hook zum Abrufen aller Teammitglieder
  */
-export const useTeamMembers = (params?: QueryParams) =>
-  useQuery({
-    queryKey: ['team-members', params],
-    queryFn: () => teamMockApi.getTeamMembers(params),
-    staleTime: 5 * 60 * 1000, // 5 Minuten
-  });
+export const useTeamMembers = (
+  params?: QueryParams,
+  options?: RemoteQueryOptions<PaginatedResult<TeamMember>>,
+) =>
+  useRemoteQuery<PaginatedResult<TeamMember>>(
+    ['team-members', params],
+    '/api/team-members',
+    { params: params as any },
+    {
+      staleTime: 5 * 60 * 1000, // 5 Minuten
+      ...options,
+    },
+  );
 
 /**
  * Hook zum Abrufen eines einzelnen Teammitglieds
  */
-export const useTeamMember = (id: string, options?: { enabled?: boolean }) =>
-  useQuery({
-    queryKey: ['team-members', id],
-    queryFn: () => teamMockApi.getTeamMemberById(id),
+export const useTeamMember = (
+  id: string,
+  options?: RemoteQueryOptions<TeamMember> & { enabled?: boolean },
+) =>
+  useRemoteQuery<TeamMember>(['team-members', id], `/api/team-members/${id}`, undefined, {
     enabled: options?.enabled !== undefined ? options.enabled : !!id,
     staleTime: 5 * 60 * 1000,
+    ...options,
   });
 
 /**
  * Hook zum Abrufen von Team-Statistiken
  */
-export const useTeamStats = () =>
-  useQuery({
-    queryKey: ['team-members', 'stats'],
-    queryFn: () => teamMockApi.getTeamStats(),
+export const useTeamStats = (
+  options?: RemoteQueryOptions<{
+    totalCount: number;
+    byDepartment: Record<string, number>;
+    byStatus: Record<string, number>;
+    remoteCount: number;
+  }>,
+) =>
+  useRemoteQuery(['team-members', 'stats'], '/api/team-members/stats', undefined, {
     staleTime: 10 * 60 * 1000, // 10 Minuten
+    ...options,
   });
 
 /**
  * Hook zum Abrufen von Remote-Teammitgliedern
  */
-export const useRemoteTeamMembers = (params?: QueryParams) =>
-  useQuery({
-    queryKey: ['team-members', 'remote', params],
-    queryFn: () => teamMockApi.getRemoteTeamMembers(params),
-    staleTime: 5 * 60 * 1000,
-  });
+export const useRemoteTeamMembers = (
+  params?: QueryParams,
+  options?: RemoteQueryOptions<PaginatedResult<TeamMember>>,
+) =>
+  useRemoteQuery<PaginatedResult<TeamMember>>(
+    ['team-members', 'remote', params],
+    '/api/team-members/remote',
+    { params: params as any },
+    {
+      staleTime: 5 * 60 * 1000,
+      ...options,
+    },
+  );
 
 /**
  * Hook zum Abrufen von Teammitgliedern nach Abteilung
@@ -61,33 +82,53 @@ export const useRemoteTeamMembers = (params?: QueryParams) =>
 export const useTeamMembersByDepartment = (
   department: string,
   params?: Omit<QueryParams, 'filters'>,
+  options?: RemoteQueryOptions<PaginatedResult<TeamMember>>,
 ) =>
-  useQuery({
-    queryKey: ['team-members', 'department', department, params],
-    queryFn: () => teamMockApi.getTeamMembersByDepartment(department, params),
-    enabled: !!department,
-    staleTime: 5 * 60 * 1000,
-  });
+  useRemoteQuery<PaginatedResult<TeamMember>>(
+    ['team-members', 'department', department, params],
+    `/api/team-members/department/${department}`,
+    { params: params as any },
+    {
+      enabled: !!department,
+      staleTime: 5 * 60 * 1000,
+      ...options,
+    },
+  );
 
 /**
  * Hook zum Abrufen von Teammitgliedern nach Status
  */
-export const useTeamMembersByStatus = (status: string, params?: Omit<QueryParams, 'filters'>) =>
-  useQuery({
-    queryKey: ['team-members', 'status', status, params],
-    queryFn: () => teamMockApi.getTeamMembersByStatus(status, params),
-    enabled: !!status,
-    staleTime: 5 * 60 * 1000,
-  });
+export const useTeamMembersByStatus = (
+  status: string,
+  params?: Omit<QueryParams, 'filters'>,
+  options?: RemoteQueryOptions<PaginatedResult<TeamMember>>,
+) =>
+  useRemoteQuery<PaginatedResult<TeamMember>>(
+    ['team-members', 'status', status, params],
+    `/api/team-members/status/${status}`,
+    { params: params as any },
+    {
+      enabled: !!status,
+      staleTime: 5 * 60 * 1000,
+      ...options,
+    },
+  );
 
 /**
  * Hook zum Abrufen der Organisationsstruktur
  */
-export const useOrganizationChart = () =>
-  useQuery({
-    queryKey: ['team-members', 'org-chart'],
-    queryFn: () => teamMockApi.getOrganizationChart(),
+export const useOrganizationChart = (
+  options?: RemoteQueryOptions<{
+    departments: Array<{
+      name: string;
+      manager: TeamMember | null;
+      members: Array<TeamMember>;
+    }>;
+  }>,
+) =>
+  useRemoteQuery(['team-members', 'org-chart'], '/api/team-members/org-chart', undefined, {
     staleTime: 30 * 60 * 1000, // 30 Minuten
+    ...options,
   });
 
 // ===== MUTATION HOOKS =====
@@ -95,131 +136,149 @@ export const useOrganizationChart = () =>
 /**
  * Hook zum Erstellen eines neuen Teammitglieds
  */
-export const useCreateTeamMember = (options?: {
-  onSuccess?: (data: TeamMember) => void;
-  onError?: (error: Error) => void;
-}) => {
+export const useCreateTeamMember = (
+  options?: RemoteMutationOptions<TeamMember, CreateTeamMember>,
+) => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (data: CreateTeamMember) => teamMockApi.createTeamMember(data),
-    onSuccess: (data) => {
-      // Invalidiere relevante Queries
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-      queryClient.invalidateQueries({ queryKey: ['team-members', 'stats'] });
-      options?.onSuccess?.(data);
+  return useRemoteMutation<TeamMember, CreateTeamMember>(
+    ['team-members', 'create'],
+    '/api/team-members',
+    'POST',
+    undefined,
+    {
+      ...options,
+      onSuccess: async (data, variables, context) => {
+        // Invalidiere relevante Queries
+        await queryClient.invalidateQueries({ queryKey: ['team-members'] });
+        await queryClient.invalidateQueries({ queryKey: ['team-members', 'stats'] });
+        options?.onSuccess?.(data, variables, context);
+      },
     },
-    onError: options?.onError,
-  });
+  );
 };
 
 /**
  * Hook zum Aktualisieren eines Teammitglieds
  */
-export const useUpdateTeamMember = (options?: {
-  onSuccess?: (data: TeamMember) => void;
-  onError?: (error: Error) => void;
-}) => {
+export const useUpdateTeamMember = (
+  options?: RemoteMutationOptions<TeamMember, UpdateTeamMember>,
+) => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (data: UpdateTeamMember) => {
-      if (!data.id) throw new Error('Team member ID is required');
-      return teamMockApi.updateTeamMember(data.id, data);
+  return useRemoteMutation<TeamMember, UpdateTeamMember>(
+    ['team-members', 'update'],
+    (data) => `/api/team-members/${data.id}`,
+    'PUT',
+    undefined,
+    {
+      ...options,
+      onSuccess: async (data, variables, context) => {
+        // Invalidiere spezifisches Mitglied und Listen
+        await queryClient.invalidateQueries({ queryKey: ['team-members', data.id] });
+        await queryClient.invalidateQueries({ queryKey: ['team-members'] });
+        await queryClient.invalidateQueries({ queryKey: ['team-members', 'stats'] });
+        options?.onSuccess?.(data, variables, context);
+      },
     },
-    onSuccess: (data) => {
-      // Invalidiere spezifisches Mitglied und Listen
-      queryClient.invalidateQueries({ queryKey: ['team-members', data.id] });
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-      queryClient.invalidateQueries({ queryKey: ['team-members', 'stats'] });
-      options?.onSuccess?.(data);
-    },
-    onError: options?.onError,
-  });
+  );
 };
 
 /**
  * Hook zum Löschen eines Teammitglieds
  */
-export const useDeleteTeamMember = (options?: {
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
-}) => {
+export const useDeleteTeamMember = (options?: RemoteMutationOptions<void, string>) => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: string) => teamMockApi.deleteTeamMember(id),
-    onSuccess: (_, id) => {
-      // Entferne aus Cache und invalidiere Listen
-      queryClient.removeQueries({ queryKey: ['team-members', id] });
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-      queryClient.invalidateQueries({ queryKey: ['team-members', 'stats'] });
-      options?.onSuccess?.();
+  return useRemoteMutation<void, string>(
+    ['team-members', 'delete'],
+    (id) => `/api/team-members/${id}`,
+    'DELETE',
+    undefined,
+    {
+      ...options,
+      onSuccess: async (data, id, context) => {
+        // Entferne aus Cache und invalidiere Listen
+        queryClient.removeQueries({ queryKey: ['team-members', id] });
+        await queryClient.invalidateQueries({ queryKey: ['team-members'] });
+        await queryClient.invalidateQueries({ queryKey: ['team-members', 'stats'] });
+        options?.onSuccess?.(data, id, context);
+      },
     },
-    onError: options?.onError,
-  });
+  );
 };
 
 /**
  * Hook zum Aktualisieren des Status eines Teammitglieds
  */
-export const useUpdateTeamMemberStatus = (options?: {
-  onSuccess?: (data: TeamMember) => void;
-  onError?: (error: Error) => void;
-}) => {
+export const useUpdateTeamMemberStatus = (
+  options?: RemoteMutationOptions<
+    TeamMember,
+    { id: string; status: 'active' | 'inactive' | 'vacation' }
+  >,
+) => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'active' | 'inactive' | 'vacation' }) =>
-      teamMockApi.updateTeamMemberStatus(id, status),
-    onSuccess: (data, variables) => {
-      // Invalidiere relevante Queries
-      queryClient.invalidateQueries({ queryKey: ['team-members', data.id] });
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-      queryClient.invalidateQueries({ queryKey: ['team-members', 'status', variables.status] });
-      queryClient.invalidateQueries({ queryKey: ['team-members', 'stats'] });
-      options?.onSuccess?.(data);
-    },
-    onError: options?.onError,
-    // Optimistisches Update
-    onMutate: async ({ id, status }) => {
-      await queryClient.cancelQueries({ queryKey: ['team-members', id] });
-
-      const previousMember = queryClient.getQueryData<TeamMember>(['team-members', id]);
-
-      if (previousMember) {
-        queryClient.setQueryData<TeamMember>(['team-members', id], {
-          ...previousMember,
-          status,
+  return useRemoteMutation<TeamMember, { id: string; status: 'active' | 'inactive' | 'vacation' }>(
+    ['team-members', 'update-status'],
+    ({ id }) => `/api/team-members/${id}/status`,
+    'PATCH',
+    undefined,
+    {
+      ...options,
+      onSuccess: async (data, variables, context) => {
+        // Invalidiere relevante Queries
+        await queryClient.invalidateQueries({ queryKey: ['team-members', data.id] });
+        await queryClient.invalidateQueries({ queryKey: ['team-members'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['team-members', 'status', variables.status],
         });
-      }
+        await queryClient.invalidateQueries({ queryKey: ['team-members', 'stats'] });
+        options?.onSuccess?.(data, variables, context);
+      },
+      // Optimistisches Update
+      onMutate: async ({ id, status }) => {
+        await queryClient.cancelQueries({ queryKey: ['team-members', id] });
 
-      return { previousMember };
+        const previousMember = queryClient.getQueryData<TeamMember>(['team-members', id]);
+
+        if (previousMember) {
+          queryClient.setQueryData<TeamMember>(['team-members', id], {
+            ...previousMember,
+            status,
+          });
+        }
+
+        return { previousMember };
+      },
+      onError: (err, variables, context) => {
+        if (context?.previousMember) {
+          queryClient.setQueryData(['team-members', variables.id], context.previousMember);
+        }
+        options?.onError?.(err, variables, context);
+      },
     },
-    onSettled: (data, error, variables, context) => {
-      if (error && context?.previousMember) {
-        queryClient.setQueryData(['team-members', variables.id], context.previousMember);
-      }
-    },
-  });
+  );
 };
 
 /**
  * Hook zum Zurücksetzen der Mock-Daten
  */
-export const useResetTeamMembers = (options?: {
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
-}) => {
+export const useResetTeamMembers = (options?: RemoteMutationOptions<void, { count?: number }>) => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: () => teamMockApi.resetData(),
-    onSuccess: () => {
-      // Invalidiere alle Team-bezogenen Queries
-      queryClient.invalidateQueries({ queryKey: ['team-members'] });
-      options?.onSuccess?.();
+  return useRemoteMutation<void, { count?: number }>(
+    ['team-members', 'reset'],
+    '/api/team-members/reset',
+    'POST',
+    undefined,
+    {
+      ...options,
+      onSuccess: async (data, variables, context) => {
+        // Invalidiere alle Team-bezogenen Queries
+        await queryClient.invalidateQueries({ queryKey: ['team-members'] });
+        options?.onSuccess?.(data, variables, context);
+      },
     },
-    onError: options?.onError,
-  });
+  );
 };

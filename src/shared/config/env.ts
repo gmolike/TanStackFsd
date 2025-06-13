@@ -1,211 +1,149 @@
 // src/shared/config/env.ts
-import { z } from 'zod';
 
-// ================= SCHEMA DEFINITION =================
+// ================= ENVIRONMENT VARIABLES =================
 
-const envSchema = z.object({
-  // API Configuration
-  VITE_API_URL: z.string().url('VITE_API_URL must be a valid URL').default('http://localhost:8090'),
+interface ImportMetaEnv {
+  readonly VITE_API_URL: string;
+  readonly VITE_APP_NAME: string;
+  readonly VITE_ENABLE_MOCK_API: string;
+  readonly VITE_ENABLE_DEVTOOLS: string;
+  readonly VITE_DEBUG_MODE: string;
+  readonly VITE_BUILD_SOURCEMAP: string;
+  readonly VITE_GOOGLE_ANALYTICS_ID?: string;
+  readonly VITE_SENTRY_DSN?: string;
+  readonly VITE_POSTHOG_KEY?: string;
+  readonly MODE: string;
+  readonly DEV: boolean;
+  readonly PROD: boolean;
+}
 
-  // App Configuration
-  VITE_APP_NAME: z.string().default('FSD React App'),
-  VITE_APP_VERSION: z.string().optional(),
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
 
-  // Environment
-  MODE: z.enum(['development', 'staging', 'production']).default('development'),
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+// ================= CONFIGURATION TYPE =================
 
-  // Feature Flags
-  VITE_FEATURE_NEW_DASHBOARD: z
-    .string()
-    .transform((val) => val === 'true')
-    .default('false'),
-  VITE_FEATURE_BETA_FEATURES: z
-    .string()
-    .transform((val) => val === 'true')
-    .default('false'),
-  VITE_ENABLE_MOCK_API: z
-    .string()
-    .transform((val) => val === 'true')
-    .default('true'),
-
-  // External Services
-  VITE_SENTRY_DSN: z.string().url().optional(),
-  VITE_GOOGLE_ANALYTICS_ID: z.string().optional(),
-  VITE_POSTHOG_KEY: z.string().optional(),
-
-  // Development
-  VITE_ENABLE_DEVTOOLS: z
-    .string()
-    .transform((val) => val === 'true')
-    .default('true'),
-  VITE_DEBUG_MODE: z
-    .string()
-    .transform((val) => val === 'true')
-    .default('false'),
-
-  // Testing
-  VITE_TEST_BASE_URL: z.string().url().optional(),
-  VITE_TEST_TIMEOUT: z
-    .string()
-    .transform((val) => parseInt(val, 10))
-    .pipe(z.number().positive())
-    .default('30000'),
-
-  // Build Configuration
-  VITE_BUILD_ANALYZE: z
-    .string()
-    .transform((val) => val === 'true')
-    .default('false'),
-  VITE_BUILD_SOURCEMAP: z
-    .string()
-    .transform((val) => val === 'true')
-    .default('true'),
-});
-
-// ================= TYPE DEFINITIONS =================
-
-export type Environment = z.infer<typeof envSchema>;
-
-export type EnvironmentMode = Environment['MODE'];
-
-export interface RuntimeConfig {
-  apiUrl: string;
+export interface AppConfig {
+  // Basic info
   appName: string;
+  apiUrl: string;
+  environment: 'development' | 'staging' | 'production';
   isDevelopment: boolean;
+  isStaging: boolean;
   isProduction: boolean;
-  isTest: boolean;
+
+  // Features
   features: {
-    newDashboard: boolean;
-    betaFeatures: boolean;
     enableMockApi: boolean;
     enableDevtools: boolean;
     debugMode: boolean;
+    enableAnalytics: boolean;
+    enableErrorTracking: boolean;
   };
+
+  // External services
   services: {
-    sentryDsn?: string;
     googleAnalyticsId?: string;
+    sentryDsn?: string;
     posthogKey?: string;
   };
-  testing: {
-    baseUrl?: string;
-    timeout: number;
-  };
+
+  // Build info
   build: {
-    analyze: boolean;
-    sourcemap: boolean;
+    version: string;
+    buildTime: string;
+    commitHash: string;
+    enableSourcemap: boolean;
   };
 }
 
-// ================= UTILITY FUNCTIONS =================
+// ================= HELPER FUNCTIONS =================
 
-function getEnvironmentVariables(): Record<string, string | undefined> {
-  // Unterstützung für verschiedene Runtime-Umgebungen
-  if (typeof window !== 'undefined' && window.ENV_RUNTIME) {
-    return window.ENV_RUNTIME;
-  }
-
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
-    return import.meta.env as Record<string, string | undefined>;
-  }
-
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env;
-  }
-
-  return {};
-}
-
-function parseEnvironment(): Environment {
-  const rawEnv = getEnvironmentVariables();
-
-  try {
-    return envSchema.parse(rawEnv);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const issues = error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`);
-
-      console.error('Environment validation failed:', issues);
-
-      // In development, throw error
-      if (rawEnv.NODE_ENV === 'development') {
-        throw new Error(`Environment validation failed:\n${issues.join('\n')}`);
-      }
-
-      // In production, log error but continue with defaults
-      console.warn('Using default environment values due to validation errors');
-      return envSchema.parse({});
-    }
-
-    throw error;
-  }
-}
-
-// ================= MAIN EXPORT =================
-
-const parsedEnv = parseEnvironment();
-
-export const env: Environment = parsedEnv;
-
-export const config: RuntimeConfig = {
-  apiUrl: env.VITE_API_URL,
-  appName: env.VITE_APP_NAME,
-  isDevelopment: env.MODE === 'development',
-  isProduction: env.MODE === 'production',
-  isTest: env.NODE_ENV === 'test',
-  features: {
-    newDashboard: env.VITE_FEATURE_NEW_DASHBOARD,
-    betaFeatures: env.VITE_FEATURE_BETA_FEATURES,
-    enableMockApi: env.VITE_ENABLE_MOCK_API,
-    enableDevtools: env.VITE_ENABLE_DEVTOOLS,
-    debugMode: env.VITE_DEBUG_MODE,
-  },
-  services: {
-    sentryDsn: env.VITE_SENTRY_DSN,
-    googleAnalyticsId: env.VITE_GOOGLE_ANALYTICS_ID,
-    posthogKey: env.VITE_POSTHOG_KEY,
-  },
-  testing: {
-    baseUrl: env.VITE_TEST_BASE_URL,
-    timeout: env.VITE_TEST_TIMEOUT,
-  },
-  build: {
-    analyze: env.VITE_BUILD_ANALYZE,
-    sourcemap: env.VITE_BUILD_SOURCEMAP,
-  },
+const getEnvironment = (): AppConfig['environment'] => {
+  if (import.meta.env.PROD) return 'production';
+  if (import.meta.env.MODE === 'staging') return 'staging';
+  return 'development';
 };
 
-// ================= DEVELOPMENT HELPERS =================
-
-if (config.isDevelopment && config.features.debugMode) {
-  console.group('🔧 Environment Configuration');
-  console.log('Mode:', env.MODE);
-  console.log('API URL:', config.apiUrl);
-  console.log('Features:', config.features);
-  console.log('Services:', config.services);
-  console.groupEnd();
-}
-
-// ================= TYPE GUARDS =================
-
-export const isValidEnvironment = (mode: string): mode is EnvironmentMode => {
-  return ['development', 'staging', 'production'].includes(mode);
+const parseBoolean = (value: string | undefined, defaultValue = false): boolean => {
+  if (!value) return defaultValue;
+  return value.toLowerCase() === 'true';
 };
 
-export const isFeatureEnabled = (feature: keyof RuntimeConfig['features']): boolean => {
-  return config.features[feature];
-};
-
-// ================= GLOBAL TYPE AUGMENTATION =================
-
+// Define additional env variables that will be injected at build time
 declare global {
-  interface Window {
-    ENV_RUNTIME?: Record<string, string>;
-    __APP_CONFIG__?: RuntimeConfig;
-  }
+  const __APP_VERSION__: string;
+  const __BUILD_TIME__: string;
+  const __COMMIT_HASH__: string;
 }
 
-// Make config available globally for debugging
-if (typeof window !== 'undefined' && config.isDevelopment) {
-  window.__APP_CONFIG__ = config;
-}
+// ================= CONFIGURATION =================
+
+export const config: AppConfig = {
+  // Basic info
+  appName: import.meta.env.VITE_APP_NAME || 'FSD App',
+  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:8080',
+  environment: getEnvironment(),
+  isDevelopment: import.meta.env.DEV,
+  isStaging: import.meta.env.MODE === 'staging',
+  isProduction: import.meta.env.PROD,
+
+  // Features
+  features: {
+    enableMockApi: parseBoolean(import.meta.env.VITE_ENABLE_MOCK_API, true),
+    enableDevtools: parseBoolean(import.meta.env.VITE_ENABLE_DEVTOOLS, !import.meta.env.PROD),
+    debugMode: parseBoolean(import.meta.env.VITE_DEBUG_MODE, import.meta.env.DEV),
+    enableAnalytics: parseBoolean(
+      import.meta.env.VITE_GOOGLE_ANALYTICS_ID || import.meta.env.VITE_POSTHOG_KEY,
+    ),
+    enableErrorTracking: parseBoolean(import.meta.env.VITE_SENTRY_DSN),
+  },
+
+  // External services
+  services: {
+    googleAnalyticsId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID,
+    sentryDsn: import.meta.env.VITE_SENTRY_DSN,
+    posthogKey: import.meta.env.VITE_POSTHOG_KEY,
+  },
+
+  // Build info - use the globals if available, otherwise fallback
+  build: {
+    version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0',
+    buildTime: typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : new Date().toISOString(),
+    commitHash: typeof __COMMIT_HASH__ !== 'undefined' ? __COMMIT_HASH__ : 'unknown',
+    enableSourcemap: parseBoolean(import.meta.env.VITE_BUILD_SOURCEMAP, import.meta.env.DEV),
+  },
+} as const;
+
+// ================= VALIDATION =================
+
+// Validate required environment variables
+const validateConfig = (): void => {
+  const errors: string[] = [];
+
+  if (!import.meta.env.VITE_API_URL && config.isProduction) {
+    errors.push('VITE_API_URL is required in production');
+  }
+
+  if (errors.length > 0) {
+    const errorMessage = `Environment validation failed:\n${errors.join('\n')}`;
+    console.error(errorMessage);
+
+    if (config.isProduction) {
+      throw new Error(errorMessage);
+    }
+  }
+};
+
+// Run validation
+validateConfig();
+
+// ================= EXPORTS =================
+
+export default config;
+
+// Re-export environment helpers
+export const isDevelopment = config.isDevelopment;
+export const isStaging = config.isStaging;
+export const isProduction = config.isProduction;
+export const environment = config.environment;
