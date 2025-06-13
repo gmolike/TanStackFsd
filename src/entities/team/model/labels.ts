@@ -1,40 +1,40 @@
-// entities/team/model/labels.ts
+// entities/team/model/labels-validated.ts
+import { createValidatedLabels } from '~/shared/types/label-validation';
+
 import type { TeamMember } from './schema';
 
 /**
  * Team Labels - Zentrale Label-Verwaltung
  * Type-safe: Jedes Feld muss ein Label haben
  */
-export const teamLabels: Record<keyof TeamMember | 'name' | 'actions', string> = {
-  // Basis-Felder
+
+/**
+ * Type-safe Team Labels
+ */
+// entities/team/model/labels-validated.ts (Alternative)
+export const teamLabels = createValidatedLabels<TeamMember, 'name' | 'actions'>({
   id: 'ID',
   firstName: 'Vorname',
   lastName: 'Nachname',
   email: 'E-Mail',
   phone: 'Telefon',
-
-  // Berufliche Informationen
   role: 'Rolle',
   department: 'Abteilung',
   status: 'Status',
-
-  // Daten
+  bio: 'Biografie',
   birthDate: 'Geburtsdatum',
   startDate: 'Eintrittsdatum',
-
-  // Präferenzen
   newsletter: 'Newsletter',
   remoteWork: 'Remote-Arbeit',
-
-  // Weitere Felder
-  bio: 'Biografie',
   locationId: 'Standort',
+
+  // Address - handle null/undefined
   address: 'Adresse',
 
-  // Kombinierte/Virtuelle Felder
+  // Virtual fields
   name: 'Name',
   actions: 'Aktionen',
-} as const;
+});
 
 /**
  * Dashboard-spezifische Labels
