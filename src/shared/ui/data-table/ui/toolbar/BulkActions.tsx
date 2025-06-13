@@ -1,27 +1,25 @@
 import { Button } from '~/shared/shadcn';
 
-import { useDataTableContext } from '../DataTableProvider';
+import { useDataTableContext } from '../../lib/context';
 
-export interface BulkAction {
+export type BulkAction = {
   label: string;
   action: string;
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   icon?: React.ReactNode;
-}
+};
 
-interface BulkActionsProps<TData> {
+type BulkActionsProps<TData extends Record<string, unknown> = Record<string, unknown>> = {
   actions: Array<BulkAction>;
   onAction?: (action: string, rows: Array<TData>) => void;
-}
+};
 
-export const BulkActions = <TData extends Record<string, unknown>>({
+export const BulkActions = <TData extends Record<string, unknown> = Record<string, unknown>>({
   actions,
   onAction,
 }: BulkActionsProps<TData>) => {
-  const { selection, table } = useDataTableContext();
-  const selectedRows = table
-    .getSelectedRowModel()
-    .rows.map((row: { original: TData }) => row.original);
+  const { selection, table } = useDataTableContext<TData>();
+  const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
 
   if (selection.selectedCount === 0) return null;
 

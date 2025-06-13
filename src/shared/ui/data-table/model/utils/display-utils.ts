@@ -15,15 +15,20 @@ export const computeDisplayRows = <TData extends Record<string, unknown>>(
   state: DisplayState,
   props: DataTableProps<TData, TableDefinition<TData>>,
 ): Array<Row<TData>> => {
-  const sortedRows = table.getSortedRowModel().rows;
-  const paginatedRows = table.getPaginationRowModel().rows;
+  // Immer zuerst gefilterte und sortierte Rows holen
+  const filteredRows = table.getFilteredRowModel().rows;
 
   // Wenn expandable und nicht expandiert
   if (props.expandable && !state.isExpanded) {
-    // Nutze die ersten X der SORTIERTEN Rows
-    return sortedRows.slice(0, props.initialRowCount || 5);
+    // Nutze die ersten X der gefilterten Rows
+    return filteredRows.slice(0, props.initialRowCount ?? 5);
   }
 
-  // Normal: Nutze paginierte Rows
-  return paginatedRows;
+  // Wenn expandable und expandiert, zeige alle gefilterten Rows
+  if (props.expandable && state.isExpanded) {
+    return filteredRows;
+  }
+
+  // Wenn nicht expandable, nutze paginierte Rows
+  return table.getPaginationRowModel().rows;
 };

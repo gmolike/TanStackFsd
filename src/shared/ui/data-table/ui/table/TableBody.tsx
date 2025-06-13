@@ -1,4 +1,3 @@
-// ui/table/TableBody.tsx
 import type { Row } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
 
@@ -8,7 +7,7 @@ import {
   ShadCnTableRow,
 } from '~/shared/shadcn';
 
-import { useDataTableContext } from '../DataTableProvider';
+import { useDataTableContext } from '../../lib/context';
 
 export const TableBody = () => {
   const { displayRows, table } = useDataTableContext();

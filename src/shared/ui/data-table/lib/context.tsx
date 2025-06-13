@@ -5,41 +5,32 @@ import type { DataTableProps } from '../model/types/props';
 import type { TableDefinition } from '../model/types/table-definition';
 
 /**
- * Extended Context Value with original props
+ * Context Value Type
  * @template TData - Der Datentyp für die Tabelle
  */
-/**
- * Extended Context Value with original props
- * @template TData - Der Datentyp für die Tabelle
- */
-export interface DataTableContextValue<
-  TData extends Record<string, unknown> = Record<string, unknown>,
-> extends DataTableController<TData> {
-  // any hier notwendig, da wir die genaue TableDefinition nicht kennen können
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props?: DataTableProps<TData, any>;
-}
+export type DataTableContextValue<TData extends Record<string, unknown> = Record<string, unknown>> =
+  DataTableController<TData> & {
+    props?: DataTableProps<TData, TableDefinition<TData>>;
+  };
 
 /**
  * DataTable Context
- * any hier notwendig für die initiale Context-Erstellung
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const DataTableContext = createContext<DataTableContextValue<any> | null>(null);
+const DataTableContext = createContext<DataTableContextValue<Record<string, unknown>> | null>(null);
 
 /**
- * DataTable Provider Props
+ * DataTable Provider Props Type
  * @template TData - Der Datentyp für die Tabelle
  * @template TTableDef - Die Table Definition
  */
-export interface DataTableProviderProps<
+export type DataTableProviderProps<
   TData extends Record<string, unknown> = Record<string, unknown>,
   TTableDef extends TableDefinition<TData> = TableDefinition<TData>,
-> {
+> = {
   children: React.ReactNode;
   value: DataTableController<TData>;
   props?: DataTableProps<TData, TTableDef>;
-}
+};
 
 /**
  * DataTable Provider Component
@@ -56,8 +47,7 @@ export const DataTableProvider = <
   <DataTableContext.Provider
     value={{
       ...value,
-      // any hier notwendig wegen Context Type Constraints
-      props: props as DataTableProps<TData, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+      props: props as DataTableProps<TData, TableDefinition<TData>>,
     }}
   >
     {children}
@@ -109,8 +99,3 @@ export const useDataTableTable = <
   const { table } = useDataTableContext<TData>();
   return table;
 };
-
-/**
- * Re-export from DataTableProvider
- */
-export { DataTableProvider as Provider } from '../ui/DataTableProvider';

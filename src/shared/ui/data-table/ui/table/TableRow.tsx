@@ -4,11 +4,11 @@ import { flexRender } from '@tanstack/react-table';
 import { cn } from '~/shared/lib/utils';
 import { ShadCnTableCell, ShadCnTableRow } from '~/shared/shadcn';
 
-import { useDataTableContext } from '../DataTableProvider';
+import { useDataTableContext } from '../../lib/context';
 
-interface TableRowProps<TData extends Record<string, unknown>> {
+type TableRowProps<TData extends Record<string, unknown>> = {
   row: Row<TData>;
-}
+};
 
 export const TableRow = <TData extends Record<string, unknown>>({ row }: TableRowProps<TData>) => {
   const { callbacks, props } = useDataTableContext();

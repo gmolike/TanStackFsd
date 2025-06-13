@@ -10,8 +10,8 @@ export const EmailCell = <TRow = unknown,>({
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Mail className="h-4 w-4 text-muted-foreground" />
+    <div className="flex min-w-0 items-center gap-2">
+      <Mail className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
       <a
         href={`mailto:${value}`}
         className="truncate text-sm hover:underline"

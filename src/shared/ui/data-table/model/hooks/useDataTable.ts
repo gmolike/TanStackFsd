@@ -20,7 +20,7 @@ import { useTableSearch } from './useTableSearch';
 import { useTableSelection } from './useTableSelection';
 import { useTableState } from './useTableState';
 
-export interface DataTableController<TData> {
+export type DataTableController<TData> = {
   // Table Instance
   table: Table<TData>;
 
@@ -37,7 +37,7 @@ export interface DataTableController<TData> {
   error: Error | null;
 
   // Computed Values
-  displayRows: Array<Row<TData>>; // Fix: Array type notation
+  displayRows: Array<Row<TData>>;
   filteredRowsCount: number;
   isTableExpanded: boolean;
   showExpandButton: boolean;
@@ -60,7 +60,7 @@ export interface DataTableController<TData> {
     showColumnToggle: boolean;
     showColumnToggleText: boolean;
   };
-}
+};
 
 export const useDataTable = <
   TData extends Record<string, unknown> = Record<string, unknown>,
@@ -118,6 +118,7 @@ export const useDataTable = <
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: 'includesString',
     initialState: {
       pagination: {
         pageSize: props.pageSize ?? 10,
@@ -135,7 +136,7 @@ export const useDataTable = <
   const showExpandButton =
     props.expandable === true && filteredRowsCount > (props.initialRowCount ?? 5);
 
-  // Display Rows
+  // Display Rows - Include filter/sort state in dependencies
   const displayRows = useMemo(
     () => computeDisplayRows(table, { isExpanded: state.isExpanded }, props),
     [table, state.isExpanded, props],

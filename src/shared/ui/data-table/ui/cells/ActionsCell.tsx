@@ -9,7 +9,7 @@ export type ActionsCellProps<TRow = unknown> = {
 };
 
 export const ActionsCell = <TRow = unknown,>({ row, onEdit, onDelete }: ActionsCellProps<TRow>) => (
-  <div className="flex items-center gap-2">
+  <div className="flex items-center justify-end gap-1">
     {onEdit && (
       <Button
         variant="ghost"
@@ -19,6 +19,7 @@ export const ActionsCell = <TRow = unknown,>({ row, onEdit, onDelete }: ActionsC
           onEdit(row);
         }}
         title="Bearbeiten"
+        className="h-8 w-8"
       >
         <Edit className="h-4 w-4" />
       </Button>
@@ -32,7 +33,7 @@ export const ActionsCell = <TRow = unknown,>({ row, onEdit, onDelete }: ActionsC
           onDelete(row);
         }}
         title="Löschen"
-        className="text-destructive hover:bg-destructive/10"
+        className="h-8 w-8 text-destructive hover:bg-destructive/10"
       >
         <Trash2 className="h-4 w-4" />
       </Button>

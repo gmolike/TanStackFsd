@@ -1,15 +1,23 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { InputShadcn as Input } from '~/shared/shadcn';
 
-import { useDataTableContext } from '../DataTableProvider';
+import { useDataTableContext } from '../../lib/context';
 
 export const SearchInput = () => {
   const { search, ui, handleGlobalFilterChange } = useDataTableContext();
+  const [value, setValue] = useState(search.state.globalFilter);
+
+  // Sync internal state with external state
+  useEffect(() => {
+    setValue(search.state.globalFilter);
+  }, [search.state.globalFilter]);
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      handleGlobalFilterChange(event.target.value);
+      const newValue = event.target.value;
+      setValue(newValue);
+      handleGlobalFilterChange(newValue);
     },
     [handleGlobalFilterChange],
   );
@@ -17,7 +25,7 @@ export const SearchInput = () => {
   return (
     <Input
       placeholder={ui.searchPlaceholder}
-      value={search.state.globalFilter ?? ''}
+      value={value}
       onChange={handleChange}
       className="h-8 w-[200px] lg:w-[300px]"
     />

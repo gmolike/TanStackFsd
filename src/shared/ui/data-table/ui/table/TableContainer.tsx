@@ -11,7 +11,7 @@ import {
   ShadCnTableRow,
 } from '~/shared/shadcn';
 
-import { useDataTableContext } from '../DataTableProvider';
+import { useDataTableContext } from '../../lib/context';
 
 export const TableContainer = () => {
   const { table, displayRows, callbacks, props } = useDataTableContext();
@@ -25,6 +25,9 @@ export const TableContainer = () => {
     selectedRowId,
   } = props || {};
 
+  // Verwende immer displayRows, da diese bereits die korrekte Logik enthalten
+  const rows = displayRows;
+
   return (
     <div
       className={cn(
@@ -35,7 +38,9 @@ export const TableContainer = () => {
       style={maxHeight ? { maxHeight } : undefined}
     >
       <ShadCnTable>
-        <ShadCnTableHeader className={stickyHeader ? 'sticky top-0 z-10 bg-background' : ''}>
+        <ShadCnTableHeader
+          className={cn(stickyHeader && 'sticky top-0 z-10 bg-background', 'bg-muted/50')}
+        >
           {table.getHeaderGroups().map((headerGroup: HeaderGroup<Record<string, unknown>>) => (
             <ShadCnTableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -44,6 +49,7 @@ export const TableContainer = () => {
                   <ShadCnTableHead
                     key={header.id}
                     className={cn(
+                      'px-4 py-3', // Mehr Padding für Header
                       isActionColumn &&
                         stickyActionColumn &&
                         'sticky right-0 bg-background shadow-sm',
@@ -60,15 +66,15 @@ export const TableContainer = () => {
         </ShadCnTableHeader>
 
         <ShadCnTableBody>
-          {displayRows.length > 0 ? (
-            displayRows.map((row: Row<Record<string, unknown>>) => {
+          {rows.length > 0 ? (
+            rows.map((row: Row<Record<string, unknown>>) => {
               const rowOriginal = row.original;
               const rowId = String(rowOriginal[idKey] ?? '');
               const isSelected = selectedRowId === rowId || selectedId === rowOriginal[idKey];
 
               return (
                 <ShadCnTableRow
-                  key={row.id}
+                  key={`${row.id}-${row.original[idKey]}`} // Besserer Key für Re-Render
                   data-row-id={rowId}
                   data-state={row.getIsSelected() && 'selected'}
                   onClick={() => callbacks.onRowClick?.(rowOriginal)}
@@ -83,6 +89,7 @@ export const TableContainer = () => {
                       <ShadCnTableCell
                         key={cell.id}
                         className={cn(
+                          'px-4 py-3', // Mehr Padding für Cells
                           isActionColumn &&
                             stickyActionColumn &&
                             'sticky right-0 bg-background shadow-sm',

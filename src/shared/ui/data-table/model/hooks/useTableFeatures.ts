@@ -25,7 +25,7 @@ export const useTableFeatures = <
         props.showColumnToggle !== false ||
         props.onAdd !== undefined,
 
-      hasPagination: !props.expandable || props.data.length > (props.pageSize ?? 10),
+      hasPagination: !props.expandable && props.data.length > (props.pageSize ?? 10),
 
       hasExpand: props.expandable === true && typeof props.initialRowCount === 'number',
 

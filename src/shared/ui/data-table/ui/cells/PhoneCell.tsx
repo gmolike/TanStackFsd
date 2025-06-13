@@ -15,11 +15,11 @@ export const PhoneCell = <TRow = unknown,>({
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Phone className="h-4 w-4 text-muted-foreground" />
+    <div className="flex min-w-0 items-center gap-2">
+      <Phone className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
       <a
         href={`tel:${value}`}
-        className="text-sm hover:underline"
+        className="truncate text-sm hover:underline"
         onClick={(e) => e.stopPropagation()}
       >
         {String(value)}

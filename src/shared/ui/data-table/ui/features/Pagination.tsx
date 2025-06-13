@@ -16,12 +16,12 @@ export const Pagination = () => {
   const table = useDataTableTable();
 
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="flex items-center space-x-4">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-4">
         <div className="text-sm text-muted-foreground">
           Seite {table.getState().pagination.pageIndex + 1} von {table.getPageCount()}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <p className="text-sm font-medium">Zeilen pro Seite</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
@@ -43,7 +43,7 @@ export const Pagination = () => {
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center gap-1">
         <Button
           variant="outline"
           className="h-8 w-8 p-0"

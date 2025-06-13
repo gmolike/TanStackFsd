@@ -44,9 +44,9 @@ export const useTableState = <
 >(
   props: DataTableProps<TData, TTableDef>,
 ): TableStateReturn => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [sorting, setSortingState] = useState<SortingState>([]);
+  const [columnFilters, setColumnFiltersState] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibilityState] = useState<VisibilityState>({});
   const [isExpanded, setIsExpanded] = useState<boolean>(!props.expandable);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -54,20 +54,32 @@ export const useTableState = <
   });
 
   // Type-safe state setters für TanStack Table
-  const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue: Updater<SortingState>) => {
-    setSorting(updaterOrValue);
+  const setSorting: OnChangeFn<SortingState> = (updaterOrValue: Updater<SortingState>) => {
+    if (typeof updaterOrValue === 'function') {
+      setSortingState((prev) => updaterOrValue(prev));
+    } else {
+      setSortingState(updaterOrValue);
+    }
   };
 
-  const handleColumnFiltersChange: OnChangeFn<ColumnFiltersState> = (
+  const setColumnFilters: OnChangeFn<ColumnFiltersState> = (
     updaterOrValue: Updater<ColumnFiltersState>,
   ) => {
-    setColumnFilters(updaterOrValue);
+    if (typeof updaterOrValue === 'function') {
+      setColumnFiltersState((prev) => updaterOrValue(prev));
+    } else {
+      setColumnFiltersState(updaterOrValue);
+    }
   };
 
-  const handleColumnVisibilityChange: OnChangeFn<VisibilityState> = (
+  const setColumnVisibility: OnChangeFn<VisibilityState> = (
     updaterOrValue: Updater<VisibilityState>,
   ) => {
-    setColumnVisibility(updaterOrValue);
+    if (typeof updaterOrValue === 'function') {
+      setColumnVisibilityState((prev) => updaterOrValue(prev));
+    } else {
+      setColumnVisibilityState(updaterOrValue);
+    }
   };
 
   return {
@@ -79,15 +91,15 @@ export const useTableState = <
     pagination,
 
     // State setters
-    setSorting: handleSortingChange,
-    setColumnFilters: handleColumnFiltersChange,
-    setColumnVisibility: handleColumnVisibilityChange,
+    setSorting,
+    setColumnFilters,
+    setColumnVisibility,
     setIsExpanded,
     setPagination,
 
     // Utility functions
     resetFilters: () => {
-      setColumnFilters([]);
+      setColumnFiltersState([]);
     },
   };
 };
