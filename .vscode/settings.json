@@ -341,5 +341,8 @@
     "tsconfig",
     "commitlint",
     "husky"
-  ]
+  ],
+  "[dotenv]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  }
 }

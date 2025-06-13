@@ -1,17 +1,91 @@
 {
-  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
-    "types": ["node", "vitest/globals"]
+    // Target und Module
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    // Bundler mode - optimiert für Vite
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    // TypeScript 5.7 Features
+    "rewriteRelativeImportExtensions": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+
+    // Strenge Type Checking
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Path mapping für FSD Architecture
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"],
+      "~/app/*": ["./src/app/*"],
+      "~/pages/*": ["./src/pages/*"],
+      "~/widgets/*": ["./src/widgets/*"],
+      "~/features/*": ["./src/features/*"],
+      "~/entities/*": ["./src/entities/*"],
+      "~/shared/*": ["./src/shared/*"]
+    },
+
+    // Performance Optimierungen
+    "incremental": true,
+    "composite": false,
+    "tsBuildInfoFile": ".tsbuildinfo",
+
+    // Emit
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "removeComments": true,
+    "noEmitOnError": true,
+
+    // Weitere Optionen
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": false
   },
   "include": [
-    "src",
+    "src/**/*",
     "vite.config.ts",
     "vitest.config.ts",
-    "**.d.ts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "src/**/*.spec.tsx",
-    "src/**/*.test.tsx"
-  ]
+    "playwright.config.mjs",
+    "tailwind.config.ts",
+    "**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "playwright-report",
+    "test-results"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "ts-node": {
+    "esm": true
+  }
 }
