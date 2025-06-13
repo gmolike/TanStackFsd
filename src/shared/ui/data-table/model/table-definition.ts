@@ -44,14 +44,23 @@ export type TableDefinition<TData = unknown> = {
 };
 
 /**
+ * Extrahiert die Field IDs aus einer TableDefinition
+ */
+export type ExtractFieldIds<T extends TableDefinition<any>> =
+  T extends TableDefinition<infer _> ? T['fields'][number]['id'] : never;
+
+/**
  * Props für die DataTable mit neuer Struktur
  */
-export type DataTableProps<TData = unknown> = {
+export type DataTableProps<
+  TData = unknown,
+  TTableDef extends TableDefinition<TData> = TableDefinition<TData>,
+> = {
   /** Table Definition mit Labels und Fields */
-  tableDefinition: TableDefinition<TData>;
+  tableDefinition: TTableDef;
 
-  /** Welche Spalten sollen angezeigt werden */
-  selectableColumns?: Array<string>;
+  /** Welche Spalten sollen angezeigt werden - type-safe basierend auf TableDefinition */
+  selectableColumns?: Array<ExtractFieldIds<TTableDef>>;
 
   /** Daten */
   data: Array<TData>;
@@ -83,9 +92,12 @@ export type DataTableProps<TData = unknown> = {
     collapse?: string;
   };
   stickyHeader?: boolean;
+  stickyActionColumn?: boolean;
   maxHeight?: string;
   pageSize?: number;
   selectedRowId?: string | null;
+  selectedId?: unknown;
+  idKey?: string;
 
   /** Styling */
   className?: string;

@@ -2,7 +2,7 @@
 import { useNavigate } from '@tanstack/react-router';
 
 import type { TeamMember } from '~/entities/team';
-import { teamTableDefinition, useTeamMembers } from '~/entities/team';
+import { teamColumnSets, teamTableDefinition, useTeamMembers } from '~/entities/team';
 
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
 import { DataTable } from '~/shared/ui/data-table';
@@ -10,10 +10,6 @@ import { DataTable } from '~/shared/ui/data-table';
 import type { DashboardTableProps } from './model/types';
 import { TableHeader } from './ui/table-header';
 
-/**
- * Dashboard Team-Tabelle mit erweiterbarer Ansicht
- * @component
- */
 export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps) => {
   const navigate = useNavigate();
   const { data, isLoading } = useTeamMembers();
@@ -49,21 +45,29 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
           <TableHeader {...stats} />
 
           <DataTable
-            // Neue Table Definition
+            // Table Definition
             tableDefinition={teamTableDefinition}
-            selectableColumns={['name', 'department', 'status', 'remoteWork']}
+            // Type-safe column selection for dashboard
+            selectableColumns={teamColumnSets.dashboard}
             data={teamMembers}
+            // ID handling - KEINE selectedId hier, da wir nicht auf einer Detail-Route sind
+            idKey="id"
             // Loading State
             isLoading={isLoading}
-            // Expandable Feature für Dashboard
+            // Dashboard specific features
             expandable
             initialRowCount={3}
+            expandButtonText={{
+              expand: 'Alle Teammitglieder anzeigen',
+              collapse: 'Weniger anzeigen',
+            }}
             pageSize={10}
-            // Interaktion
+            // Callbacks
             onRowClick={handleMemberClick}
             onAdd={handleAddClick}
-            // UI Anpassungen
+            // UI Options
             searchPlaceholder="Nach Namen, E-Mail oder Rolle suchen..."
+            addButtonText="Neues Teammitglied"
             showColumnToggle={false}
           />
         </CardContent>

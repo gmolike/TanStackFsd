@@ -4,7 +4,12 @@
 export { DataTable } from './DataTable';
 
 // Types
-export type { DataTableProps, FieldDefinition, TableDefinition } from './model/table-definition';
+export type {
+  DataTableProps,
+  ExtractFieldIds,
+  FieldDefinition,
+  TableDefinition
+} from './model/table-definition';
 
 // Components
 export { CompactDeleteButton, TableDeleteButton, TableEditButton } from './components/CellButtons';

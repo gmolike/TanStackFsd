@@ -6,8 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { Building2, Loader2 } from 'lucide-react';
 
-import { AddressDialog } from '~/features/team';
-
 import type {
   Address,
   CreateLocation,
@@ -269,37 +267,7 @@ export const LocationsEditorPage = () => {
             <CardHeader>
               <h2 className="text-lg font-semibold">Adresse</h2>
             </CardHeader>
-            <CardContent>
-              <FormDialogButton
-                control={form.control}
-                name="address"
-                label="Adresse"
-                dialog={({ open, onOpenChange, value, onChange }) => (
-                  <AddressDialog
-                    open={open}
-                    onOpenChange={onOpenChange}
-                    value={value as Address | undefined}
-                    onChange={onChange}
-                  />
-                )}
-                required
-                emptyText="Klicken Sie hier, um die Adresse einzugeben"
-                description="Vollständige Adresse des Standorts"
-              >
-                {(value) => {
-                  const address = value as Address | undefined;
-                  if (!address || !address.street) return null;
-                  return (
-                    <div className="text-left">
-                      <div className="font-medium">{address.street}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {address.postalCode} {address.city}, {address.country}
-                      </div>
-                    </div>
-                  );
-                }}
-              </FormDialogButton>
-            </CardContent>
+            <CardContent></CardContent>
           </Card>
 
           {/* Kapazität und Verwaltung */}

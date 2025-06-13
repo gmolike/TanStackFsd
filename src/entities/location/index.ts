@@ -79,3 +79,13 @@ export {
   generateLocationsByCity,
   mockLocations,
 } from './api/mock-data';
+
+// Table Definition
+export { locationColumnSets, locationTableDefinition } from './model/table-definition';
+
+// Labels
+export { locationInfoLabels, locationLabels } from './model/labels';
+
+// UI Components
+export { LocationStatusBadge } from './ui/status-badge';
+export { LocationTypeBadge } from './ui/type-badge';

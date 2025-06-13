@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import type { Location } from '~/entities/location';
-import { useDeleteLocation } from '~/entities/location';
+import {
+  locationColumnSets,
+  locationTableDefinition,
+  useDeleteLocation,
+} from '~/entities/location';
 
 import { toast } from '~/shared/hooks/use-toast';
 import {
@@ -19,22 +23,9 @@ import {
 } from '~/shared/shadcn';
 import { DataTable } from '~/shared/ui/data-table';
 
-import { createLocationColumns } from '../../../../entities/location/model/location-columns';
-
 interface LocationTableViewProps {
   locations: Array<Location>;
 }
-
-// Column Labels für generische Anzeige
-const locationColumnLabels: Record<string, string> = {
-  code: 'Code',
-  name: 'Name',
-  type: 'Typ',
-  status: 'Status',
-  address: 'Adresse',
-  manager: 'Verantwortlicher',
-  capacity: 'Kapazität',
-};
 
 export function LocationTableView({ locations }: LocationTableViewProps) {
   const navigate = useNavigate();
@@ -73,46 +64,40 @@ export function LocationTableView({ locations }: LocationTableViewProps) {
     setDeleteDialogOpen(true);
   };
 
+  const handleAddClick = () => {
+    navigate({ to: '/locations/new' });
+  };
+
   const confirmDelete = () => {
     if (locationToDelete) {
       deleteMutation.mutate(locationToDelete.id);
     }
   };
 
-  // Erstelle Spalten mit Action Callbacks
-  const columns = createLocationColumns(handleEdit, handleDelete);
-
   return (
     <>
       <DataTable
-        columns={columns}
+        // Table Definition
+        tableDefinition={locationTableDefinition}
+        // Type-safe column selection
+        selectableColumns={locationColumnSets.full}
         data={locations}
-        searchPlaceholder="Nach Namen suchen..."
+        // ID handling - KEINE selectedId, da wir auf der List-Route sind
+        idKey="id"
+        // Callbacks
         onRowClick={handleRowClick}
-        // searchKey entfernt - nutzt jetzt global filter
-
-        // Standard-Sortierung nach Name (aufsteigend)
-        defaultSorting={[{ id: 'name', desc: false }]}
-        // Standard-Spalten-Sichtbarkeit
-        defaultColumnVisibility={{
-          code: true,
-          name: true,
-          type: true,
-          status: true,
-          address: true,
-          manager: false, // Manager standardmäßig ausgeblendet
-          capacity: false, // Kapazität standardmäßig ausgeblendet
-          actions: true,
-        }}
-        // Column Labels für Dropdown
-        columnLabels={locationColumnLabels}
-        // Weitere Optionen
-        pageSize={10}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onAdd={handleAddClick}
+        // UI Options
+        searchPlaceholder="Nach Namen, Code oder Stadt suchen..."
+        addButtonText="Neuer Standort"
         showColumnToggle={true}
-        // Neue Features können optional hinzugefügt werden
-        withSkeleton={false} // Falls Loading State benötigt
-        enableGlobalFilter={true}
-        enableRowSelection={false}
+        showColumnToggleText={false}
+        pageSize={10}
+        // Sticky Features
+        stickyActionColumn={true}
+        stickyHeader={true}
       />
 
       {/* Lösch-Bestätigungsdialog */}
