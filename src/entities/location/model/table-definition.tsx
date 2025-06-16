@@ -1,8 +1,8 @@
 // src/entities/location/model/table-definition.tsx
 import type { ExtractFieldIds, FieldDefinition, TableDefinition } from '~/shared/ui/data-table';
 
-import type { Location } from './schema';
 import { locationLabels } from './labels';
+import type { Location } from './schema';
 
 // Location Type Cell
 const LocationTypeCell = ({ value }: { value: unknown; row: Location }) => {
@@ -52,7 +52,7 @@ const LocationCapacityCell = ({ row }: { value: unknown; row: Location }) => {
 /**
  * Location Table Field Definitions
  */
-const locationFields: FieldDefinition<Location>[] = [
+const locationFields: Array<FieldDefinition<Location>> = [
   {
     id: 'code',
     accessor: (row: Location) => row.code,
@@ -121,14 +121,22 @@ type LocationColumnId = ExtractFieldIds<typeof locationTableDefinition>;
  */
 export const locationColumnSets = {
   // Vollständige Tabelle
-  full: ['code', 'name', 'type', 'status', 'address', 'capacity', 'actions'] as LocationColumnId[],
+  full: [
+    'code',
+    'name',
+    'type',
+    'status',
+    'address',
+    'capacity',
+    'actions',
+  ] as Array<LocationColumnId>,
 
   // Kompakte Ansicht
-  compact: ['code', 'name', 'type', 'status'] as LocationColumnId[],
+  compact: ['code', 'name', 'type', 'status'] as Array<LocationColumnId>,
 
   // Dashboard Ansicht
-  dashboard: ['name', 'type', 'status', 'capacity'] as LocationColumnId[],
+  dashboard: ['name', 'type', 'status', 'capacity'] as Array<LocationColumnId>,
 
   // Ohne Actions
-  readOnly: ['code', 'name', 'type', 'status', 'address', 'capacity'] as LocationColumnId[],
+  readOnly: ['code', 'name', 'type', 'status', 'address', 'capacity'] as Array<LocationColumnId>,
 };

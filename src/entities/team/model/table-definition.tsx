@@ -1,11 +1,6 @@
 // entities/team/model/table-definition.tsx
 import type { FieldDefinition, TableDefinition } from '~/shared/ui/data-table';
-import {
-  BooleanCell,
-  DateCell,
-  EmailCell,
-  PhoneCell,
-} from '~/shared/ui/data-table/components/CellTemplates';
+import { BooleanCell, DateCell, EmailCell, PhoneCell } from '~/shared/ui/data-table';
 
 import { StatusBadge } from '../ui/status-badge';
 

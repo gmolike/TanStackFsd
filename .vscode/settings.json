@@ -341,5 +341,8 @@
     "tsconfig",
     "commitlint",
     "husky"
-  ]
+  ],
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell"
+  }
 }

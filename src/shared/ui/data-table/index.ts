@@ -1,49 +1,63 @@
-// shared/ui/data-table/index.ts
-
 // Main Component
-export { DataTable } from './DataTable';
+export { DataTable } from './ui/DataTable';
 
-// Types
+// Types - aus props.ts exportieren
+export type { DataTableProps } from './model/types/props';
+
+// Types - aus table-definition.ts exportieren
+export type { DataTableController } from './model/hooks/useDataTable';
+export type { TableState, TableStateActions } from './model/types/state';
 export type {
-  DataTableProps,
+  CellComponentProps,
   ExtractFieldIds,
   FieldDefinition,
-  TableDefinition
-} from './model/table-definition';
+  TableDefinition,
+} from './model/types/table-definition';
 
-// Components
-export { CompactDeleteButton, TableDeleteButton, TableEditButton } from './components/CellButtons';
-export { EmptyState } from './components/EmptyState';
-export { ErrorState } from './components/ErrorState';
-export { ExpandButton } from './components/ExpandButton';
-export { TablePagination } from './components/TablePagination';
-export { TableSkeleton } from './components/TableSkeleton';
-export { TableToolbar } from './components/TableToolbar';
+// Cells
+export * from './ui/cells';
 
-// Cell Templates
-export {
-  ActionsCell,
-  BooleanCell,
-  type CellTemplateName,
-  cellTemplates,
-  DateCell,
-  EmailCell,
-  PhoneCell,
-  TextCell,
-} from './components/CellTemplates';
+// Headers
+export * from './ui/headers';
 
-// Cell Headers
-export {
-  FilterableHeader,
-  headerTemplates,
-  type HeaderType,
-  SimpleHeader,
-  SortableHeader,
-} from './components/CellHeaders';
+// States
+export { EmptyState } from './ui/states/EmptyState';
+export { ErrorState } from './ui/states/ErrorState';
+export { LoadingState } from './ui/states/LoadingState';
+export { SkeletonState } from './ui/states/SkeletonState';
+
+// Features
+export { ExpandButton } from './ui/features/ExpandButton';
+export { ExportButton, type ExportFormat } from './ui/features/ExportButton';
+export { type FilterPreset, FilterPresets } from './ui/features/FilterPresets';
+export { Pagination } from './ui/features/Pagination';
+
+// Toolbar Components
+export { type BulkAction, BulkActions } from './ui/toolbar/BulkActions';
 
 // Utils
+export * from './model/converters/table-converter';
+export * from './model/utils/display-utils';
+export * from './model/utils/filter-utils';
+export * from './model/utils/table-helpers';
+
+// Constants & Defaults
+export * from './lib/constants';
+export * from './lib/defaults';
+
+// Context & Hooks
 export {
-  convertTableDefinition,
-  getColumnVisibility,
-  getSearchableColumns,
-} from './model/table-converter';
+  useDataTableCallbacks,
+  useDataTableContext,
+  useDataTableFeatures,
+  useDataTableState,
+  useDataTableTable,
+  useDataTableUI,
+} from './lib/context';
+
+// Hooks (for advanced usage)
+export { useDataTable } from './model/hooks/useDataTable';
+export { useTableFeatures } from './model/hooks/useTableFeatures';
+export { useTableSearch } from './model/hooks/useTableSearch';
+export { useTableSelection } from './model/hooks/useTableSelection';
+export { useTableState } from './model/hooks/useTableState';

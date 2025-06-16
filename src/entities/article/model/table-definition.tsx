@@ -73,7 +73,7 @@ const ArticleStatusCell = ({ value }: { value: unknown; row: Article }) => {
 /**
  * Article Table Field Definitions
  */
-const articleFields: FieldDefinition<Article>[] = [
+const articleFields: Array<FieldDefinition<Article>> = [
   {
     id: 'articleNumber',
     accessor: (row: Article) => row.articleNumber,
@@ -150,14 +150,21 @@ export const articleColumnSets = {
     'stock',
     'status',
     'actions',
-  ] as ArticleColumnId[],
+  ] as Array<ArticleColumnId>,
 
   // Kompakte Ansicht
-  compact: ['articleNumber', 'name', 'price', 'stock'] as ArticleColumnId[],
+  compact: ['articleNumber', 'name', 'price', 'stock'] as Array<ArticleColumnId>,
 
   // Inventar-Ansicht
-  inventory: ['articleNumber', 'name', 'category', 'stock', 'status'] as ArticleColumnId[],
+  inventory: ['articleNumber', 'name', 'category', 'stock', 'status'] as Array<ArticleColumnId>,
 
   // Ohne Actions
-  readOnly: ['articleNumber', 'name', 'category', 'price', 'stock', 'status'] as ArticleColumnId[],
+  readOnly: [
+    'articleNumber',
+    'name',
+    'category',
+    'price',
+    'stock',
+    'status',
+  ] as Array<ArticleColumnId>,
 };
