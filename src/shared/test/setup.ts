@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/shared/test/setup.ts
 import { cleanup } from '@testing-library/react';
-import { afterEach, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 
 import '@testing-library/jest-dom/vitest';
 
@@ -14,7 +13,7 @@ afterEach(() => {
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -31,23 +30,24 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-}));
+})) as unknown as typeof IntersectionObserver;
 
 // Mock ResizeObserver
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-}));
+})) as unknown as typeof ResizeObserver;
 
 // Suppress console errors in tests (optional)
 const originalError = console.error;
 beforeAll(() => {
-  console.error = (...args: Array<any>) => {
+  console.error = (...args: Parameters<typeof console.error>) => {
+    const firstArg = args[0];
     if (
-      typeof args[0] === 'string' &&
-      (args[0].includes('Warning: ReactDOM.render') ||
-        args[0].includes('Warning: `ReactDOMTestUtils.act`'))
+      typeof firstArg === 'string' &&
+      (firstArg.includes('Warning: ReactDOM.render') ||
+        firstArg.includes('Warning: `ReactDOMTestUtils.act`'))
     ) {
       return;
     }
