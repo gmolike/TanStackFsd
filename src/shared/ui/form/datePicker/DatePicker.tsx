@@ -107,7 +107,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
 
         return (
           <div className="flex items-center gap-2">
-            <Popover open={open} onOpenChange={setOpen}>
+            <Popover open={open} onOpenChange={setOpen} modal={true}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -122,15 +122,8 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                className="w-auto p-3"
-                align="start"
-                onPointerDownOutside={(e) => e.preventDefault()}
-                onEscapeKeyDown={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                <fieldset className="space-y-3">
+              <PopoverContent className="w-auto p-3" align="start">
+                <div className="space-y-3">
                   {allowInput && (
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Datum eingeben ({dateFormat})</label>
@@ -146,13 +139,6 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                             setInputValue('');
                           }
                         }}
-                        // Verhindere Dialog-Schließung bei Enter
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }
-                        }}
                         autoFocus
                       />
                     </div>
@@ -166,7 +152,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                     disabled={isDateDisabled}
                     initialFocus={!allowInput}
                   />
-                </fieldset>
+                </div>
               </PopoverContent>
             </Popover>
             {showClear && field.value && (
@@ -174,10 +160,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                 type="button"
                 variant="outline"
                 size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleClear(field.onChange);
-                }}
+                onClick={() => handleClear(field.onChange)}
                 aria-label="Auswahl löschen"
                 className="shrink-0"
               >
