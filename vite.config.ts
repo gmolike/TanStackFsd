@@ -135,7 +135,7 @@ const getChunkFileName = (chunkInfo: PreRenderedChunk): string => {
   const { name, facadeModuleId } = chunkInfo;
 
   // Vendor chunks
-  if (name?.includes('vendor')) {
+  if (name.includes('vendor')) {
     return 'vendor/[name]-[hash].js';
   }
 

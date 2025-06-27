@@ -20,7 +20,7 @@ const getFieldSchema = <TFieldValues extends FieldValues>(
 
     // Try to get the schema from the resolver context
     const schema = resolver.__zodSchema;
-    if (!schema || !schema.shape) return undefined;
+    if (schema?.shape) return undefined;
 
     // Get the field schema
     const fieldParts = fieldName.split('.');
@@ -102,7 +102,7 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
   const fieldSchema = getFieldSchema(control, name as string);
 
   // Determine input type (explicit takes precedence)
-  const inputType = explicitType || inferInputType(fieldSchema ?? z.string());
+  const inputType = explicitType ?? inferInputType(fieldSchema ?? z.string());
 
   const isDisabled = disabled || isSubmitting;
 

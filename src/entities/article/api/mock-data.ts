@@ -54,7 +54,7 @@ const generateDimensions = (category: string): Dimensions | undefined => {
     default: { length: [5, 50], width: [5, 50], height: [1, 50], weight: [50, 5000] },
   };
 
-  const ranges = dimensionRanges[category] || dimensionRanges.default;
+  const ranges = dimensionRanges[category];
 
   return {
     length: random.number(ranges.length[0], ranges.length[1]),
@@ -157,7 +157,7 @@ const generateProductName = (category: string, subcategory?: string): string => 
     default: commerce.productName(),
   };
 
-  const names = productNames[subcategory || category] || productNames.default;
+  const names = productNames[subcategory || category] ?? productNames.default;
   return typeof names === 'string' ? names : random.arrayElement(names);
 };
 

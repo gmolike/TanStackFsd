@@ -51,24 +51,25 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   submitText = 'Speichern',
   cancelText = 'Abbrechen',
   resetText = 'Zurücksetzen',
+  showResetText = true,
   error,
   success,
   className,
-  children,
 }: Props<TFieldValues>) => {
-  const { formState, handleReset } = useController({
+  const { formState, handleReset, handleCancel } = useController({
     form,
     onReset,
+    onCancel,
   });
 
   const { isSubmitting, isDirty, isValid } = formState;
 
   return (
-    <div className={cn('space-y-4 border-t pt-6', className)}>
+    <div className={cn('space-y-4 pt-6', className)}>
       {/* Error Message */}
       {error && (
         <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+          <AlertCircle className="size-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -76,54 +77,53 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       {/* Success Message */}
       {success && (
         <div className="flex items-center gap-2 rounded-md bg-green-50 p-3 text-sm text-green-600">
-          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <CheckCircle2 className="size-4 shrink-0" />
           <span>{success}</span>
         </div>
       )}
 
-      {/* Buttons - MIT ÄNDERUNG HIER */}
-      <div className={cn('flex items-center', children ? 'justify-between' : 'justify-end')}>
-        {/* Children content on the left */}
-        {children && <div className="flex items-center">{children}</div>}
-
-        {/* Buttons on the right */}
-        <div className="flex items-center gap-2">
-          {/* Reset Button - always first */}
-          {showReset && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleReset}
-              disabled={!isDirty || isSubmitting}
-            >
-              <RotateCcw className="h-4 w-4" />
-              {resetText}
-            </Button>
-          )}
-
-          {/* Cancel Button - always second */}
-          {showCancel && (
-            <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-              <ArrowLeft className="h-4 w-4" />
-              {cancelText}
-            </Button>
-          )}
-
-          {/* Submit Button - always last */}
-          <Button type="submit" disabled={isSubmitting || !isValid} onClick={onSubmit}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Wird gespeichert...
-              </>
-            ) : (
-              <>
-                {submitText}
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
+      {/* Buttons */}
+      <div className="flex items-center justify-end gap-2">
+        {/* Reset Button - always first */}
+        {showCancel && (
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleCancel}
+            disabled={isSubmitting}
+          >
+            <ArrowLeft className="size-4" />
+            {cancelText}
           </Button>
-        </div>
+        )}
+
+        {/* Cancel Button - always second */}
+        {showReset && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleReset}
+            disabled={!isDirty || isSubmitting}
+          >
+            <RotateCcw className="size-4" />
+            {showResetText ? resetText : undefined}
+          </Button>
+        )}
+
+        {/* Submit Button - always last */}
+        <Button type="submit" disabled={isSubmitting || !isValid} onClick={onSubmit}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              Wird gespeichert...
+            </>
+          ) : (
+            <>
+              {submitText}
+              <ArrowRight className="size-4" />
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );

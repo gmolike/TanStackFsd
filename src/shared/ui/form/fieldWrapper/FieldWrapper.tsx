@@ -1,20 +1,20 @@
-import { memo, useEffect, useRef } from 'react';
-import type { FieldValues, PathValue } from 'react-hook-form';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { memo } from 'react';
+import type { FieldValues } from 'react-hook-form';
 
 import { RotateCcw } from 'lucide-react';
 
 import {
   Button,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  ShadCnFormControl,
+  ShadCnFormDescription,
+  ShadCnFormField,
+  ShadCnFormItem,
+  ShadCnFormLabel,
+  ShadCnFormMessage,
 } from '~/shared/shadcn';
 
 import type { Props } from './model/types';
+import { useController } from './model/useController';
 
 /**
  * FormFieldWrapper Component - Wrapper with reset functionality
@@ -53,89 +53,38 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   showReset = true,
   render,
 }: Props<TFieldValues>) => {
-  const form = useFormContext<TFieldValues>();
-  const currentValue = useWatch({ control, name });
-
-  const defaultValueRef = useRef<PathValue<TFieldValues, typeof name> | undefined>(undefined);
-
-  useEffect(() => {
-    const defaultValues = form.formState.defaultValues;
-    if (defaultValues && defaultValueRef.current === undefined) {
-      const pathParts = (name as string).split('.');
-      let value: unknown = defaultValues;
-
-      for (const part of pathParts) {
-        if (value && typeof value === 'object' && part in value) {
-          value = (value as Record<string, unknown>)[part];
-        } else {
-          value = undefined;
-          break;
-        }
-      }
-
-      defaultValueRef.current = value as PathValue<TFieldValues, typeof name>;
-    }
-  }, [form.formState.defaultValues, name]);
-
-  const handleReset = () => {
-    form.setValue(name, defaultValueRef.current as PathValue<TFieldValues, typeof name>, {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  };
-
-  const isValueDifferent = (current: unknown, defaultVal: unknown): boolean => {
-    if (current == null && defaultVal == null) return false;
-
-    if (current == null || defaultVal == null) return true;
-
-    if (current instanceof Date && defaultVal instanceof Date) {
-      return current.getTime() !== defaultVal.getTime();
-    }
-
-    if (typeof current === 'string' && typeof defaultVal === 'string') {
-      try {
-        const currentDate = new Date(current);
-        const defaultDate = new Date(defaultVal);
-        if (!isNaN(currentDate.getTime()) && !isNaN(defaultDate.getTime())) {
-          return currentDate.getTime() !== defaultDate.getTime();
-        }
-      } catch (error) {
-        console.warn('Failed to parse date strings for comparison:', error);
-        return current !== defaultVal;
-      }
-    }
-    return current !== defaultVal;
-  };
-  const isDifferentFromDefault = isValueDifferent(currentValue, defaultValueRef.current);
+  const { isDifferentFromDefault, handleReset } = useController({
+    control,
+    name,
+    showReset,
+  });
   return (
-    <FormField
+    <ShadCnFormField
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
+        <ShadCnFormItem className={className}>
           <div className="flex items-center justify-between">
-            {label && <FormLabel required={required}>{label}</FormLabel>}
-            <div className="h-6 w-6">
+            {label && <ShadCnFormLabel required={required}>{label}</ShadCnFormLabel>}
+            <div className="size-6">
               {showReset && isDifferentFromDefault && (
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="size-6"
                   onClick={handleReset}
                   aria-label="Auf Standardwert zurücksetzen"
                 >
-                  <RotateCcw className="h-3 w-3" />
+                  <RotateCcw className="size-3" />
                 </Button>
               )}
             </div>
           </div>
-          <FormControl>{render(field)}</FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+          <ShadCnFormControl>{render(field)}</ShadCnFormControl>
+          {description && <ShadCnFormDescription>{description}</ShadCnFormDescription>}
+          <ShadCnFormMessage />
+        </ShadCnFormItem>
       )}
     />
   );

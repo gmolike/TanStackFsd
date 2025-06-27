@@ -75,8 +75,7 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
   };
 
   const handleLogout = () => {
-    // TODO: Implement logout functionality
-    console.log('Logout clicked');
+    console.warn('Logout clicked');
   };
 
   const renderNavigationItem = (item: NavigationItem, level = 0) => {

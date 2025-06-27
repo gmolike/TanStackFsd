@@ -9,8 +9,8 @@ import type { AuthType } from './type';
 
 // Define the router context type
 interface RouterContext {
-  auth: AuthType;
-  queryClient: QueryClient;
+  auth: AuthType | undefined;
+  queryClient: QueryClient | undefined;
 }
 
 export const Router = createRouter({
@@ -19,8 +19,8 @@ export const Router = createRouter({
   scrollRestoration: true,
   context: {
     // These will be set after we wrap the app in providers
-    auth: undefined!,
-    queryClient: undefined!,
+    auth: undefined,
+    queryClient: undefined,
   } as RouterContext,
 });
 

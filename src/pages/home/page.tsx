@@ -15,7 +15,7 @@ export function HomePage() {
   const [excludeCurrentMember, setExcludeCurrentMember] = useState(false);
 
   const handleSelect = (member: TeamMember) => {
-    console.log('Selected team member:', member);
+    console.info('Selected team member:', member);
     setSelectedMember(member);
   };
   return (

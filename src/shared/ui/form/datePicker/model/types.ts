@@ -55,6 +55,11 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldPro
    * Shows an input field above the calendar for typing dates
    */
   allowInput?: boolean;
+
+  /**
+   * testid for testing
+   */
+  testId?: string;
 };
 
 /**

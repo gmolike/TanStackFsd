@@ -294,7 +294,7 @@ export const useResetArticles = (options?: RemoteMutationOptions<void, void>) =>
     undefined,
     {
       ...options,
-      mutationFn: async () => articleMockApi.resetData(),
+      mutateFn: () => articleMockApi.resetData(),
       onSuccess: async (data, variables, context) => {
         // Invalidiere alle Article-bezogenen Queries
         await queryClient.invalidateQueries({ queryKey: ['articles'] });

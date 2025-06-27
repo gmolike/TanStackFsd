@@ -7,7 +7,6 @@ import { cn } from '~/shared/lib/utils';
 import {
   Button,
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -21,6 +20,7 @@ import { FormFieldWrapper } from '../fieldWrapper';
 
 import type { Props } from './model/types';
 import { useController } from './model/useController';
+import { CommandListTemplate } from './ui/CommandList';
 
 /**
  * Combobox Component - Searchable dropdown with autocomplete
@@ -35,6 +35,7 @@ import { useController } from './model/useController';
  * @param placeholder - Placeholder text when no option is selected
  * @param searchPlaceholder - Placeholder text for the search input
  * @param disabled - Whether the combobox is disabled
+ * @param testId - Id for Testing
  * @param className - Additional CSS classes for the form item container
  * @param options - Array of options to display in the dropdown
  * @param emptyText - Text to show when no options match the search
@@ -72,6 +73,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   placeholder = 'Auswählen...',
   searchPlaceholder = 'Suchen...',
   disabled,
+  testId,
   className,
   options,
   emptyText = 'Keine Ergebnisse gefunden.',
@@ -84,12 +86,12 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
     isDisabled,
     open,
     setOpen,
-    searchValue,
     setSearchValue,
     filteredOptions,
     selectedOption,
     handleSelect,
     handleClear,
+    checkValue,
   } = useController({
     control,
     name,
@@ -115,52 +117,49 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                role="combobox"
                 aria-expanded={open}
-                className={cn(
-                  'flex-1 justify-between font-normal',
-                  !field.value && 'text-muted-foreground',
-                )}
+                className={cn('flex-1 justify-between font-normal', !field.value && 'text-muted')}
                 disabled={isDisabled}
                 type="button"
+                data-testid={testId}
               >
-                {selectedOption?.label || placeholder}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                {selectedOption?.label ?? placeholder}
+                <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0" align="start">
               <Command>
                 <CommandInput
                   placeholder={searchPlaceholder}
-                  value={searchValue}
+                  value={checkValue()}
                   onValueChange={setSearchValue}
                   disabled={loading}
                 />
                 <CommandList>
-                  {loading ? (
-                    <CommandEmpty>Wird geladen...</CommandEmpty>
-                  ) : filteredOptions.length === 0 ? (
-                    <CommandEmpty>{emptyText}</CommandEmpty>
-                  ) : (
+                  <CommandListTemplate
+                    isLoading={loading}
+                    filteredOptionsLength={filteredOptions.length}
+                    emptyText={emptyText}
+                  >
                     <CommandGroup>
                       {filteredOptions.map((option) => (
                         <CommandItem
-                          key={option.value}
-                          value={option.value}
-                          onSelect={() => handleSelect(option.value, field.onChange)}
+                          key={option.key}
+                          value={option.key}
+                          onSelect={() => handleSelect(option.key, field.onChange)}
                           disabled={option.disabled}
                         >
                           <Check
                             className={cn(
-                              'mr-2 h-4 w-4',
-                              field.value === option.value ? 'opacity-100' : 'opacity-0',
+                              'mr-2 size-4',
+                              field.value === option.key ? 'opacity-100' : 'opacity-0',
                             )}
                           />
                           {option.label}
                         </CommandItem>
                       ))}
                     </CommandGroup>
-                  )}
+                  </CommandListTemplate>
                 </CommandList>
               </Command>
             </PopoverContent>
@@ -174,7 +173,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
               aria-label="Auswahl löschen"
               className="shrink-0"
             >
-              <X className="h-4 w-4" />
+              <X className="size-4" />
             </Button>
           )}
         </div>

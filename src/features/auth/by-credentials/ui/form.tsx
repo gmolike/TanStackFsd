@@ -29,8 +29,7 @@ export function LoginForm() {
   });
 
   const handleSubmit = (data: LoginFormData) => {
-    console.log('Login attempt:', data);
-    // TODO: Implement actual authentication
+    console.info('Login attempt:', data);
     navigate({ to: '/' });
   };
 

@@ -1,4 +1,4 @@
-// src/shared/ui/data-table/columns/article-columns.tsx
+// src/shared/ui/dataTable/columns/article-columns.tsx
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 
@@ -46,7 +46,7 @@ export const articleColumns: Array<ColumnDef<Article>> = [
       const subcategory = row.original.subcategory;
       return (
         <div>
-          {category}
+          {String(category)}
           {subcategory && <span className="text-muted-foreground"> / {subcategory}</span>}
         </div>
       );
@@ -78,7 +78,7 @@ export const articleColumns: Array<ColumnDef<Article>> = [
       </Button>
     ),
     cell: ({ row }) => {
-      const stock = row.getValue('stock');
+      const stock = Number(row.getValue('stock'));
       const minStock = row.original.minStock;
       const unit = row.original.unit || 'Stück';
       const isLow = stock <= minStock;
@@ -95,7 +95,8 @@ export const articleColumns: Array<ColumnDef<Article>> = [
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status');
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      const status = row.getValue('status') as keyof typeof statusColors;
       const statusColors = {
         available: 'bg-green-100 text-green-800',
         unavailable: 'bg-red-100 text-red-800',

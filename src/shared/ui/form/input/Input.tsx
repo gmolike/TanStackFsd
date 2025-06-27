@@ -37,7 +37,7 @@ import { useController } from './model/useController';
  *   name="email"
  *   label="Email Address"
  *   placeholder="Enter your email"
- *   startIcon={<Mail className="h-4 w-4" />}
+ *   startIcon={<Mail className="size-4" />}
  *   showReset={true}
  * />
  * ```
@@ -79,7 +79,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       render={(field) => (
         <div className={cn('relative', wrapperClassName)}>
           {startIcon && (
-            <div className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground">
+            <div className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground">
               {startIcon}
             </div>
           )}
@@ -102,7 +102,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
             )}
           />
           {endIcon && (
-            <div className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground">
+            <div className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground">
               {endIcon}
             </div>
           )}

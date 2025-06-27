@@ -1,5 +1,6 @@
-import { createTestFactory, createTestDate } from '~/shared/test/utils';
-import type { TeamMember, Address } from '../schema';
+import { createTestDate, createTestFactory } from '~/shared/test/utils';
+
+import type { Address, TeamMember } from '../schema';
 
 // Generische Factory für Address
 export const createAddressFactory = createTestFactory<Address>({

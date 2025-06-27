@@ -4,14 +4,14 @@
  */
 export function createTestFactory<T>(
   defaults: T,
-  generators?: Partial<Record<keyof T, () => any>>,
+  generators?: Partial<Record<keyof T, () => unknown>>,
 ) {
   return (overrides?: Partial<T>): T => {
     const generated = generators
       ? Object.entries(generators).reduce(
           (acc, [key, generator]) => ({
             ...acc,
-            [key]: (generator as () => any)(),
+            [key]: (generator as () => unknown)(),
           }),
           {} as Partial<T>,
         )
@@ -37,6 +37,6 @@ export function createTestItems<T extends { id: string }>(
     factory({
       id: `test-${index + 1}`,
       ...(overridesPerItem?.(index) || {}),
-    }),
+    } as Partial<T>),
   );
 }

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 
 import { teamTableDefinition, useTeamMembers } from '~/entities/team';
 
-import { DataTable } from '~/shared/ui/data-table';
+import { DataTable } from '~/shared/ui/dataTable';
 
 import type { SearchTableProps } from '../model/types';
 
@@ -29,7 +29,7 @@ export const SearchTable = ({
   return (
     <DataTable
       tableDefinition={teamTableDefinition}
-      selectableColumns={['name', 'email', 'role', 'department']}
+      selectableColumns={['firstName', 'email', 'role', 'department']}
       data={filteredMembers}
       isLoading={isLoading}
       searchPlaceholder="Nach Name, E-Mail oder Position suchen..."

@@ -65,10 +65,7 @@ export const articleMockApi = {
     category: string,
     params?: Omit<QueryParams, 'filters'>,
   ): Promise<PaginatedResult<Article>> {
-    const filters: Array<FilterParam> = [
-      { field: 'category', operator: 'eq', value: category },
-      ...(params?.filters || []),
-    ];
+    const filters: Array<FilterParam> = [{ field: 'category', operator: 'eq', value: category }];
 
     return this.getArticles({ ...params, filters });
   },
@@ -80,10 +77,7 @@ export const articleMockApi = {
     status: string,
     params?: Omit<QueryParams, 'filters'>,
   ): Promise<PaginatedResult<Article>> {
-    const filters: Array<FilterParam> = [
-      { field: 'status', operator: 'eq', value: status },
-      ...(params?.filters || []),
-    ];
+    const filters: Array<FilterParam> = [{ field: 'status', operator: 'eq', value: status }];
 
     return this.getArticles({ ...params, filters });
   },
@@ -212,7 +206,11 @@ export const articleMockApi = {
         throw new ApiError(400, `Nicht genügend Lagerbestand. Verfügbar: ${article.stock}`);
       }
 
-      return this.updateArticle(id, { stock: newStock });
+      return this.updateArticle(id, {
+        stock: newStock,
+        id: '',
+        updatedAt: new Date(),
+      });
     } catch (error) {
       if (error instanceof ApiError) throw error;
       throw new ApiError(500, 'Fehler beim Aktualisieren des Lagerbestands', error);
@@ -299,11 +297,11 @@ export const articleMockApi = {
   /**
    * Utility-Funktionen
    */
-  async resetData(): Promise<void> {
+  resetData(): void {
     articleStorage.reset(() => generateArticleMix(50));
   },
 
-  async clearData(): Promise<void> {
+  clearData(): void {
     articleStorage.clear();
   },
 };

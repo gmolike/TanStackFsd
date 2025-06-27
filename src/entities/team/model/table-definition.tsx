@@ -1,11 +1,6 @@
-// entities/team/model/table-definition.tsx
-import type { FieldDefinition, TableDefinition } from '~/shared/ui/data-table';
-import {
-  BooleanCell,
-  DateCell,
-  EmailCell,
-  PhoneCell,
-} from '~/shared/ui/data-table/components/CellTemplates';
+/* eslint-disable react-refresh/only-export-components */
+import type { TableDefinition } from '~/shared/ui/dataTable';
+import { BooleanCell, DateCell, EmailCell, PhoneCell } from '~/shared/ui/dataTable';
 
 import { StatusBadge } from '../ui/status-badge';
 
@@ -13,86 +8,16 @@ import { teamLabels } from './labels';
 import type { TeamMember } from './schema';
 
 // Name Cell für Team
-const TeamNameCell = ({ row }: { value: unknown; row: TeamMember }) => (
+const TeamNameCell = ({ row }: { row: TeamMember }) => (
   <div className="font-medium">
     {row.firstName} {row.lastName}
   </div>
 );
 
 // Status Cell Wrapper
-const TeamStatusCell = ({ value }: { value: unknown; row: TeamMember }) => (
+const TeamStatusCell = ({ value }: { value: unknown }) => (
   <StatusBadge status={value as TeamMember['status']} />
 );
-
-/**
- * Team Table Field Definitions
- * Nutzt direkte Komponenten statt Templates
- */
-const teamFields: Array<FieldDefinition<TeamMember>> = [
-  {
-    id: 'name',
-    accessor: (row: TeamMember) => `${row.firstName} ${row.lastName}`,
-    sortable: true,
-    searchable: true,
-    cell: TeamNameCell,
-  },
-  {
-    id: 'email',
-    accessor: (row: TeamMember) => row.email,
-    sortable: true,
-    searchable: true,
-    cell: EmailCell as React.ComponentType<{ value: unknown; row: TeamMember }>,
-  },
-  {
-    id: 'role',
-    accessor: (row: TeamMember) => row.role,
-    sortable: false,
-    searchable: true,
-    cell: 'default', // Nutzt Standard Text Cell
-  },
-  {
-    id: 'department',
-    accessor: (row: TeamMember) => row.department,
-    sortable: true,
-    searchable: true,
-    cell: 'default', // Nutzt Standard Text Cell
-  },
-  {
-    id: 'phone',
-    accessor: (row: TeamMember) => row.phone ?? '',
-    sortable: false,
-    searchable: false,
-    cell: PhoneCell as React.ComponentType<{ value: unknown; row: TeamMember }>,
-  },
-  {
-    id: 'status',
-    accessor: (row: TeamMember) => row.status,
-    sortable: false,
-    searchable: false,
-    cell: TeamStatusCell,
-  },
-  {
-    id: 'remoteWork',
-    accessor: (row: TeamMember) => row.remoteWork || false,
-    sortable: false,
-    searchable: false,
-    cell: BooleanCell as React.ComponentType<{ value: unknown; row: TeamMember }>,
-  },
-  {
-    id: 'startDate',
-    accessor: (row: TeamMember) => row.startDate,
-    sortable: true,
-    searchable: false,
-    cell: DateCell as React.ComponentType<{ value: unknown; row: TeamMember }>,
-  },
-  {
-    id: 'actions',
-    sortable: false,
-    searchable: false,
-    // Spezieller Marker für Actions - wird von DataTable erkannt
-    cell: 'actions' as any,
-  },
-];
 
 /**
  * Team Table Definition
@@ -100,7 +25,46 @@ const teamFields: Array<FieldDefinition<TeamMember>> = [
  */
 export const teamTableDefinition: TableDefinition<TeamMember> = {
   labels: teamLabels,
-  fields: teamFields,
+  fields: [
+    {
+      id: 'firstName',
+      cell: TeamNameCell,
+    },
+    {
+      id: 'email',
+      cell: EmailCell,
+    },
+    {
+      id: 'role',
+    },
+    {
+      id: 'department',
+    },
+    {
+      id: 'phone',
+
+      cell: PhoneCell,
+    },
+    {
+      id: 'status',
+      cell: TeamStatusCell,
+    },
+    {
+      id: 'remoteWork',
+      cell: BooleanCell,
+    },
+    {
+      id: 'startDate',
+
+      cell: DateCell,
+    },
+    {
+      id: 'actions',
+      sortable: false,
+      searchable: false,
+      cell: 'actions',
+    },
+  ],
 };
 
 /**

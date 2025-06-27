@@ -57,6 +57,7 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [searchValue, onSearchChange]);
 
   // Reset search when closing
@@ -102,5 +103,6 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
     selectedOption,
     handleSelect,
     handleClear,
+    checkValue: () => fieldValue ?? '',
   };
 };

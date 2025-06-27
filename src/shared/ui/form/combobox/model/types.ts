@@ -6,11 +6,12 @@ import type { BaseFieldProps } from '../../input/model/types';
  * Option for Combobox dropdown
  */
 export type Option = {
+  value: unknown;
   /**
    * The value that will be submitted
    * Used as the form field value when this option is selected
    */
-  value: string;
+  key: string;
 
   /**
    * The label displayed to the user
@@ -69,6 +70,11 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldPro
    * Shows loading state in dropdown
    */
   loading?: boolean;
+
+  /**
+   * Id for Testing
+   */
+  testId?: string;
 };
 
 /**
@@ -171,7 +177,7 @@ export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
    */
   handleSelect: (
     value: string,
-    onChange: (value: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void,
+    onChange: (newValue: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void,
   ) => void;
 
   /**
@@ -181,4 +187,8 @@ export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
   handleClear: (
     onChange: (value: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void,
   ) => void;
+  /**
+   * Checks if the field is undefined in the form and set is ihn this case to empty string
+   */
+  checkValue: () => string | undefined;
 };

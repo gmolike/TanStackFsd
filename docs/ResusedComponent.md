@@ -206,7 +206,7 @@ export type { DataTableProps } from './data-table-with-skeleton';
 // src/features/user-management/ui/user-list.tsx
 import { useUsers } from '../api/use-users';
 import { userColumns } from './user-columns';
-import { DataTableWithSkeleton } from '~/shared/ui/data-table-with-skeleton';
+import { DataTableWithSkeleton } from '~/shared/ui/dataTable-with-skeleton';
 
 export const UserList = () => {
   const { data, isLoading } = useUsers();

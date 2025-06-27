@@ -2,10 +2,10 @@
 import { useNavigate } from '@tanstack/react-router';
 
 import type { TeamMember } from '~/entities/team';
-import { teamColumnSets, teamTableDefinition, useTeamMembers } from '~/entities/team';
+import { teamTableDefinition, useTeamMembers } from '~/entities/team';
 
 import { Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
-import { DataTable } from '~/shared/ui/data-table';
+import { DataTable } from '~/shared/ui/dataTable';
 
 import type { DashboardTableProps } from './model/types';
 import { TableHeader } from './ui/table-header';
@@ -48,7 +48,6 @@ export const DashboardTable = ({ className, onMemberClick }: DashboardTableProps
             // Table Definition
             tableDefinition={teamTableDefinition}
             // Type-safe column selection for dashboard
-            selectableColumns={teamColumnSets.dashboard}
             data={teamMembers}
             // ID handling - KEINE selectedId hier, da wir nicht auf einer Detail-Route sind
             idKey="id"

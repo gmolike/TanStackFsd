@@ -1,12 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { memo } from 'react';
 import type { ReactNode } from 'react';
-import type { FieldValues, SubmitHandler, UseFormProps, UseFormReturn } from 'react-hook-form';
+import type {
+  CriteriaMode,
+  FieldValues,
+  Mode,
+  SubmitHandler,
+  UseFormProps,
+  UseFormReturn,
+} from 'react-hook-form';
 import { useForm as useRHFForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ZodType } from 'zod';
 
-import { Form as ShadcnForm } from '~/shared/shadcn';
+import { ShadCnForm } from '../../../shadcn';
 
 /**
  * Props for the Form component
@@ -17,7 +25,7 @@ export type FormProps<TFieldValues extends FieldValues = FieldValues> = {
   /**
    * Zod schema for form validation
    */
-  schema?: ZodType<TFieldValues>;
+  schema: ZodType<TFieldValues>;
 
   /**
    * Default values for form fields
@@ -36,9 +44,21 @@ export type FormProps<TFieldValues extends FieldValues = FieldValues> = {
 
   /**
    * Validation mode
-   * @default 'onSubmit'
+   * @default 'onChange'
    */
   mode?: UseFormProps<TFieldValues>['mode'];
+
+  /**
+   * Which Error shoud be displayed
+   * @default 'all'
+   */
+  criteriaMode?: CriteriaMode;
+
+  /**
+   * ReValidation mode
+   * @default 'onChange'
+   */
+  reValidateMode?: Exclude<Mode, 'onTouched' | 'all'>;
 
   /**
    * Children can be a function that receives the form instance or ReactNode
@@ -91,25 +111,29 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   defaultValues,
   onSubmit,
   onError,
-  mode = 'onBlur',
+  mode = 'onChange',
+  reValidateMode = 'onChange',
+  criteriaMode = 'all',
   children,
   className,
   id,
 }: FormProps<TFieldValues>) => {
   const form = useRHFForm<TFieldValues>({
-    resolver: schema ? zodResolver(schema) : undefined,
+    resolver: zodResolver(schema),
     defaultValues,
     mode,
+    reValidateMode,
+    criteriaMode,
   });
 
   const handleSubmit = form.handleSubmit(onSubmit, onError);
 
   return (
-    <ShadcnForm {...form}>
+    <ShadCnForm {...form}>
       <form id={id} onSubmit={handleSubmit} className={className}>
-        {typeof children === 'function' ? children(form) : children}
+        <div>{typeof children === 'function' ? children(form) : children}</div>
       </form>
-    </ShadcnForm>
+    </ShadCnForm>
   );
 };
 

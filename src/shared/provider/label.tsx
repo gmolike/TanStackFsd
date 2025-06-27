@@ -19,6 +19,7 @@ export function LabelProvider({
   return <LabelContext.Provider value={{ labels, getLabel }}>{children}</LabelContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLabel(key: string): string {
   const context = useContext(LabelContext);
   if (!context) {

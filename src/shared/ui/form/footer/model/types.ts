@@ -1,4 +1,3 @@
-// src/shared/ui/form/footer/model/types.ts
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
 /**
@@ -20,7 +19,7 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = {
   onSubmit?: () => void;
 
   /**
-   * Cancel handler
+   * Cancel handler default is go back in the history
    * @optional Called when cancel button is clicked
    */
   onCancel?: () => void;
@@ -36,6 +35,11 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = {
    * @default false
    */
   showReset?: boolean;
+  /**
+   * Whether to show reset button text
+   * @default false
+   */
+  showResetText?: boolean;
 
   /**
    * Whether to show cancel button
@@ -77,12 +81,6 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = {
    * Additional CSS classes for the footer container
    */
   className?: string;
-
-  /**
-   * Children content to display on the left side
-   * @optional Shows custom content on the left while buttons stay on the right
-   */
-  children?: React.ReactNode;
 };
 
 /**
@@ -103,7 +101,8 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
    */
   onReset?: () => void;
   /**
-   * Cancel handler
+   * Cancel handler default is go back in the history
+   * @optional Called when cancel button is clicked
    */
   onCancel?: () => void;
 };
@@ -138,8 +137,8 @@ export type ControllerResult = {
    */
   handleReset: () => void;
   /**
-   * Handle Cancel with callback
-   * Resets form to default values and calls onCancel callback
+   * Handle cancel with callback
+   * Navigate back in the History
    */
   handleCancel: () => void;
 };

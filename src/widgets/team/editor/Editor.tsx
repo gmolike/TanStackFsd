@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@tanstack/react-router';
-import { UserPlus } from 'lucide-react';
 
 import type {
   CreateTeamMember,
@@ -21,13 +20,11 @@ import {
 } from '~/entities/team';
 
 import { toast } from '~/shared/hooks/use-toast';
-import { FormFooter, FormHeader, FormProvider } from '~/shared/ui/form';
+import { FormFooter, FormProvider } from '~/shared/ui/form';
 
 import { ErrorState, LoadingState } from './model/helper';
 // Import sections
-import { AddressSection } from './ui/address-section';
 import { PersonalInfoSection } from './ui/personal-info-section';
-import { ProfessionalInfoSection } from './ui/professional-info-section';
 import { SettingsSection } from './ui/settings-section';
 
 type Props = {
@@ -171,19 +168,7 @@ export const Editor = ({ memberId }: Props) => {
     <div className="container mx-auto max-w-4xl py-8">
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit, handleError)} className="space-y-8">
-          <FormHeader
-            title={isEditMode ? 'Teammitglied bearbeiten' : 'Neues Teammitglied'}
-            description={
-              isEditMode
-                ? 'Bearbeiten Sie die Daten des Teammitglieds'
-                : 'Fügen Sie ein neues Teammitglied hinzu'
-            }
-            icon={UserPlus}
-          />
-
           <PersonalInfoSection control={form.control} />
-          <ProfessionalInfoSection control={form.control} />
-          <AddressSection control={form.control} />
           <SettingsSection control={form.control} />
 
           <FormFooter

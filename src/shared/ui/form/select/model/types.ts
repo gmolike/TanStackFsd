@@ -1,92 +1,68 @@
-import type { Control, FieldPath, FieldValues } from 'react-hook-form';
+import type { Control, FieldPath, FieldValues, PathValue } from 'react-hook-form';
+
+import type { EnumConfigBundle } from '~/shared/ui/enum';
 
 import type { BaseFieldProps } from '../../input/model/types';
 
-/**
- * Option for Select dropdown
- */
-export type Option = {
-  /**
-   * The value that will be submitted
-   * Used as the form field value when this option is selected
-   */
+export type EnumOption = {
   value: string;
-
-  /**
-   * The label displayed to the user
-   * Shown in the dropdown list and when selected
-   */
   label: string;
-
-  /**
-   * Whether this option is disabled
-   * @optional Prevents selection of this option
-   */
-  disabled?: boolean;
 };
 
-/**
- * Props for the Select component
- *
- * @template TFieldValues - Type of the form values
- */
-export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldProps<TFieldValues> & {
+export type Props<
+  TFieldValues extends FieldValues = FieldValues,
+  TEnum extends Record<string, string | number> = Record<string, string>,
+> = BaseFieldProps<TFieldValues> & {
   /**
-   * Array of options to display in the dropdown
-   * Each option must have a unique value
+   * Enum configuration bundle
    */
-  options: Array<Option>;
+  enumConfig: EnumConfigBundle<TEnum>;
 
   /**
-   * Text for an empty/null option (e.g., "None selected")
-   * @optional If provided, adds an empty option at the beginning
+   * Text for an empty/null option
    */
   emptyOption?: string;
 
   /**
    * Whether to show clear button
    * @default true
-   * Button appears when an option is selected
    */
   showClear?: boolean;
+  /**
+   * testId for testing
+   */
+  testId?: string;
 };
 
-/**
- * Props for the Select controller hook
- *
- * @template TFieldValues - Type of the form values
- */
-export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
+export type ControllerProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TEnum extends Record<string, string | number> = Record<string, string>,
+> = {
   /**
    * React Hook Form control object
    * Required to access form state
    */
   control: Control<TFieldValues>;
-
   /**
    * Field name in the form
    * Used to access field state
    */
   name: FieldPath<TFieldValues>;
-
   /**
    * Whether the select is disabled
    * @optional Combined with form submission state
    */
   disabled?: boolean;
-
   /**
    * Whether the field is required
    * @optional Used for aria-required attribute
    */
   required?: boolean;
-
   /**
-   * Array of options
+   * Config of the enum to get all option
    * Passed through to the select component
    */
-  options: Array<Option>;
-
+  enumConfig: EnumConfigBundle<TEnum>;
   /**
    * Text for empty option
    * @optional Creates an additional option with empty value
@@ -97,45 +73,40 @@ export type ControllerProps<TFieldValues extends FieldValues = FieldValues> = {
 /**
  * Return value of the Select controller hook
  */
-export type ControllerResult = {
+export type ControllerResult<TFieldValues extends FieldValues = FieldValues> = {
+  /**
+   * Delete the select Value and set it to undefined
+   */
+  handleLocalReset: (onChange: () => void) => void;
   /**
    * Whether the select is disabled (considering form state)
    * True if explicitly disabled or form is submitting
    */
   isDisabled: boolean;
-
   /**
    * Whether to show an empty option
    * True if emptyOption prop is provided
    */
   hasEmptyOption: boolean;
-
   /**
-   * Processed options array
-   * Same as input options (for future processing)
+   * enumbased Options to get all option
+   * Passed through to the select component
    */
-  selectOptions: Array<Option>;
-
+  enumOptions: Array<EnumOption>;
   /**
    * Text for the empty option
    * Value of emptyOption prop or empty string
    */
   emptyOptionText: string;
-
-  /**
-   * Normalized field value (never undefined)
-   * Empty string if field value is null or undefined
-   */
   normalizedValue: string;
-
-  /**
-   * Whether the select dropdown is open
-   */
+  displayValue: string | undefined;
   open: boolean;
-
-  /**
-   * Function to set the open state
-   * @param open - New open state
-   */
   setOpen: (open: boolean) => void;
+  /**
+   * Checks if the field is undefined in the form and set is ihn this case to empty string
+   */
+  onValueChange: (
+    value: string,
+    onChange: (newValue: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void,
+  ) => void;
 };

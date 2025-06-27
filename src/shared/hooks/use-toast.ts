@@ -1,6 +1,3 @@
-'use client';
-
-// Inspired by react-hot-toast library
 import * as React from 'react';
 
 import type { ToastActionElement, ToastProps } from '~/shared/shadcn/toast';
@@ -83,8 +80,8 @@ export const reducer = (state: State, action: Action): State => {
       if (toastId) {
         addToRemoveQueue(toastId);
       } else {
-        state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id);
+        state.toasts.forEach((t) => {
+          addToRemoveQueue(t.id);
         });
       }
 
@@ -130,10 +127,10 @@ type Toast = Omit<ToasterToast, 'id'>;
 function toast({ ...props }: Toast) {
   const id = genId();
 
-  const update = (props: ToasterToast) =>
+  const update = (toastProps: ToasterToast) =>
     dispatch({
       type: 'UPDATE_TOAST',
-      toast: { ...props, id },
+      toast: { ...toastProps, id },
     });
   const dismiss = () => dispatch({ type: 'DISMISS_TOAST', toastId: id });
 

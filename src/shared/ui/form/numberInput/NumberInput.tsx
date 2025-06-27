@@ -2,12 +2,12 @@ import { memo } from 'react';
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  ShadCnFormControl,
+  ShadCnFormDescription,
+  ShadCnFormField,
+  ShadCnFormItem,
+  ShadCnFormLabel,
+  ShadCnFormMessage,
 } from '../../../shadcn';
 
 interface FormNumberInputProps<
@@ -61,15 +61,15 @@ const Component = <
   disabled = false,
   onChange,
 }: FormNumberInputProps<TFieldValues, TName>) => (
-  <FormField
+  <ShadCnFormField
     control={control}
     name={name}
     render={({ field }) => (
-      <FormItem>
-        <FormLabel>
+      <ShadCnFormItem>
+        <ShadCnFormLabel>
           {label} {required && <span className="text-destructive">*</span>}
-        </FormLabel>
-        <FormControl>
+        </ShadCnFormLabel>
+        <ShadCnFormControl>
           <input
             type="number"
             placeholder={placeholder}
@@ -94,10 +94,10 @@ const Component = <
             onBlur={field.onBlur}
             className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           />
-        </FormControl>
-        {description && <FormDescription>{description}</FormDescription>}
-        <FormMessage />
-      </FormItem>
+        </ShadCnFormControl>
+        {description && <ShadCnFormDescription>{description}</ShadCnFormDescription>}
+        <ShadCnFormMessage />
+      </ShadCnFormItem>
     )}
   />
 );

@@ -1,7 +1,5 @@
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
-import type { Locale } from 'date-fns';
-
 /**
  * Props for the DateRange component
  *
@@ -64,9 +62,4 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = {
    * Date format string for both pickers
    */
   dateFormat?: string;
-
-  /**
-   * Locale for date formatting
-   */
-  locale?: Locale;
 };

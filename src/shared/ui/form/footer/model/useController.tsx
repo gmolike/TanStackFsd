@@ -10,12 +10,11 @@ import type { ControllerProps, ControllerResult } from './types';
  *
  * @template TFieldValues - Type of the form values
  *
- * @param props - Controller props
- * @param props.form - React Hook Form instance (optional, will use context if not provided)
- * @param props.onReset - Reset handler called after form reset
- * @param props.onCancel - Cancel handler called after form cancel
+ * @param form - React Hook Form instance (optional, will use context if not provided)
+ * @param onReset - Reset handler called after form reset
+ * @param onCancel - Reset handler called after form cancel
  *
- * @returns Controller result with form state and event handlers
+ * @returns Controller result with form state and reset handler
  */
 export const useController = <TFieldValues extends FieldValues = FieldValues>({
   form: providedForm,
@@ -30,15 +29,15 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
   const { formState } = form;
   const { isSubmitting, isDirty, isValid } = formState;
 
-  const handleReset = () => {
-    // Reset to default values (not clear the form)
-    form.reset();
-    onReset?.();
+  const handleCancel = () => {
+    if (!onCancel) {
+      router.history.back();
+    } else onCancel();
   };
 
-  const handleCancel = () => {
-    router.history.back();
-    onCancel?.();
+  const handleReset = () => {
+    form.reset();
+    onReset?.();
   };
 
   return {

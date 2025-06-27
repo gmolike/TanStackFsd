@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useFormState } from 'react-hook-form';
 
@@ -25,14 +26,19 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
   const isDisabled = disabled || isSubmitting;
 
   // Determine layout classes based on side
-  const groupClasses =
-    side === 'top'
-      ? 'flex flex-col-reverse gap-2'
-      : side === 'left'
-        ? 'flex flex-row-reverse justify-end gap-2'
-        : side === 'bottom'
-          ? 'flex flex-col gap-2'
-          : 'flex items-center space-x-2'; // default (right)
+  const groupClasses = useMemo(() => {
+    switch (side) {
+      case 'top':
+        return 'flex flex-col-reverse gap-2';
+      case 'left':
+        return 'flex flex-row-reverse justify-end gap-2';
+      case 'bottom':
+        return 'flex flex-col gap-2';
+
+      default:
+        return 'flex items-center space-x-2';
+    }
+  }, [side]);
 
   return {
     isDisabled,

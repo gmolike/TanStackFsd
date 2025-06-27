@@ -94,13 +94,13 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
       setInputValue(input);
 
       if (input === '') {
-        onChange(null as PathValue<TFieldValues, FieldPath<TFieldValues>>);
+        onChange(undefined as PathValue<TFieldValues, FieldPath<TFieldValues>>);
         return;
       }
 
       const parsedDate = parse(input, dateFormat, new Date(), { locale });
       if (isValid(parsedDate) && !isDateDisabled(parsedDate)) {
-        onChange(parsedDate as PathValue<TFieldValues, FieldPath<TFieldValues>>);
+        onChange(parsedDate.toISOString() as PathValue<TFieldValues, FieldPath<TFieldValues>>);
       }
     },
     [dateFormat, locale, isDateDisabled],
@@ -115,7 +115,9 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
       date: Date | undefined,
       onChange: (selectedDate: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void,
     ) => {
-      onChange((date || null) as PathValue<TFieldValues, FieldPath<TFieldValues>>);
+      onChange(
+        (date?.toISOString() || undefined) as PathValue<TFieldValues, FieldPath<TFieldValues>>,
+      );
       setOpen(false);
       setInputValue('');
     },
@@ -128,7 +130,7 @@ export const useController = <TFieldValues extends FieldValues = FieldValues>({
    */
   const handleClear = useCallback(
     (onChange: (date: PathValue<TFieldValues, FieldPath<TFieldValues>>) => void) => {
-      onChange(null as PathValue<TFieldValues, FieldPath<TFieldValues>>);
+      onChange(undefined as PathValue<TFieldValues, FieldPath<TFieldValues>>);
       setInputValue('');
     },
     [],

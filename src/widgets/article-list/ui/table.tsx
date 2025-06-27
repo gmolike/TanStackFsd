@@ -1,21 +1,20 @@
-// src/widgets/article-list/ui/table.tsx
 import { useState } from 'react';
 
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ChevronRight, Grid3X3, List, Package, Tag } from 'lucide-react';
 
 import type { Article } from '~/entities/article';
-import { articleColumnSets, articleTableDefinition } from '~/entities/article';
+import { articleTableDefinition } from '~/entities/article';
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from '~/shared/shadcn';
-import { DataTable } from '~/shared/ui/data-table';
+import { DataTable } from '~/shared/ui/dataTable';
 
 interface ArticleListProps {
   articles: Array<Article>;
   defaultView?: 'grid' | 'table';
 }
 
-export function ArticleList({ articles, defaultView = 'grid' }: ArticleListProps) {
+export function ArticleList({ articles, defaultView = 'grid' }: Readonly<ArticleListProps>) {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>(defaultView);
   const navigate = useNavigate();
 
@@ -27,13 +26,13 @@ export function ArticleList({ articles, defaultView = 'grid' }: ArticleListProps
     navigate({ to: '/articles' });
   };
 
-  const handleEdit = (article: Article) => {
+  const handleEdit = () => {
     navigate({ to: '/articles' });
   };
 
   const handleDelete = (article: Article) => {
     // Implement delete logic
-    console.log('Delete article:', article.id);
+    console.info('Delete article:', article.id);
   };
 
   // Grid view remains the same...
@@ -126,7 +125,6 @@ export function ArticleList({ articles, defaultView = 'grid' }: ArticleListProps
       // Table Definition
       tableDefinition={articleTableDefinition}
       // Type-safe column selection
-      selectableColumns={articleColumnSets.full}
       data={articles}
       // ID handling - KEINE selectedId, da wir auf der List-Route sind
       idKey="id"

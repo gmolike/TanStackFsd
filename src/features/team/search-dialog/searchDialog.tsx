@@ -55,7 +55,26 @@ export const TeamSearchDialog = ({
 
   // Handler für Mitglieder-Auswahl
   const handleMemberSelect = useCallback(
-    (member: any) => {
+    (member: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      status: 'active' | 'inactive' | 'vacation';
+      role: string;
+      department: string;
+      startDate: Date;
+      newsletter: boolean;
+      remoteWork: boolean;
+      phone?: string | undefined;
+      bio?: string | undefined;
+      birthDate?: Date | null | undefined;
+      address?:
+        | { street: string; city: string; country: string; postalCode?: string | undefined }
+        | null
+        | undefined;
+      locationId?: string | undefined;
+    }) => {
       actions.selectMember(member);
     },
     [actions],
@@ -64,7 +83,7 @@ export const TeamSearchDialog = ({
   // Handler für Bestätigung
   const handleConfirm = useCallback(() => {
     if (state.selectedMember) {
-      console.log('Selected team member:', state.selectedMember);
+      console.info('Selected team member:', state.selectedMember);
       onSelect(state.selectedMember);
       onOpenChange(false);
     }

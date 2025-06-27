@@ -1,21 +1,22 @@
+/* eslint-disable react-refresh/only-export-components */
 // src/entities/article/model/table-definition.tsx
-import type { ExtractFieldIds, FieldDefinition, TableDefinition } from '~/shared/ui/data-table';
+import type { TableDefinition } from '~/shared/ui/dataTable';
 
 import { articleLabels } from './labels';
 import type { Article } from './schema';
 
 // Article Number Cell
-const ArticleNumberCell = ({ value }: { value: unknown; row: Article }) => (
+const ArticleNumberCell = ({ value }: { value: unknown }) => (
   <div className="font-mono text-xs">{String(value)}</div>
 );
 
 // Name Cell
-const ArticleNameCell = ({ value }: { value: unknown; row: Article }) => (
+const ArticleNameCell = ({ value }: { value: unknown }) => (
   <div className="font-medium">{String(value)}</div>
 );
 
 // Category Cell
-const ArticleCategoryCell = ({ row }: { value: unknown; row: Article }) => (
+const ArticleCategoryCell = ({ row }: { row: Article }) => (
   <div>
     {row.category}
     {row.subcategory && <span className="text-muted-foreground"> / {row.subcategory}</span>}
@@ -23,7 +24,7 @@ const ArticleCategoryCell = ({ row }: { value: unknown; row: Article }) => (
 );
 
 // Price Cell
-const ArticlePriceCell = ({ value }: { value: unknown; row: Article }) => {
+const ArticlePriceCell = ({ value }: { value: unknown }) => {
   const price = Number(value);
   const formatted = new Intl.NumberFormat('de-DE', {
     style: 'currency',
@@ -33,7 +34,7 @@ const ArticlePriceCell = ({ value }: { value: unknown; row: Article }) => {
 };
 
 // Stock Cell
-const ArticleStockCell = ({ row }: { value: unknown; row: Article }) => {
+const ArticleStockCell = ({ row }: { row: Article }) => {
   const { stock, minStock, unit = 'Stück' } = row;
   const isLow = stock <= minStock;
 
@@ -46,7 +47,7 @@ const ArticleStockCell = ({ row }: { value: unknown; row: Article }) => {
 };
 
 // Status Cell
-const ArticleStatusCell = ({ value }: { value: unknown; row: Article }) => {
+const ArticleStatusCell = ({ value }: { value: unknown }) => {
   const status = value as Article['status'];
   const statusColors = {
     available: 'bg-green-100 text-green-800',
@@ -71,71 +72,48 @@ const ArticleStatusCell = ({ value }: { value: unknown; row: Article }) => {
 };
 
 /**
- * Article Table Field Definitions
- */
-const articleFields: FieldDefinition<Article>[] = [
-  {
-    id: 'articleNumber',
-    accessor: (row: Article) => row.articleNumber,
-    sortable: true,
-    searchable: true,
-    cell: ArticleNumberCell,
-  },
-  {
-    id: 'name',
-    accessor: (row: Article) => row.name,
-    sortable: true,
-    searchable: true,
-    cell: ArticleNameCell,
-  },
-  {
-    id: 'category',
-    accessor: (row: Article) => row.category,
-    sortable: true,
-    searchable: true,
-    filterable: true,
-    cell: ArticleCategoryCell,
-  },
-  {
-    id: 'price',
-    accessor: (row: Article) => row.price,
-    sortable: true,
-    searchable: false,
-    cell: ArticlePriceCell,
-  },
-  {
-    id: 'stock',
-    accessor: (row: Article) => row.stock,
-    sortable: true,
-    searchable: false,
-    cell: ArticleStockCell,
-  },
-  {
-    id: 'status',
-    accessor: (row: Article) => row.status,
-    sortable: false,
-    searchable: false,
-    filterable: true,
-    cell: ArticleStatusCell,
-  },
-  {
-    id: 'actions',
-    sortable: false,
-    searchable: false,
-    cell: 'actions',
-  },
-];
-
-/**
  * Article Table Definition
  */
 export const articleTableDefinition: TableDefinition<Article> = {
   labels: articleLabels,
-  fields: articleFields,
+  fields: [
+    {
+      id: 'articleNumber',
+      cell: ArticleNumberCell,
+    },
+    {
+      id: 'name',
+      cell: ArticleNameCell,
+    },
+    {
+      id: 'category',
+      filterable: true,
+      cell: ArticleCategoryCell,
+    },
+    {
+      id: 'price',
+      searchable: false,
+      cell: ArticlePriceCell,
+    },
+    {
+      id: 'stock',
+      searchable: false,
+      cell: ArticleStockCell,
+    },
+    {
+      id: 'status',
+      searchable: false,
+      filterable: true,
+      cell: ArticleStatusCell,
+    },
+    {
+      id: 'actions',
+      sortable: false,
+      searchable: false,
+      cell: 'actions',
+    },
+  ],
 };
-
-// Type für die verfügbaren Spalten-IDs
-type ArticleColumnId = ExtractFieldIds<typeof articleTableDefinition>;
 
 /**
  * Vordefinierte Spalten-Sets
@@ -150,14 +128,14 @@ export const articleColumnSets = {
     'stock',
     'status',
     'actions',
-  ] as ArticleColumnId[],
+  ] as Array<string>,
 
   // Kompakte Ansicht
-  compact: ['articleNumber', 'name', 'price', 'stock'] as ArticleColumnId[],
+  compact: ['articleNumber', 'name', 'price', 'stock'] as Array<string>,
 
   // Inventar-Ansicht
-  inventory: ['articleNumber', 'name', 'category', 'stock', 'status'] as ArticleColumnId[],
+  inventory: ['articleNumber', 'name', 'category', 'stock', 'status'] as Array<string>,
 
   // Ohne Actions
-  readOnly: ['articleNumber', 'name', 'category', 'price', 'stock', 'status'] as ArticleColumnId[],
+  readOnly: ['articleNumber', 'name', 'category', 'price', 'stock', 'status'] as Array<string>,
 };

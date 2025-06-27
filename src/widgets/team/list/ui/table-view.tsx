@@ -8,7 +8,7 @@ import { TeamDeleteDialog } from '~/features/team';
 import type { TeamMember } from '~/entities/team';
 import { teamColumnSets, teamTableDefinition } from '~/entities/team';
 
-import { DataTable } from '~/shared/ui/data-table';
+import { DataTable } from '~/shared/ui/dataTable';
 
 type Props = {
   teamMembers: Array<TeamMember>;

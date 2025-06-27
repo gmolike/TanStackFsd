@@ -1,4 +1,3 @@
-// src/shared/ui/form/textarea/model/types.ts - REFACTORED IN THIS CHAT
 import type { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 import type { BaseFieldProps } from '../../input/model/types';

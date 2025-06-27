@@ -1,3 +1,4 @@
+import { FormInput } from '~/shared/ui/form';
 /**
  * Form Components Library
  *
@@ -28,22 +29,17 @@ export { Checkbox as FormCheckbox } from './checkbox';
 export { Combobox as FormCombobox } from './combobox';
 export { DatePicker as FormDatePicker } from './datePicker';
 export { DateRange as FormDateRange } from './dateRange';
-export { DialogButton as FormDialogButton } from './dialogButton';
-export { Input as FormInput } from './input';
-export { NumberInput as FormNumberInput } from './numberInput';
 export { Select as FormSelect } from './select';
 export { TextArea as FormTextArea } from './textarea';
 
 // Layout components with Form prefix
 export { Footer as FormFooter } from './footer';
-export { Header as FormHeader } from './header';
 
 // Re-export controllers for advanced usage
 export { useCheckboxController } from './checkbox';
 export { useComboboxController } from './combobox';
 export { useDatePickerController } from './datePicker';
 export { useFooterController } from './footer';
-export { useHeaderController } from './header';
 export { useInputController } from './input';
 export { useSelectController } from './select';
 export { useTextareaController } from './textarea';
@@ -55,6 +51,12 @@ export type {
   ControllerResult as CheckboxControllerResult,
   Props as CheckboxProps,
 } from './checkbox/model/types';
+export type {
+  ControllerProps as ComboboxControllerProps,
+  ControllerResult as ComboboxControllerResult,
+  Option as ComboboxOption,
+  Props as ComboboxProps,
+} from './combobox/model/types';
 export type {
   ControllerProps as DatePickerControllerProps,
   ControllerResult as DatePickerControllerResult,
@@ -71,7 +73,6 @@ export type {
 export type {
   ControllerProps as SelectControllerProps,
   ControllerResult as SelectControllerResult,
-  Option as SelectOption,
   Props as SelectProps,
 } from './select/model/types';
 export type {
@@ -82,20 +83,8 @@ export type {
 
 // Layout types
 export type {
-  ControllerProps as ComboboxControllerProps,
-  ControllerResult as ComboboxControllerResult,
-  Option as ComboboxOption,
-  Props as ComboboxProps,
-} from './combobox/model/types';
-export type {
   ControllerProps as FooterControllerProps,
   ControllerResult as FooterControllerResult,
   Props as FooterProps,
 } from './footer/model/types';
-export type {
-  ControllerProps as HeaderControllerProps,
-  ControllerResult as HeaderControllerResult,
-  Props as HeaderProps,
-  WithProgressProps as HeaderWithProgressProps,
-  WithStepsProps as HeaderWithStepsProps,
-} from './header/model/types';
+export { Input as FormInput } from './input/Input';

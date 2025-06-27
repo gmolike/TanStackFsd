@@ -18,7 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from '~/shared/shadcn';
-import { CompactDeleteButton } from '~/shared/ui/data-table';
+import { CompactDeleteButton } from '~/shared/ui/dataTable';
 
 import { AddressCard } from './ui/AddressCard';
 import { InfoCards } from './ui/InfoCard';

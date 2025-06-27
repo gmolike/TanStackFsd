@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 
-import { cn } from '~/shared/lib/utils';
 import { Textarea as ShadcnTextarea } from '~/shared/shadcn';
 
+import { cn } from '../../../lib/utils';
 import { FormFieldWrapper } from '../fieldWrapper';
 
 import type { Props } from './model/types';

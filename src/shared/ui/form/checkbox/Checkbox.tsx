@@ -3,12 +3,12 @@ import type { FieldValues } from 'react-hook-form';
 
 import {
   Checkbox as ShadcnCheckbox,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  ShadCnFormControl,
+  ShadCnFormDescription,
+  ShadCnFormField,
+  ShadCnFormItem,
+  ShadCnFormLabel,
+  ShadCnFormMessage,
 } from '~/shared/shadcn';
 
 import type { Props } from './model/types';
@@ -45,6 +45,7 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   control,
   name,
   label,
+  headline,
   description,
   required,
   disabled,
@@ -60,13 +61,16 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
   });
 
   return (
-    <FormField
+    <ShadCnFormField
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
+        <ShadCnFormItem className={className}>
+          <div className="flex items-center justify-between">
+            {headline && <ShadCnFormLabel required={required}>{headline}</ShadCnFormLabel>}
+          </div>
           <div className={groupClasses}>
-            <FormControl>
+            <ShadCnFormControl>
               <ShadcnCheckbox
                 checked={field.value ?? false}
                 onCheckedChange={field.onChange}
@@ -74,16 +78,16 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
                 aria-required={required}
                 className="cursor-pointer"
               />
-            </FormControl>
+            </ShadCnFormControl>
             {label && (
-              <FormLabel required={required} className="font-normal">
+              <ShadCnFormLabel required={required} className="font-normal">
                 {label}
-              </FormLabel>
+              </ShadCnFormLabel>
             )}
           </div>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+          {description && <ShadCnFormDescription>{description}</ShadCnFormDescription>}
+          <ShadCnFormMessage />
+        </ShadCnFormItem>
       )}
     />
   );

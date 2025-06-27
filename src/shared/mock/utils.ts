@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/shared/mock/utils.ts
 
 /**
@@ -158,7 +159,7 @@ export const queryData = <T>(array: Array<T>, params: QueryParams = {}): Paginat
   if (params.search && params.searchFields?.length) {
     const searchLower = params.search.toLowerCase();
     result = result.filter((item) =>
-      params.searchFields!.some((field) => {
+      params.searchFields?.some((field) => {
         const value = (item as any)[field];
         return String(value).toLowerCase().includes(searchLower);
       }),
@@ -204,6 +205,7 @@ export const createApiResponse = <T>(
  * Simuliert einen API Fehler
  */
 export class ApiError extends Error {
+  status: number | undefined;
   constructor(
     public statusCode: number,
     message: string,

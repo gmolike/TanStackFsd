@@ -18,6 +18,10 @@ export type Props<TFieldValues extends FieldValues = FieldValues> = BaseFieldPro
    * @default 'right'
    */
   side?: LabelSide;
+  /**
+   * headline for the Checkbox
+   */
+  headline?: string;
 };
 
 /**

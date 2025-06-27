@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { FieldPath, FieldValues, PathValue } from 'react-hook-form';
+import type { FieldValues } from 'react-hook-form';
 
 import { X } from 'lucide-react';
 
@@ -28,9 +28,10 @@ import { useController } from './model/useController';
  * @param description - Helper text to display below the select
  * @param required - Whether the field is required
  * @param placeholder - Placeholder text when no option is selected
+ * @param testId - accessible in tests via data-testid
  * @param disabled - Whether the select is disabled
  * @param className - Additional CSS classes for the form item container
- * @param options - Array of options to display in the dropdown
+ * @param enumConfig - Array of options to display in the dropdown
  * @param emptyOption - Text for an empty/null option (e.g., "None selected")
  * @param showReset - Whether to show reset to default button
  * @param showClear - Whether to show clear selection button
@@ -50,34 +51,41 @@ import { useController } from './model/useController';
  * />
  * ```
  */
-const Component = <TFieldValues extends FieldValues = FieldValues>({
+const Component = <
+  TFieldValues extends FieldValues = FieldValues,
+  TEnum extends Record<string, string | number> = Record<string, string>,
+>({
   control,
   name,
   label,
   description,
   required,
   placeholder = 'Auswählen...',
+  testId,
   disabled,
   className,
-  options,
+  enumConfig,
   emptyOption,
   showReset = true,
   showClear = true,
-}: Props<TFieldValues>) => {
+}: Props<TFieldValues, TEnum>) => {
   const {
     isDisabled,
     hasEmptyOption,
-    selectOptions,
+    enumOptions,
     emptyOptionText,
     normalizedValue,
+    displayValue,
     open,
     setOpen,
+    onValueChange,
+    handleLocalReset,
   } = useController({
     control,
     name,
     disabled,
     required,
-    options,
+    enumConfig,
     emptyOption,
   });
 
@@ -93,22 +101,20 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
       render={(field) => (
         <div className="flex items-center gap-2">
           <ShadcnSelect
-            onValueChange={(value) => {
-              const newValue = value === '__empty__' ? '' : value;
-              field.onChange(newValue as PathValue<TFieldValues, FieldPath<TFieldValues>>);
-            }}
+            onValueChange={(value) => onValueChange(value, field.onChange)}
             value={normalizedValue}
             disabled={isDisabled}
             open={open}
             onOpenChange={setOpen}
           >
-            <SelectTrigger className="flex-1">
-              <SelectValue placeholder={placeholder} />
+            <SelectTrigger className="flex-1" data-testid={testId}>
+              <SelectValue placeholder={placeholder}>{displayValue}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {hasEmptyOption && <SelectItem value="__empty__">{emptyOptionText}</SelectItem>}
-              {selectOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
+
+              {enumOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
               ))}
@@ -119,11 +125,11 @@ const Component = <TFieldValues extends FieldValues = FieldValues>({
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => field.onChange('' as PathValue<TFieldValues, FieldPath<TFieldValues>>)}
+              onClick={() => handleLocalReset(() => field.onChange)}
               aria-label="Auswahl löschen"
               className="shrink-0"
             >
-              <X className="h-4 w-4" />
+              <X className="size-4" />
             </Button>
           )}
         </div>
